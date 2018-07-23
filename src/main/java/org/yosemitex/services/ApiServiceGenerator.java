@@ -8,6 +8,7 @@ import org.yosemitex.data.util.GsonEosTypeAdapterFactory;
 import org.yosemitex.exception.EosApiError;
 import org.yosemitex.exception.EosApiErrorCode;
 import org.yosemitex.exception.EosApiException;
+import org.yosemitex.util.Async;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -16,8 +17,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.util.concurrent.CompletableFuture;
 
-public class EosApiServiceGenerator {
+public class ApiServiceGenerator {
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder().addInterceptor(new HostInterceptor());
 
@@ -53,6 +55,10 @@ public class EosApiServiceGenerator {
         } catch (IOException e) {
             throw new EosApiException(e);
         }
+    }
+
+    public static <T> CompletableFuture<T> executeAsync(Call<T> call) {
+        return Async.run(() -> executeSync(call));
     }
 
     /**

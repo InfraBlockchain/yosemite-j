@@ -13,42 +13,42 @@ public class EosApiRestClientImpl implements EosApiRestClient {
     private final EosWalletApiService eosWalletApiService;
 
     public EosApiRestClientImpl(String baseUrl) {
-        eosChainApiService = EosApiServiceGenerator.createService(EosChainApiService.class, baseUrl);
-        eosWalletApiService = EosApiServiceGenerator.createService(EosWalletApiService.class, baseUrl);
+        eosChainApiService = ApiServiceGenerator.createService(EosChainApiService.class, baseUrl);
+        eosWalletApiService = ApiServiceGenerator.createService(EosWalletApiService.class, baseUrl);
     }
 
     @Override
-    public Info getInfo() {
-        return EosApiServiceGenerator.executeSync(eosChainApiService.getInfo());
+    public Request<Info> getInfo() {
+        return new Request<>(eosChainApiService.getInfo());
     }
 
     @Override
-    public Block getBlock(String blockNumberorId) {
-        return EosApiServiceGenerator.executeSync(eosChainApiService.getBlock(blockNumberorId));
+    public Request<Block> getBlock(String blockNumberorId) {
+        return new Request<>(eosChainApiService.getBlock(blockNumberorId));
     }
 
     @Override
-    public AbiJsonToBinRes abiJsonToBin(AbiJsonToBinReq req) {
-        return EosApiServiceGenerator.executeSync(eosChainApiService.abiJsonToBin(req));
+    public Request<AbiJsonToBinRes> abiJsonToBin(AbiJsonToBinReq req) {
+        return new Request<>(eosChainApiService.abiJsonToBin(req));
     }
 
     @Override
-    public SignedTransaction signTransaction(SignedTransaction transactionToSign, List<String> pubKeys, String chainid) {
+    public Request<SignedTransaction> signTransaction(SignedTransaction transactionToSign, List<String> pubKeys, String chainid) {
         Collection collectionReq = new ArrayList();
         collectionReq.add(transactionToSign);
         collectionReq.add(pubKeys);
         collectionReq.add(chainid);
 
-        return EosApiServiceGenerator.executeSync(eosWalletApiService.signTransaction(collectionReq));
+        return new Request<>(eosWalletApiService.signTransaction(collectionReq));
     }
 
     @Override
-    public GetRequiredKeysRes getRequiredKeys(GetRequiredKeysReq req) {
-        return EosApiServiceGenerator.executeSync(eosChainApiService.getRequiredKeys(req));
+    public Request<GetRequiredKeysRes> getRequiredKeys(GetRequiredKeysReq req) {
+        return new Request<>(eosChainApiService.getRequiredKeys(req));
     }
 
     @Override
-    public PushedTransaction pushTransaction(PackedTransaction req) {
-        return EosApiServiceGenerator.executeSync(eosChainApiService.pushTransaction(req));
+    public Request<PushedTransaction> pushTransaction(PackedTransaction req) {
+        return new Request<>(eosChainApiService.pushTransaction(req));
     }
 }
