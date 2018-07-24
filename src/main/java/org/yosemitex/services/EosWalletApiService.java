@@ -6,8 +6,12 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface EosWalletApiService {
+
+    @POST("/v1/wallet/get_public_keys")
+    Call<List<String>> getPublicKeys();
 
     @POST("/v1/wallet/sign_transaction")
     Call<SignedTransaction> signTransaction(@Body Collection transactionData);

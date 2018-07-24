@@ -3,6 +3,8 @@ package org.yosemitex.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import okhttp3.OkHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yosemitex.data.remote.HostInterceptor;
 import org.yosemitex.data.util.GsonEosTypeAdapterFactory;
 import org.yosemitex.exception.EosApiError;
@@ -20,6 +22,8 @@ import java.lang.annotation.Annotation;
 import java.util.concurrent.CompletableFuture;
 
 public class ApiServiceGenerator {
+
+    final static Logger logger = LoggerFactory.getLogger(ApiServiceGenerator.class);
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder().addInterceptor(new HostInterceptor());
 
@@ -49,6 +53,8 @@ public class ApiServiceGenerator {
             if (response.isSuccessful()) {
                 return response.body();
             } else {
+                logger.error(call.toString());
+                logger.error(response.toString());
                 EosApiError apiError = getEosApiError(response);
                 throw new EosApiException(apiError.getDetailedMessage(), EosApiErrorCode.get(apiError.getEosErrorCode()));
             }

@@ -22,5 +22,7 @@ public interface EosApiRestClient {
     Request<PushedTransaction> pushTransaction(PackedTransaction req);
 
     /* Wallet */
+    Request<List<String>> getPublicKeys();
+
     Request<SignedTransaction> signTransaction(SignedTransaction transactionToSign, List<String> pubKeys, String chainId);
 }

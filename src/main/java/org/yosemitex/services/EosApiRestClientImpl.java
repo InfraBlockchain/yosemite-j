@@ -1,6 +1,9 @@
 package org.yosemitex.services;
 
-import org.yosemitex.data.remote.model.api.*;
+import org.yosemitex.data.remote.model.api.AbiJsonToBinReq;
+import org.yosemitex.data.remote.model.api.AbiJsonToBinRes;
+import org.yosemitex.data.remote.model.api.GetRequiredKeysReq;
+import org.yosemitex.data.remote.model.api.GetRequiredKeysRes;
 import org.yosemitex.data.remote.model.chain.*;
 
 import java.util.ArrayList;
@@ -33,16 +36,6 @@ public class EosApiRestClientImpl implements EosApiRestClient {
     }
 
     @Override
-    public Request<SignedTransaction> signTransaction(SignedTransaction transactionToSign, List<String> pubKeys, String chainid) {
-        Collection collectionReq = new ArrayList();
-        collectionReq.add(transactionToSign);
-        collectionReq.add(pubKeys);
-        collectionReq.add(chainid);
-
-        return new Request<>(eosWalletApiService.signTransaction(collectionReq));
-    }
-
-    @Override
     public Request<GetRequiredKeysRes> getRequiredKeys(GetRequiredKeysReq req) {
         return new Request<>(eosChainApiService.getRequiredKeys(req));
     }
@@ -50,5 +43,20 @@ public class EosApiRestClientImpl implements EosApiRestClient {
     @Override
     public Request<PushedTransaction> pushTransaction(PackedTransaction req) {
         return new Request<>(eosChainApiService.pushTransaction(req));
+    }
+
+    @Override
+    public Request<List<String>> getPublicKeys() {
+        return new Request<>(eosWalletApiService.getPublicKeys());
+    }
+
+    @Override
+    public Request<SignedTransaction> signTransaction(SignedTransaction transactionToSign, List<String> pubKeys, String chainid) {
+        Collection collectionReq = new ArrayList();
+        collectionReq.add(transactionToSign);
+        collectionReq.add(pubKeys);
+        collectionReq.add(chainid);
+
+        return new Request<>(eosWalletApiService.signTransaction(collectionReq));
     }
 }

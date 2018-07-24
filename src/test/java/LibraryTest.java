@@ -11,18 +11,14 @@ import org.yosemitex.data.remote.model.api.AbiJsonToBinReq;
 import org.yosemitex.data.remote.model.api.AbiJsonToBinRes;
 import org.yosemitex.data.remote.model.api.GetRequiredKeysReq;
 import org.yosemitex.data.remote.model.api.GetRequiredKeysRes;
-import org.yosemitex.data.remote.model.chain.Action;
-import org.yosemitex.data.remote.model.chain.Info;
-import org.yosemitex.data.remote.model.chain.PackedTransaction;
-import org.yosemitex.data.remote.model.chain.SignedTransaction;
+import org.yosemitex.data.remote.model.chain.*;
 import org.yosemitex.services.EosApiRestClient;
 import org.yosemitex.services.EosApiRestClientImpl;
+import org.yosemitex.services.Eosj;
 import org.yosemitex.util.Utils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertTrue;
 
@@ -34,7 +30,26 @@ public class LibraryTest {
     public void before() throws Exception {
 
     }
-//
+
+    @Test
+    public void testEosj() {
+
+        EosApiRestClient apiClient = new EosApiRestClientImpl("http://127.0.0.1:8888");
+
+        Eosj eosj = new Eosj(apiClient);
+
+        String contract = "eosio.token"; // sometimes called `code`
+        String action = "transfer";
+        String data = "{\"from\":\"user\",\"to\":\"tester\",\"quantity\":\"2.0000 SYS\",\"memo\":\"wow\"}";
+        String[] permissions = new String[]{"user@active"};
+
+        PushedTransaction pushedTransaction = eosj.pushAction(contract, action, data, permissions).join();
+
+        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
+
+        assertTrue("Success", true);
+    }
+
 //    @Test
 //    public void testSynchronousRestApiClientTest() throws Exception {
 //
@@ -93,88 +108,4 @@ public class LibraryTest {
 //
 //        assertTrue("Success", true);
 //    }
-
-    @Test
-    public void testAsyncRestApiClientTest() throws Exception {
-
-        EosApiRestClient apiClient = new EosApiRestClientImpl("http://127.0.0.1:8888");
-
-        // Push Contract Tx by packing the data
-
-        String contract = "eosio.token"; // sometimes called `code`
-        String action = "transfer";
-        String args = "{\"from\":\"user\",\"to\":\"tester\",\"quantity\":\"1.0000 SYS\",\"memo\":\"wow\"}";
-        String[] permissions = new String[]{"user@active"};
-
-        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
-
-            AbiJsonToBinReq abiJsonToBinReq = new AbiJsonToBinReq(contract, action, args);
-
-            Info info = null;
-            try {
-                info = apiClient.getInfo().execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            logger.debug(info.getBrief());
-
-            AbiJsonToBinRes abiJsonToBinRes = null;
-            try {
-                abiJsonToBinRes = apiClient.abiJsonToBin(abiJsonToBinReq).execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            logger.debug(abiJsonToBinRes.getBinargs());
-
-            Action actionReq = new Action(contract, action);
-            actionReq.setAuthorization(permissions);
-            actionReq.setData(abiJsonToBinRes.getBinargs());
-
-            SignedTransaction txReq = new SignedTransaction();
-            txReq.addAction(actionReq);
-            txReq.setReferenceBlock(info.getHeadBlockId());
-            txReq.setExpiration(info.getTimeAfterHeadBlockTime(300000));
-
-            List<String> pubKeys = new ArrayList<>();
-            pubKeys.add("EOS8ePyQrK7XZKUKSbhKuGVCLc4XfFp4N3sf3uCZSsEDTzZXLfNVj");
-
-            GetRequiredKeysReq getRequiredKeysReq = new GetRequiredKeysReq(txReq, pubKeys);
-
-            GetRequiredKeysRes getRequiredKeysRes = null;
-            try {
-                getRequiredKeysRes = apiClient.getRequiredKeys(getRequiredKeysReq).execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            List<String> keys = getRequiredKeysRes.getRequiredKeys();
-
-            for (String key : keys) {
-                logger.debug("Pub key: " + key);
-            }
-
-            SignedTransaction signedTx = null;
-            try {
-                signedTx = apiClient.signTransaction(txReq, keys, info.getChainId()).execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            logger.debug("\nSigned Transaction:\n" + Utils.prettyPrintJson(signedTx));
-
-            return signedTx;
-        }).thenCompose(signedTx -> {
-
-            PackedTransaction packedTx = new PackedTransaction(signedTx);
-
-            return apiClient.pushTransaction(packedTx).executeAsync().thenApply(pushedTransaction -> {
-                logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-                return pushedTransaction.getTransactionId();
-            });
-        });
-
-        assertTrue("Success", future.get() != null);
-    }
 }
