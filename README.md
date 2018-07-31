@@ -9,11 +9,13 @@ The first step would be to implement a wrapper for basic HTTP APIs and then the 
 
 ### Blockchain Setup
 Please refer to the [Yosemite Blockchain Guide](https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/yosemite_bios/yosemite_bios_testnet_permissioned.md) for getting prepared.
-You should know that your HTTP endpoints for blockchain node and `keosd` for your wallet access.
+You should be aware of HTTP endpoints for blockchain node and `keosd` for your wallet access.
 
 Public testnet(http://testnet.yosemitelabs.org:8888) is already given for developers and it is recommended to run `keosd` in secure environment. 
 
 ### Dependency
+
+#### Build and add archive
 1. Build the library project
 ```
 > git clone git@github.com:YosemiteLabs/yosemite-j.git
@@ -24,6 +26,20 @@ Public testnet(http://testnet.yosemitelabs.org:8888) is already given for develo
 2. Get your archive
 ```
 yosemite-j/build/libs/yxj-{version}.jar
+```
+
+#### Gradle
+```
+compile ('org.yosemite:yosemitej:0.1.0-SNAPSHOT')
+```
+
+#### Maven
+```
+<dependency>
+  <groupId>org.yosemite</groupId>
+  <artifactId>yosemitej</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+</dependency>
 ```
 
 ## Using HTTP APIs

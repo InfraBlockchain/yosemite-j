@@ -9,6 +9,7 @@
 plugins {
     // Apply the java-library plugin to add support for Java Library
     id 'java-library'
+    id 'maven-publish'
 }
 
 ext {
@@ -56,9 +57,14 @@ repositories {
     // Use jcenter for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
+    mavenLocal()
 }
 
-version = '0.1.0'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+version = '0.1.0-SNAPSHOT'
+group = 'org.yosemite'
 
 jar {
     manifest {
