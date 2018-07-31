@@ -13,11 +13,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-
-/**
- * Created by swapnibble on 2017-08-09.
- */
-
 public class CryptUtil {
 
     public static byte[] aesEncrypt( byte[] key, byte[] data, byte[] iv ) {

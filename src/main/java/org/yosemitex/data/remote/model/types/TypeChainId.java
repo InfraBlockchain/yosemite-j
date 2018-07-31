@@ -26,9 +26,6 @@ package org.yosemitex.data.remote.model.types;
 
 import org.yosemitex.crypto.digest.Sha256;
 
-/**
- * Created by swapnibble on 2017-10-30.
- */
 
 public class TypeChainId {
     private final Sha256 mId;

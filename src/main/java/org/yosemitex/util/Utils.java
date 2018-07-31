@@ -28,10 +28,6 @@ import org.yosemitex.data.util.GsonEosTypeAdapterFactory;
 
 import java.io.Closeable;
 
-/**
- * Created by swapnibble on 2017-10-18.
- */
-
 public class Utils {
 
 

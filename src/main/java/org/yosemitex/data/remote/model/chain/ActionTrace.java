@@ -5,10 +5,6 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-/**
- * Created by swapnibble on 2018-03-20.
- */
-
 public class ActionTrace {
 
     @Expose

@@ -8,7 +8,7 @@ import org.yosemitex.data.remote.model.chain.*;
 
 import java.util.List;
 
-public interface EosApiRestClient {
+public interface YxApiRestClient {
 
     /* Chain */
     Request<Info> getInfo();

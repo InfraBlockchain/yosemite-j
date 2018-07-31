@@ -24,11 +24,10 @@
 package org.yosemitex.util;
 
 
-/**
- * Created by swapnibble on 2017-11-10.
- */
-
 public final class Consts {
+
+    public static final String YX_NATIVE_TOKEN_CONTRACT = "yx.ntoken";
+
     public static final boolean DEFAULT_SKIP_SIGNING = true;
 
     public static final String DEFAULT_SERVANT_ACCOUNT = "eosio";
@@ -36,17 +35,10 @@ public final class Consts {
     public static final String  DEFAULT_WALLET_NAME = "default";
     public static final boolean DEFAULT_SAVE_PASSWORD= true;
 
-    public static final String SAMPLE_PRIV_KEY_FOR_TEST = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3";
-
-    public static final String EOSIO_SYSTEM_ACCOUNT = "eosio";
-    public static final String EOSIO_TOKEN_CONTRACT = "eosio.token";
     public static final int TX_EXPIRATION_IN_MILSEC = 30000;
 
-    public static final String DEFAULT_SYMBOL_STRING = "SYS";
+    public static final String DEFAULT_SYMBOL_STRING = "DKRW";
     public static final int DEFAULT_SYMBOL_PRECISION = 4;
-
-    public static final String EOS_SYMBOL_STRING = "EOS";
-
 
     // constants from /libraries/include/eosio/chain/config.hpp
     public static final int DEFAULT_BASE_PER_TRANSACTION_NET_USAGE  = 100;

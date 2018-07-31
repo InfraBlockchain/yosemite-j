@@ -25,10 +25,6 @@ package org.yosemitex.data.remote.model.types;
 
 import java.util.Collection;
 
-/**
- * Created by swapnibble on 2017-09-12.
- */
-
 public interface EosType {
     class InsufficientBytesException extends Exception {
 

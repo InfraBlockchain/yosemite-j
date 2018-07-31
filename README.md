@@ -1,9 +1,91 @@
-# Yosemite Chain Java API
+# Yosemite J - Yosemite Chain Java API
 
-This version is currently working with EOS mainnet `v1.0.7` and will be converted to the Yosemite Chain Java API.
-The project's goal would be something like Java version of `cloes` in `EOS` which provides convenient interfaces for the useful commands such as pushing action / multisig.
+This version is currently working with Yosemite Chain `yosemite-master` branch and `e9816f3`commit.
+The project's goal would be something like Java version of `cloes` in `EOS` which provides convenient interfaces for the useful commands such as pushing action including some native actions.
 
 The first step would be to implement a wrapper for basic HTTP APIs and then the other convenient interface would be built on top of it.
+
+## Getting Started
+
+### Blockchain Setup
+Please refer to the [Yosemite Blockchain Guide](https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/yosemite_bios/yosemite_bios_testnet_permissioned.md) for getting prepared.
+You should know that your HTTP endpoints for blockchain node and `keosd` for your wallet access.
+
+Public testnet(http://testnet.yosemitelabs.org:8888) is already given for developers and it is recommended to run `keosd` in secure environment. 
+
+### Dependency
+1. Build the library project
+```
+> git clone git@github.com:YosemiteLabs/yosemite-j.git
+> cd yosemite-j 
+> ./gradlew build
+```
+
+2. Get your archive
+```
+yosemite-j/build/libs/yxj-{version}.jar
+```
+
+## Using HTTP APIs
+Let's assume we have the following setups
+* chain HTTP endpoint: http://testnet.yosemitelabs.org:8888
+* wallet HTTP endpoint: http://127.0.0.1:8900
+
+_Please make sure that you have opened and unlocked your wallet_
+
+First create the http service.
+```java
+YxApiRestClient apiClient = new YxApiRestClientImpl("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+```
+
+### To Send Synchronous Requests
+```java
+Info info = apiClient.getInfo().execute();
+```
+
+### To Send Asynchronous Requests
+Asynchronous calls use `Executors.newCachedThreadPool()` to handle requests.
+```java
+Future<Info> infoFuture = apiClient.getInfo().executeAsync();
+
+// ...
+
+Info info = infoFuture.get();
+```
+
+## Using Yxj
+`Yxj` is a helper class that encapsulates complexities of set of APIs to do useful actions.
+
+```java
+YxApiRestClient apiClient = new YxApiRestClientImpl("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+
+Yxj yxj = new Yxj(apiClient);
+```
+
+### Pushing action
+If you want to push an action to a deployed contract on the blockchain, you can use `pushAction` method.
+API calls are asynchronously composed using `CompletableFuture` in each method.
+
+```java
+// contract and authorization information
+String contract = "yx.token";
+String action = "transfer";
+String data = "{\"from\":\"user\",\"to\":\"tester\",\"quantity\":\"1000.0000 DKRW\",\"memo\":\"test\"}";
+String[] permissions = new String[]{"user@active"};
+
+PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, permissions).join();
+
+String txId = pushedTransaction.getTransactionId();
+``` 
+
+### Example: Issuing Native Token
+Please refer to the [Yosemite Blockchain Guide](https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/yosemite_bios/yosemite_bios_testnet_permissioned.md) before you do actions related to native tokens.
+You are required to provide appropriate setups for accounts for this action.
+```java
+PushedTransaction pushedTransaction = yxj.issueNativeToken("producer.a", "10000.0000 DKRW", "sysdepo", "memo", new String[]{"sysdepo@active"}).join();
+```
+
+## References 
 
 ## Supported HTTP APIs
 
@@ -35,7 +117,7 @@ The first step would be to implement a wrapper for basic HTTP APIs and then the 
  - [ ] import_key
  - [ ] list_wallets
  - [ ] list_keys
- - [ ] get_public_keys
+ - [x] get_public_keys
  - [ ] set_timeout
  - [x] sign_transaction
  - [ ] set_dir
@@ -62,6 +144,9 @@ The first step would be to implement a wrapper for basic HTTP APIs and then the 
  - [ ] get_greylist
  - [ ] add_greylist_accounts
  - [ ] remove_grelist_accounts
+ 
+### Yxj APIs
+[API references](https://github.com/YosemiteLabs/yosemite-j) - Not available yet
  
 ## License
 

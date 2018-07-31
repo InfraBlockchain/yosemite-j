@@ -6,7 +6,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
 
-public interface EosChainApiService {
+public interface YxChainApiService {
 
     @POST("/v1/chain/get_info")
     Call<Info> getInfo();

@@ -32,8 +32,6 @@ import java.security.SecureRandom;
 
 
 /**
- * Created by swapnibble on 2017-09-25.
- * <p>
  * Reference:
  * https://github.com/EOSIO/eosjs-ecc
  * https://github.com/EOSIO/eosjs-ecc/blob/master/src/ecdsa.js

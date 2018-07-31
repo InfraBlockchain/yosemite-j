@@ -23,9 +23,6 @@
  */
 package org.yosemitex.data.remote.model.types;
 
-/**
- * Created by swapnibble on 2018-05-16.
- */
 public class TypeExtension implements EosType.Packer {
 
 

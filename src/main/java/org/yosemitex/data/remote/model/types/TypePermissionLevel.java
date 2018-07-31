@@ -26,10 +26,6 @@ package org.yosemitex.data.remote.model.types;
 import com.google.gson.annotations.Expose;
 
 
-/**
- * Created by swapnibble on 2017-09-12.
- */
-
 public class TypePermissionLevel implements EosType.Packer {
 
     @Expose

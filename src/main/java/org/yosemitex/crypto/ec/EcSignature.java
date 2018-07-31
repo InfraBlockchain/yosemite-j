@@ -30,10 +30,6 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 
-/**
- * Created by swapnibble on 2017-09-20.
- */
-
 public class EcSignature {
     private static final String PREFIX = "SIG";
 

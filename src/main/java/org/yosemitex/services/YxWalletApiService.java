@@ -8,7 +8,7 @@ import retrofit2.http.POST;
 import java.util.Collection;
 import java.util.List;
 
-public interface EosWalletApiService {
+public interface YxWalletApiService {
 
     @POST("/v1/wallet/get_public_keys")
     Call<List<String>> getPublicKeys();

@@ -4,9 +4,6 @@ import com.google.gson.annotations.Expose;
 import org.yosemitex.data.remote.model.types.TypeName;
 import org.yosemitex.util.StringUtils;
 
-/**
- * Created by swapnibble on 2018-04-16.
- */
 public class GetRequestForCurrency {
     @Expose
     protected boolean json = false;

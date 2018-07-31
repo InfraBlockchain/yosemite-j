@@ -15,7 +15,6 @@
  */
 
 /**
- * modified by swapnibble from plactal.io
  * This code was extracted from the Java cryptography library from
  * www.bouncycastle.org. The code has been formatted to comply with the rest of
  * the formatting in this library.

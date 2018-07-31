@@ -35,10 +35,6 @@ import org.yosemitex.data.remote.model.types.TypeChainId;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by swapnibble on 2017-09-11.
- */
-
 public class SignedTransaction extends Transaction {
 
     @Expose

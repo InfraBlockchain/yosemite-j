@@ -25,10 +25,6 @@ package org.yosemitex.data.remote.model.types;
 
 import org.yosemitex.crypto.util.HexUtils;
 
-/**
- * Created by swapnibble on 2017-09-12.
- */
-
 public class EosNewAccount implements EosType.Packer {
     private TypeAccountName mCreator;
     private TypeAccountName mNewName;

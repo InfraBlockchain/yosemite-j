@@ -27,9 +27,6 @@ package org.yosemitex.data.remote.model.types;
 import com.google.gson.annotations.Expose;
 import org.yosemitex.crypto.util.HexUtils;
 
-/**
- * Created by swapnibble on 2017-09-15.
- */
 
 public class EosTransfer implements EosType.Packer {
     @Expose

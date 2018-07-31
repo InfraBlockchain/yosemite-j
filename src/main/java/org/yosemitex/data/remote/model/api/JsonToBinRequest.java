@@ -28,10 +28,6 @@ import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-/**
- * Created by swapnibble on 2017-11-17.
- */
-
 public class JsonToBinRequest {
     @Expose
     private String code;

@@ -23,10 +23,6 @@
  */
 package org.yosemitex.data.remote.model.chain;
 
-/**
- * Created by swapnibble on 2017-09-11.
- */
-
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

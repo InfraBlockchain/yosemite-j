@@ -28,12 +28,6 @@ import org.yosemitex.crypto.util.HexUtils;
 
 import java.math.BigInteger;
 
-
-
-/**
- * Created by swapnibble on 2018-02-02.
- */
-
 public  class  CurveParam {
     public static final int SECP256_K1 = 0;
     public static final int SECP256_R1 = 1;

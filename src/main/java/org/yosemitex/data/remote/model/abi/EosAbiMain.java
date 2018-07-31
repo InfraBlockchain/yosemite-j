@@ -7,9 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by swapnibble on 2017-12-22.
- */
 
 public class EosAbiMain {
 

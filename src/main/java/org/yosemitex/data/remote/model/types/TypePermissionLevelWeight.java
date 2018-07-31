@@ -23,10 +23,6 @@
  */
 package org.yosemitex.data.remote.model.types;
 
-/**
- * Created by swapnibble on 2017-09-12.
- */
-
 public class TypePermissionLevelWeight implements EosType.Packer {
     private TypePermissionLevel mPermission;
     private short mWeight;

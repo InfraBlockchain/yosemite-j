@@ -23,9 +23,6 @@
  */
 package org.yosemitex.util;
 
-/**
- * Created by swapnibble on 2017-09-28.
- */
 
 public class RefValue<T> {
     public T data;

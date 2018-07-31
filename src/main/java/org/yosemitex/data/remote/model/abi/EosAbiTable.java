@@ -4,9 +4,6 @@ import com.google.gson.annotations.Expose;
 
 import java.util.List;
 
-/**
- * Created by swapnibble on 2017-12-26.
- */
 
 public class EosAbiTable {
 

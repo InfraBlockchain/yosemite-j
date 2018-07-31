@@ -26,9 +26,6 @@ package org.yosemitex.data.remote.model.types;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by swapnibble on 2017-09-12.
- */
 
 public class TypeAuthority implements EosType.Packer {
 

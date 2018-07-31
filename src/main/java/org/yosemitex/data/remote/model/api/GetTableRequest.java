@@ -3,10 +3,6 @@ package org.yosemitex.data.remote.model.api;
 import com.google.gson.annotations.Expose;
 import org.yosemitex.util.StringUtils;
 
-/**
- * Created by swapnibble on 2017-09-15.
- */
-
 public class GetTableRequest {
     private static final int DEFAULT_FETCH_LIMIT = 10;
 

@@ -28,9 +28,6 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-/**
- * Created by swapnibble on 2017-11-17.
- */
 
 public class JsonToBinResponse {
     @Expose

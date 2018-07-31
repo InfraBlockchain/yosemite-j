@@ -29,10 +29,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-/**
- * Created by swapnibble on 2017-09-12.
- */
-
 public class TypeAsset implements EosType.Packer {
 
     public static final long MAX_AMOUNT = (1 << 62) - 1;

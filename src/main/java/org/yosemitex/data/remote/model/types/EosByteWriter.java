@@ -26,10 +26,6 @@ package org.yosemitex.data.remote.model.types;
 import java.util.Collection;
 
 
-/**
- * Created by swapnibble on 2017-09-12.
- */
-
 public class EosByteWriter implements EosType.Writer {
     private byte[] _buf;
     private int _index;
@@ -145,8 +141,6 @@ public class EosByteWriter implements EosType.Writer {
 
     @Override
     public void putVariableUInt(long val ) {
-
-        System.out.print("variable value: " + val + "\n");
 
         do {
             byte b = (byte)((val) & 0x7f);

@@ -3,9 +3,6 @@ package org.yosemitex.data.remote.model.api;
 import com.google.gson.annotations.Expose;
 import org.yosemitex.data.remote.model.types.TypeAccountName;
 
-/**
- * Created by swapnibble on 2018-04-16.
- */
 public class GetBalanceRequest extends GetRequestForCurrency {
 
     @Expose

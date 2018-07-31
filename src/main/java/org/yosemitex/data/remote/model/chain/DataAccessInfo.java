@@ -5,10 +5,6 @@ import org.yosemitex.data.remote.model.types.TypeAccountName;
 import org.yosemitex.data.remote.model.types.TypeScopeName;
 
 
-/**
- * Created by swapnibble on 2018-03-20.
- */
-
 public class DataAccessInfo {
     //public enum Type { read, write };
 

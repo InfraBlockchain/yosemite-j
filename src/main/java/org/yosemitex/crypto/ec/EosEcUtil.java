@@ -33,10 +33,6 @@ import org.yosemitex.util.StringUtils;
 import java.util.Arrays;
 import java.util.regex.PatternSyntaxException;
 
-/**
- * Created by swapnibble on 2018-02-02.
- */
-
 public class EosEcUtil {
 
     public static final String PREFIX_K1 = "K1";

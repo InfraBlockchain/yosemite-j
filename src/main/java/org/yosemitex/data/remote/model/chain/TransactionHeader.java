@@ -12,10 +12,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-/**
- * Created by swapnibble on 2018-03-19.
- */
-
 public class TransactionHeader implements EosType.Packer {
     @Expose
     private String expiration;

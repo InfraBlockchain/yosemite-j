@@ -28,9 +28,6 @@ import org.yosemitex.util.Consts;
 import org.yosemitex.util.StringUtils;
 import org.yosemitex.util.Utils;
 
-/**
- * Created by swapnibble on 2018-07-11.
- */
 public class TypeSymbol implements EosType.Packer {
     private static final int MAX_PRECISION = 18;
 

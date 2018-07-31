@@ -32,10 +32,6 @@ import org.yosemitex.data.remote.model.types.EosByteWriter;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-/**
- * Created by swapnibble on 2017-09-29.
- */
-
 public class EcDsa {
 
     private static class SigChecker {

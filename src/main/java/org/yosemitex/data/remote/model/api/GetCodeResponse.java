@@ -5,9 +5,6 @@ import com.google.gson.annotations.Expose;
 import org.yosemitex.crypto.digest.Sha256;
 import org.yosemitex.util.StringUtils;
 
-/**
- * Created by swapnibble on 2018-01-10.
- */
 
 public class GetCodeResponse {
     @Expose

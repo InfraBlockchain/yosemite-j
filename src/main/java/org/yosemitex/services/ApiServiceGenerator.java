@@ -53,7 +53,7 @@ public class ApiServiceGenerator {
             if (response.isSuccessful()) {
                 return response.body();
             } else {
-                logger.error(call.toString());
+                logger.error(call.request().toString());
                 logger.error(response.toString());
                 EosApiError apiError = getEosApiError(response);
                 throw new EosApiException(apiError.getDetailedMessage(), EosApiErrorCode.get(apiError.getEosErrorCode()));

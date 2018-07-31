@@ -36,10 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by swapnibble on 2017-09-11.
- */
-
 public class Action implements EosType.Packer {
     @Expose
     private TypeAccountName account;

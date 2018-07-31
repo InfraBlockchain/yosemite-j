@@ -30,10 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * Created by swapnibble on 2017-11-15.
- */
-
 public class RequiredKeysResponse {
 
     @Expose

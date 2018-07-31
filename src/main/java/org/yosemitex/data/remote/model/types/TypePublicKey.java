@@ -25,9 +25,6 @@ package org.yosemitex.data.remote.model.types;
 
 import org.yosemitex.crypto.ec.EosPublicKey;
 
-/**
- * Created by swapnibble on 2018-03-20.
- */
 
 public class TypePublicKey implements EosType.Packer {
     private static final byte PACK_VAL_CURVE_PARAM_TYPE_K1 = 0;

@@ -25,10 +25,6 @@ package org.yosemitex.data.remote.model.types;
 
 import java.util.Arrays;
 
-/**
- * Created by swapnibble on 2017-09-12.
- */
-
 public class TypeName implements EosType.Packer {
     private static final String CHAR_MAP = ".12345abcdefghijklmnopqrstuvwxyz";
 

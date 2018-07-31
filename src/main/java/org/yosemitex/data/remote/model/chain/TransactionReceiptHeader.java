@@ -3,9 +3,6 @@ package org.yosemitex.data.remote.model.chain;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-/**
- * Created by swapnibble on 2018-04-04.
- */
 
 public class TransactionReceiptHeader {
 

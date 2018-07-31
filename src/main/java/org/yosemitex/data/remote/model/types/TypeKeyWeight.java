@@ -23,10 +23,6 @@
  */
 package org.yosemitex.data.remote.model.types;
 
-/**
- * Created by swapnibble on 2017-09-12.
- */
-
 public class TypeKeyWeight implements EosType.Packer {
     private TypePublicKey mPubKey;
     private short mWeight = 0;

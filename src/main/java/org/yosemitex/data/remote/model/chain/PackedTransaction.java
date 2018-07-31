@@ -11,10 +11,6 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-/**
- * Created by swapnibble on 2018-03-19.
- */
-
 public class PackedTransaction {
 
     public enum CompressType {none, zlib}
