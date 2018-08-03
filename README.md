@@ -51,7 +51,7 @@ _Please make sure that you have opened and unlocked your wallet_
 
 First create the http service.
 ```java
-YxApiRestClient apiClient = new YxApiRestClientImpl("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 ```
 
 ### To Send Synchronous Requests
@@ -69,13 +69,12 @@ Future<Info> infoFuture = apiClient.getInfo().executeAsync();
 Info info = infoFuture.get();
 ```
 
-## Using Yxj
-`Yxj` is a helper class that encapsulates complexities of set of APIs to do useful actions.
+## Using YosemiteJ
+`YosemiteJ` is a helper class that encapsulates complexities of set of APIs to do useful actions.
 
 ```java
-YxApiRestClient apiClient = new YxApiRestClientImpl("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
-
-Yxj yxj = new Yxj(apiClient);
+YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+YosemiteJ yxj = new YosemiteJ(apiClient);
 ```
 
 ### Pushing action
@@ -84,10 +83,10 @@ API calls are asynchronously composed using `CompletableFuture` in each method.
 
 ```java
 // contract and authorization information
-String contract = "yx.token";
+String contract = "yx.ntoken";
 String action = "transfer";
-String data = "{\"from\":\"user\",\"to\":\"tester\",\"quantity\":\"1000.0000 DKRW\",\"memo\":\"test\"}";
-String[] permissions = new String[]{"user@active"};
+String data = "{\"from\":\"user1\",\"to\":\"user2\",\"quantity\":\"1000.0000 DKRW\",\"memo\":\"test\"}";
+String[] permissions = new String[]{"user1@active"};
 
 PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, permissions).join();
 
@@ -161,7 +160,7 @@ PushedTransaction pushedTransaction = yxj.issueNativeToken("producer.a", "10000.
  - [ ] add_greylist_accounts
  - [ ] remove_grelist_accounts
  
-### Yxj APIs
+### YosemiteJ APIs
 [API references](https://github.com/YosemiteLabs/yosemite-j) - Not available yet
  
 ## License
