@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 
-public class AbiJsonToBinReq {
+public class AbiJsonToBinRequest {
 
     @Expose
     private String code;
@@ -15,7 +15,7 @@ public class AbiJsonToBinReq {
     @Expose
     private JsonElement args;
 
-    public AbiJsonToBinReq(String code, String action, String args) {
+    public AbiJsonToBinRequest(String code, String action, String args) {
         this.code = code;
         this.action = action;
         this.args = new JsonParser().parse(args);

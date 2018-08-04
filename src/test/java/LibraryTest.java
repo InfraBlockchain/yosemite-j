@@ -1,12 +1,15 @@
-import io.yosemite.services.YosemiteApiClientFactory;
+import io.yosemite.data.remote.model.chain.Info;
+import io.yosemite.data.remote.model.response.history.action.Action;
+import io.yosemite.data.remote.model.response.history.action.Actions;
+import io.yosemite.services.*;
+import io.yosemite.util.Consts;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.yosemite.data.remote.model.chain.PushedTransaction;
-import io.yosemite.services.YosemiteApiRestClient;
-import io.yosemite.services.YosemiteApiRestClientImpl;
-import io.yosemite.services.YosemiteJ;
 import io.yosemite.util.Utils;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertTrue;
 
@@ -15,12 +18,32 @@ public class LibraryTest {
     final static Logger logger = LoggerFactory.getLogger(LibraryTest.class);
 
     //@Test
-    public void testYosemiteJ() {
+    public void testGetInfo() throws IOException {
 
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+        Info result = apiClient.getInfo().execute();
+        System.out.println(result.getBrief());
+    }
 
-        YosemiteJ yxj = new YosemiteJ(apiClient);
+    //@Test
+    public void testGetActions() throws IOException {
+
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+        Actions result = apiClient.getActions(Consts.YOSEMITE_DIGITAL_CONTRACT_CONTRACT, -1, -20).execute();
+        for (Action action : result.getActions()) {
+            System.out.println(action.getAccountActionSeq() + " " + action.getBlockNum());
+        }
+    }
+
+    //@Test
+    public void testYosemiteNativeTokenJ() {
+
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+
+        YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
 
         String contract = "yx.ntoken";
         String action = "transfer";

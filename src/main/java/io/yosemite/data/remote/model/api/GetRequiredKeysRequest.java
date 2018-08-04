@@ -7,7 +7,7 @@ import io.yosemite.data.remote.model.chain.SignedTransaction;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetRequiredKeysReq {
+public class GetRequiredKeysRequest {
 
     @Expose
     private SignedTransaction transaction;
@@ -16,7 +16,7 @@ public class GetRequiredKeysReq {
     @SerializedName("available_keys")
     private List<String> availableKeys;
 
-    public GetRequiredKeysReq(SignedTransaction transaction, List<String> keys) {
+    public GetRequiredKeysRequest(SignedTransaction transaction, List<String> keys) {
         this.transaction = transaction;
 
         if (null != keys) {

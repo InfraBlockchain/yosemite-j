@@ -28,7 +28,7 @@ Public testnet(http://testnet.yosemitelabs.org:8888) is already given for develo
 
 2. Get your archive
 ```
-yosemite-j/build/libs/yxj-{version}.jar
+build/libs/yosemitej-{version}.jar
 ```
 
 #### Gradle
@@ -77,7 +77,7 @@ Info info = infoFuture.get();
 
 ```java
 YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
-YosemiteJ yxj = new YosemiteJ(apiClient);
+YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
 ```
 
 ### Pushing action

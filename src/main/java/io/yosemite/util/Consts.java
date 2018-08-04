@@ -26,9 +26,8 @@ package io.yosemite.util;
 
 public final class Consts {
 
-    public static final String YX_NATIVE_TOKEN_CONTRACT = "yx.ntoken";
-
-    public static final boolean DEFAULT_SKIP_SIGNING = true;
+    public static final String YOSEMITE_NATIVE_TOKEN_CONTRACT = "yx.ntoken";
+    public static final String YOSEMITE_DIGITAL_CONTRACT_CONTRACT = "yx.dcontract";
 
     public static final String DEFAULT_SERVANT_ACCOUNT = "eosio";
 

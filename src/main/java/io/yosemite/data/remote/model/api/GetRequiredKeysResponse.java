@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class GetRequiredKeysRes {
+public class GetRequiredKeysResponse {
 
     @Expose
     @SerializedName("required_keys")

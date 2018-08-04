@@ -23,11 +23,11 @@ import java.util.concurrent.CompletableFuture;
 
 public class ApiServiceGenerator {
 
-    final static Logger logger = LoggerFactory.getLogger(ApiServiceGenerator.class);
+    private final static Logger logger = LoggerFactory.getLogger(ApiServiceGenerator.class);
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder().addInterceptor(new HostInterceptor());
 
-    public static Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonEosTypeAdapterFactory()).excludeFieldsWithoutExposeAnnotation().create();
+    private static Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonEosTypeAdapterFactory()).excludeFieldsWithoutExposeAnnotation().create();
 
     private static Retrofit.Builder builder =
             new Retrofit.Builder()

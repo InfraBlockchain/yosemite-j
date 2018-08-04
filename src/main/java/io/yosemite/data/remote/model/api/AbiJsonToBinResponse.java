@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class AbiJsonToBinRes {
+public class AbiJsonToBinResponse {
 
     @Expose
     private String binargs;
@@ -18,7 +18,7 @@ public class AbiJsonToBinRes {
     @SerializedName("required_auth")
     private List<String> requiredAuth;
 
-    public AbiJsonToBinRes(String binargs, List<String> requiredScopes, List<String> requiredAuth) {
+    public AbiJsonToBinResponse(String binargs, List<String> requiredScopes, List<String> requiredAuth) {
         this.binargs = binargs;
         this.requiredScopes = requiredScopes;
         this.requiredAuth = requiredAuth;
