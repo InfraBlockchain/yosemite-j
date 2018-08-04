@@ -61,7 +61,7 @@ public class LibraryTest {
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
     }
 
-    @Test
+    //@Test
     public void testYosemiteDigitalContractJ() throws InterruptedException {
 
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
