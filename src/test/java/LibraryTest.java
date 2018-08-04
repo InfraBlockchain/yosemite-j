@@ -32,6 +32,7 @@ public class LibraryTest {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
         Actions result = apiClient.getActions(Consts.YOSEMITE_DIGITAL_CONTRACT_CONTRACT, -1, -20).execute();
+        System.out.println("LastIrreversibleBlock : " + result.getLastIrreversibleBlock());
         for (Action action : result.getActions()) {
             System.out.println(action.getAccountActionSeq() + " " + action.getBlockNum());
         }

@@ -96,12 +96,25 @@ PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, per
 String txId = pushedTransaction.getTransactionId();
 ``` 
 
-### Example: Issuing Native Token
+### Issuing Native Token
 Please refer to the [Yosemite Blockchain Guide](https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/yosemite_bios/yosemite_bios_testnet_permissioned.md) before you do actions related to native tokens.
 You are required to provide appropriate setups for accounts for this action.
 ```java
 PushedTransaction pushedTransaction = yxj.issueNativeToken("producer.a", "10000.0000 DKRW", "sysdepo", "memo", new String[]{"sysdepo@active"}).join();
 ```
+
+### Getting the list of actions
+```java
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+        "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+Actions result = apiClient.getActions(Consts.YOSEMITE_DIGITAL_CONTRACT_CONTRACT, -1, -20).execute();
+System.out.println("LastIrreversibleBlock : " + result.getLastIrreversibleBlock());
+for (Action action : result.getActions()) {
+    System.out.println(action.getAccountActionSeq() + " " + action.getBlockNum());
+}
+```
+* https://developers.eos.io/eosio-cpp/docs/exchange-deposit-withdraw#section-polling-account-history
+
 
 ## References 
 
@@ -144,16 +157,10 @@ PushedTransaction pushedTransaction = yxj.issueNativeToken("producer.a", "10000.
  - [ ] create_key
 
 #### History
- - [ ] get_actions
- - [ ] get_transaction
- - [ ] get_key_accounts
- - [ ] get_controlled_accounts
-
-#### Net
- - [ ] connect
- - [ ] disconnect
- - [ ] connections
- - [ ] status
+ - [x] get_actions
+ - [x] get_transaction
+ - [x] get_key_accounts
+ - [x] get_controlled_accounts
 
 #### Producer
  - [ ] pause
