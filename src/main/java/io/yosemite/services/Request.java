@@ -5,19 +5,19 @@ import retrofit2.Call;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-public class Request<Response> {
+public class Request<ResponseType> {
 
-    private Call<Response> call;
+    private Call<ResponseType> call;
 
-    public Request(Call<Response> call) {
+    public Request(Call<ResponseType> call) {
         this.call = call;
     }
 
-    public Response execute() throws IOException {
+    public ResponseType execute() throws IOException {
         return ApiServiceGenerator.executeSync(call);
     }
 
-    public CompletableFuture<Response> executeAsync() {
+    public CompletableFuture<ResponseType> executeAsync() {
         return ApiServiceGenerator.executeAsync(call);
     }
 }

@@ -18,7 +18,7 @@ public class AbiJsonToBinRequest {
     public AbiJsonToBinRequest(String code, String action, String args) {
         this.code = code;
         this.action = action;
-        this.args = new JsonParser().parse(args);
+        putArgs(args);
     }
 
     public JsonElement getArgs() {

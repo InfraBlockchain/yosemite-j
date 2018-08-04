@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-public class YosemiteJ {
+public abstract class YosemiteJ {
 
     private final static Logger logger = LoggerFactory.getLogger(YosemiteJ.class);
 

@@ -2,12 +2,16 @@ package io.yosemite.util;
 
 import java.util.concurrent.*;
 
-public class Async {
+import static java.util.concurrent.ForkJoinPool.defaultForkJoinWorkerThreadFactory;
 
-    private static final ExecutorService executor = Executors.newCachedThreadPool();
+public class Async {
+    private static final int MAX_CAP      = 0x7fff;        // max #workers - 1
+
+    private static final ExecutorService executor = new ForkJoinPool(
+            Math.min(MAX_CAP, getCpuCount()), defaultForkJoinWorkerThreadFactory, null, true);
 
     static {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> shutdown(executor)));
+        Runtime.getRuntime().addShutdownHook(new Thread(Async::shutdown));
     }
 
     public static <T> CompletableFuture<T> run(Callable<T> callable) {
@@ -27,17 +31,17 @@ public class Async {
         return Runtime.getRuntime().availableProcessors();
     }
 
-    private static void shutdown(ExecutorService executorService) {
-        executorService.shutdown();
+    private static void shutdown() {
+        Async.executor.shutdown();
         try {
-            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
-                executorService.shutdownNow();
-                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+            if (!Async.executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                Async.executor.shutdownNow();
+                if (!Async.executor.awaitTermination(60, TimeUnit.SECONDS)) {
                     System.err.println("Thread pool did not terminate");
                 }
             }
         } catch (InterruptedException e) {
-            executorService.shutdownNow();
+            Async.executor.shutdownNow();
             Thread.currentThread().interrupt();
         }
     }
