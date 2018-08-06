@@ -54,20 +54,22 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
         requestParameters.put("table", table);
         requestParameters.put("json", "true");
 
-        if (options.getLimit() > 0) {
-            requestParameters.put("limit", String.valueOf(options.getLimit()));
-        }
-        if (!StringUtils.isEmpty(options.getLowerBound())) {
-            requestParameters.put("lower_bound", options.getLowerBound());
-        }
-        if (!StringUtils.isEmpty(options.getUpperBound())) {
-            requestParameters.put("upper_bound", options.getUpperBound());
-        }
-        if (!StringUtils.isEmpty(options.getIndexPosition())) {
-            requestParameters.put("index_position", options.getIndexPosition());
-        }
-        if (!StringUtils.isEmpty(options.getKeyType())) {
-            requestParameters.put("key_type", options.getKeyType());
+        if (options != null) {
+            if (options.getLimit() > 0) {
+                requestParameters.put("limit", String.valueOf(options.getLimit()));
+            }
+            if (!StringUtils.isEmpty(options.getLowerBound())) {
+                requestParameters.put("lower_bound", options.getLowerBound());
+            }
+            if (!StringUtils.isEmpty(options.getUpperBound())) {
+                requestParameters.put("upper_bound", options.getUpperBound());
+            }
+            if (!StringUtils.isEmpty(options.getIndexPosition())) {
+                requestParameters.put("index_position", options.getIndexPosition());
+            }
+            if (!StringUtils.isEmpty(options.getKeyType())) {
+                requestParameters.put("key_type", options.getKeyType());
+            }
         }
         return new Request<>(yxChainApiService.getTableRows(requestParameters));
     }
