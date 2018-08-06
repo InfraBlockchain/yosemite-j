@@ -7,8 +7,10 @@ import io.yosemite.data.remote.model.api.GetRequiredKeysResponse;
 import io.yosemite.data.remote.model.chain.*;
 import io.yosemite.data.remote.model.chain.TableRow;
 import io.yosemite.data.remote.model.history.action.Actions;
+import io.yosemite.data.remote.model.history.action.GetTableOptions;
 import io.yosemite.data.remote.model.history.controlledaccounts.ControlledAccounts;
 import io.yosemite.data.remote.model.history.keyaccounts.KeyAccounts;
+import io.yosemite.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,14 +46,29 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
-    public Request<TableRow> getTableRows(String scope, String code, String table) {
-        LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(7);
+    public Request<TableRow> getTableRows(String code, String scope, String table, GetTableOptions options) {
+        LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(9);
 
-        requestParameters.put("scope", scope);
         requestParameters.put("code", code);
+        requestParameters.put("scope", scope);
         requestParameters.put("table", table);
         requestParameters.put("json", "true");
 
+        if (options.getLimit() > 0) {
+            requestParameters.put("limit", String.valueOf(options.getLimit()));
+        }
+        if (!StringUtils.isEmpty(options.getLowerBound())) {
+            requestParameters.put("lower_bound", options.getLowerBound());
+        }
+        if (!StringUtils.isEmpty(options.getUpperBound())) {
+            requestParameters.put("upper_bound", options.getUpperBound());
+        }
+        if (!StringUtils.isEmpty(options.getIndexPosition())) {
+            requestParameters.put("index_position", options.getIndexPosition());
+        }
+        if (!StringUtils.isEmpty(options.getKeyType())) {
+            requestParameters.put("key_type", options.getKeyType());
+        }
         return new Request<>(yxChainApiService.getTableRows(requestParameters));
     }
 

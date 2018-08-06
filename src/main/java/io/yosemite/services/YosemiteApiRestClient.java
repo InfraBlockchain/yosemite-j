@@ -7,6 +7,7 @@ import io.yosemite.data.remote.model.api.GetRequiredKeysResponse;
 import io.yosemite.data.remote.model.chain.*;
 import io.yosemite.data.remote.model.chain.TableRow;
 import io.yosemite.data.remote.model.history.action.Actions;
+import io.yosemite.data.remote.model.history.action.GetTableOptions;
 import io.yosemite.data.remote.model.history.controlledaccounts.ControlledAccounts;
 import io.yosemite.data.remote.model.history.keyaccounts.KeyAccounts;
 
@@ -19,7 +20,7 @@ public interface YosemiteApiRestClient {
 
     Request<Block> getBlock(String blockNumberorId);
 
-    Request<TableRow> getTableRows(String scope, String code, String table);
+    Request<TableRow> getTableRows(String code, String scope, String table, GetTableOptions options);
 
     Request<AbiJsonToBinResponse> abiJsonToBin(AbiJsonToBinRequest req);
 

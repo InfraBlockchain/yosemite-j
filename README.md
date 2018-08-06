@@ -128,6 +128,7 @@ YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClie
 
 YosemiteDigitalContractJ yxj = new YosemiteDigitalContractJ(apiClient);
 ```
+* Allmost all of methods return Java 8 CompletableFuture. That means you can get the result synchronously or asynchronously.
 
 ### Creating Digital Contract
 ```java
@@ -160,6 +161,15 @@ pushedTransaction = yxj.updateAdditionalDocumentHash("servprovider", 11, "added 
 ### Removing Digital Contract
 ```java
 pushedTransaction = yxj.removeDigitalContract("servprovider", 11, new String[]{"servprovider@active"}).join();
+```
+
+### Getting Created Digital Contract
+* Query From RAM Database
+```java
+TableRow tableRow = yxj.getCreatedDigitalContract("servprovider", 11).join();
+for (Map<String, ?> row : tableRow.getRows()) {
+    //System.out.println(row);
+}
 ```
 
 ## References 

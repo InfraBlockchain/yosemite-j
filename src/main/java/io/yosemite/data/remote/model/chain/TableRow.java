@@ -1,12 +1,16 @@
 package io.yosemite.data.remote.model.chain;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.List;
 import java.util.Map;
 
 public class TableRow {
 
+    @Expose
     private List<Map<String, ?>> rows;
 
+    @Expose
     private Boolean more;
 
     public TableRow() {

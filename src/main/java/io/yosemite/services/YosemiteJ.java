@@ -2,10 +2,8 @@ package io.yosemite.services;
 
 import io.yosemite.data.remote.model.api.AbiJsonToBinRequest;
 import io.yosemite.data.remote.model.api.GetRequiredKeysRequest;
-import io.yosemite.data.remote.model.chain.Action;
-import io.yosemite.data.remote.model.chain.PackedTransaction;
-import io.yosemite.data.remote.model.chain.PushedTransaction;
-import io.yosemite.data.remote.model.chain.SignedTransaction;
+import io.yosemite.data.remote.model.chain.*;
+import io.yosemite.data.remote.model.history.action.GetTableOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,5 +68,9 @@ public abstract class YosemiteJ {
                 return signAndPackTransaction(txnBeforeSign, info.getChainId()).thenCompose(packedTx -> mYosemiteApiRestClient.pushTransaction(packedTx).executeAsync());
             })
         );
+    }
+
+    public final CompletableFuture<TableRow> getTableRows(String code, String scope, String table, GetTableOptions options) {
+        return mYosemiteApiRestClient.getTableRows(code, scope, table, options).executeAsync();
     }
 }

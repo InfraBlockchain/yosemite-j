@@ -1,10 +1,12 @@
 import io.yosemite.data.remote.model.chain.Info;
+import io.yosemite.data.remote.model.chain.TableRow;
 import io.yosemite.data.remote.model.history.action.Action;
 import io.yosemite.data.remote.model.history.action.Actions;
 import io.yosemite.services.*;
 import io.yosemite.services.yxcontracts.YosemiteDigitalContractJ;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
 import io.yosemite.util.Consts;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.yosemite.data.remote.model.chain.PushedTransaction;
@@ -110,6 +112,11 @@ public class LibraryTest {
         pushedTransaction = yxj.updateAdditionalDocumentHash("servprovider", 11, "added after signing", new String[]{"servprovider@active"}).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
+
+        TableRow tableRow = yxj.getCreatedDigitalContract("servprovider", 11).join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            System.out.println(row);
+        }
     }
 
     /*

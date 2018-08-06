@@ -4,9 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.yosemite.data.remote.model.chain.PushedTransaction;
+import io.yosemite.data.remote.model.chain.TableRow;
+import io.yosemite.data.remote.model.history.action.GetTableOptions;
 import io.yosemite.data.remote.model.types.TypeAsset;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
+import io.yosemite.util.StringUtils;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,6 +25,9 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
 
     public CompletableFuture<PushedTransaction> issueNativeToken(
             final String to, final String amount, final String issuer, final String memo, final String[] permissions) {
+        if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
+        if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
 
         JsonArray arrayObj = new JsonArray();
         arrayObj.add(to);
@@ -29,20 +35,23 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
         tokenObj.addProperty("amount", new TypeAsset(amount).toString());
         tokenObj.addProperty("issuer", issuer);
         arrayObj.add(tokenObj);
-        arrayObj.add(memo);
+        arrayObj.add(memo == null? "" : memo);
 
-        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "nissue", new Gson().toJson(arrayObj), permissions);
+        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "nissue", new Gson().toJson(arrayObj),
+                permissions);
     }
 
     public CompletableFuture<PushedTransaction> redeemNativeToken(
             final String amount, final String issuer, final String memo, final String[] permissions) {
+        if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
 
         JsonObject object = new JsonObject();
         JsonObject tokenObj = new JsonObject();
         tokenObj.addProperty("amount", new TypeAsset(amount).toString());
         tokenObj.addProperty("issuer", issuer);
         object.add("amount", tokenObj);
-        object.addProperty("memo", memo);
+        object.addProperty("memo", memo == null? "" : memo);
 
         return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "nredeem", new Gson().toJson(object), permissions);
     }
@@ -54,7 +63,7 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
         return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "transfer", new Gson().toJson(object), permissions);
     }
 
-    public CompletableFuture<PushedTransaction> transferNativeToken(
+    public CompletableFuture<PushedTransaction> transferNativeTokenWithPayer(
             final String from, final String to, final String amount, final String payer,
             final String memo, final String[] permissions) {
         JsonObject object = getJsonObjectForTransfer(from, to, amount, memo);
@@ -64,6 +73,10 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
     }
 
     private JsonObject getJsonObjectForTransfer(String from, String to, String amount, String memo) {
+        if (StringUtils.isEmpty(from)) throw new IllegalArgumentException("wrong from");
+        if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
+        if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
+
         JsonObject object = new JsonObject();
         object.addProperty("from", from);
         object.addProperty("to", to);
@@ -73,14 +86,14 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
     }
 
     public CompletableFuture<PushedTransaction> ntransferNativeToken(
-            final String from, final String to, final String amount, final String issuer,
+            final String from, final String to, final String token, final String issuer,
             final String memo, final String[] permissions) {
-        JsonObject object = getJsonObjectForNTransfer(from, to, amount, issuer, memo);
+        JsonObject object = getJsonObjectForNTransfer(from, to, token, issuer, memo);
 
         return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "ntransfer", new Gson().toJson(object), permissions);
     }
 
-    public CompletableFuture<PushedTransaction> ntransferNativeToken(
+    public CompletableFuture<PushedTransaction> ntransferNativeTokenWithPayer(
             final String from, final String to, final String token, final String issuer, final String payer,
             final String memo, final String[] permissions) {
         JsonObject object = getJsonObjectForNTransfer(from, to, token, issuer, memo);
@@ -90,6 +103,11 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
     }
 
     private JsonObject getJsonObjectForNTransfer(String from, String to, String amount, String issuer, String memo) {
+        if (StringUtils.isEmpty(from)) throw new IllegalArgumentException("wrong from");
+        if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
+        if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+
         JsonObject object = new JsonObject();
 
         object.addProperty("from", from);
@@ -100,7 +118,35 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
         tokenObj.addProperty("issuer", issuer);
         object.add("token", tokenObj);
 
-        object.addProperty("memo", memo);
+        object.addProperty("memo", memo == null? "" : memo);
         return object;
     }
+
+    public CompletableFuture<TableRow> getNativeTokenStats(final String issuer) {
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+
+        GetTableOptions options = new GetTableOptions();
+        options.setLimit(1);
+
+        return getTableRows(YOSEMITE_NATIVE_TOKEN_CONTRACT, issuer, "ntstats", options);
+    }
+
+    public CompletableFuture<TableRow> getNativeTokenAccountBalance(final String account) {
+        if (StringUtils.isEmpty(account)) throw new IllegalArgumentException("wrong account");
+
+        GetTableOptions options = new GetTableOptions();
+        options.setLimit(1);
+
+        return getTableRows(YOSEMITE_NATIVE_TOKEN_CONTRACT, account, "ntaccounts", options);
+    }
+
+    public CompletableFuture<TableRow> getNativeTokenAccountTotalBalance(final String account) {
+        if (StringUtils.isEmpty(account)) throw new IllegalArgumentException("wrong account");
+
+        GetTableOptions options = new GetTableOptions();
+        options.setLimit(1);
+
+        return getTableRows(YOSEMITE_NATIVE_TOKEN_CONTRACT, account, "ntaccountstt", options);
+    }
+
 }
