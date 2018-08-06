@@ -8,6 +8,7 @@ import io.yosemite.data.remote.model.chain.TableRow;
 import io.yosemite.data.remote.model.history.action.GetTableOptions;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
+import io.yosemite.util.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,19 +35,16 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
         super(yosemiteApiRestClient);
     }
 
-    private boolean isEmptyArray(String[] array) {
-        return array == null || array.length == 0;
-    }
-
     public CompletableFuture<PushedTransaction> createDigitalContract(
             final String creator, final long sequence, final String digitalContractHash, final String additionalDocumentHash,
             final List<String> signers, final Date expiration, final short options, final String[] permissions) {
-        if (creator.isEmpty()) throw new IllegalArgumentException("empty creator");
+        if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
-        if (digitalContractHash.isEmpty()) throw new IllegalArgumentException("empty digitalContractHash");
+        if (StringUtils.isEmpty(digitalContractHash)) throw new IllegalArgumentException("empty digitalContractHash");
         if (digitalContractHash.length() > MAX_INPUT_STRING_LENGTH) throw new IllegalArgumentException("too long digitalContractHash");
         if (additionalDocumentHash.length() > MAX_INPUT_STRING_LENGTH) throw new IllegalArgumentException("too long additionalDocumentHash");
-        if (signers.isEmpty()) throw new IllegalArgumentException("empty signers");
+        if (signers == null || signers.isEmpty()) throw new IllegalArgumentException("empty signers");
+        if (expiration == null) throw new IllegalArgumentException("wrong expiration");
         if (options < 0) throw new IllegalArgumentException("negative option");
 
         JsonArray arrayObj = new JsonArray();
@@ -70,9 +68,9 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
 
     public CompletableFuture<PushedTransaction> addSigners(
             final String creator, final long sequence, final List<String> signers, final String[] permissions) {
-        if (creator.isEmpty()) throw new IllegalArgumentException("empty creator");
+        if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
-        if (signers.isEmpty()) throw new IllegalArgumentException("empty signers");
+        if (signers == null || signers.isEmpty()) throw new IllegalArgumentException("empty signers");
 
         JsonArray arrayObj = new JsonArray();
         JsonObject digitalContractIdObj = new JsonObject();
@@ -91,10 +89,10 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
 
     public CompletableFuture<PushedTransaction> signDigitalDocument(
             final String creator, final long sequence, final String signer, final String signerInfo, final String[] permissions) {
-        if (creator.isEmpty()) throw new IllegalArgumentException("empty creator");
+        if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
-        if (signer.isEmpty()) throw new IllegalArgumentException("empty signer");
-        if (signerInfo.length() > MAX_INPUT_STRING_LENGTH) throw new IllegalArgumentException("too long signerInfo");
+        if (StringUtils.isEmpty(signer)) throw new IllegalArgumentException("empty signer");
+        if (signerInfo != null && signerInfo.length() > MAX_INPUT_STRING_LENGTH) throw new IllegalArgumentException("too long signerInfo");
 
         JsonArray arrayObj = new JsonArray();
         JsonObject digitalContractIdObj = new JsonObject();
@@ -102,7 +100,9 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
         digitalContractIdObj.addProperty("sequence", Long.toString(sequence));
         arrayObj.add(digitalContractIdObj);
         arrayObj.add(signer);
-        arrayObj.add(signerInfo);
+        if (signerInfo != null) {
+            arrayObj.add(signerInfo);
+        }
 
         return pushAction(YOSEMITE_DIGITAL_CONTRACT_CONTRACT, "sign", new Gson().toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{signer + "@active"} : permissions);
@@ -110,16 +110,18 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
 
     public CompletableFuture<PushedTransaction> updateAdditionalDocumentHash(
             final String creator, final long sequence, final String additionalDocumentHash, final String[] permissions) {
-        if (creator.isEmpty()) throw new IllegalArgumentException("empty creator");
+        if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
-        if (additionalDocumentHash.length() > MAX_INPUT_STRING_LENGTH) throw new IllegalArgumentException("too long additionalDocumentHash");
+        if (additionalDocumentHash != null && additionalDocumentHash.length() > MAX_INPUT_STRING_LENGTH) {
+            throw new IllegalArgumentException("too long additionalDocumentHash");
+        }
 
         JsonArray arrayObj = new JsonArray();
         JsonObject digitalContractIdObj = new JsonObject();
         digitalContractIdObj.addProperty("creator", creator);
         digitalContractIdObj.addProperty("sequence", Long.toString(sequence));
         arrayObj.add(digitalContractIdObj);
-        arrayObj.add(additionalDocumentHash);
+        arrayObj.add(additionalDocumentHash == null ? "" : additionalDocumentHash);
 
         return pushAction(YOSEMITE_DIGITAL_CONTRACT_CONTRACT, "upadddochash", new Gson().toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{creator + "@active"} : permissions);
@@ -127,7 +129,7 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
 
     public CompletableFuture<PushedTransaction> removeDigitalContract(
             final String creator, final long sequence, final String[] permissions) {
-        if (creator.isEmpty()) throw new IllegalArgumentException("empty creator");
+        if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
 
         JsonArray arrayObj = new JsonArray();
@@ -141,7 +143,7 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
     }
 
     public CompletableFuture<TableRow> getCreatedDigitalContract(final String creator, final long sequence) {
-        if (creator.isEmpty()) throw new IllegalArgumentException("empty creator");
+        if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
 
         GetTableOptions options = new GetTableOptions();

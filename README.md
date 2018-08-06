@@ -97,13 +97,6 @@ PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, per
 String txId = pushedTransaction.getTransactionId();
 ``` 
 
-### Issuing Native Token
-Please refer to the [Yosemite Blockchain Guide](https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/yosemite_bios/yosemite_bios_testnet_permissioned.md) before you do actions related to native tokens.
-You are required to provide appropriate setups for accounts for this action.
-```java
-PushedTransaction pushedTransaction = yxj.issueNativeToken("producer.a", "10000.0000 DKRW", "sysdepo", "memo", new String[]{"sysdepo@active"}).join();
-```
-
 ### Getting the list of actions
 ```java
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
@@ -119,6 +112,52 @@ for (Action action : result.getActions()) {
 # Yosemite Actions
 
 ## Native Token Actions
+
+### Issuing Native Token
+```java
+PushedTransaction pushedTransaction = yxj.issueNativeToken("servprovider", "1000000.0000 DKRW", "sysdepo", "memo", new String[]{"sysdepo@active"}).join();
+```
+
+### Redeeming Native Token
+```java
+PushedTransaction pushedTransaction = yxj.redeemNativeToken("100000.0000 DKRW", "sysdepo", "memo", new String[]{"sysdepo@active"}).join();
+```
+
+### Transferring Native Token
+#### Without specifying issuer and fee payer
+```java
+PushedTransaction pushedTransaction = yxj.transferNativeToken("user1", "user2", "100000.0000 DKRW", "memo", null).join();
+```
+
+#### Without specifying issuer but with fee payer
+```java
+PushedTransaction pushedTransaction = yxj.transferNativeTokenWithPayer("user1", "user2", "100000.0000 DKRW", "servprovider", "memo", null).join();
+```
+
+#### With specifying issuer but no fee payer
+```java
+PushedTransaction pushedTransaction = yxj.ntransferNativeToken("user1", "user2", "100000.0000 DKRW", "sysdepo", "memo", null).join();
+```
+
+#### With specifying issuer and fee payer
+```java
+PushedTransaction pushedTransaction = yxj.ntransferNativeTokenWithPayer("user1", "user2", "100000.0000 DKRW", "sysdepo", "servprovider", "memo", null).join();
+```
+
+### Getting Native Token Statistics of System Depository
+```java
+TableRow tableRow = yxj.getNativeTokenStats("sysdepo").join();
+```
+
+### Getting Native Token Balance of Account
+```java
+TableRow tableRow = yxj.getNativeTokenAccountBalance("user1").join();
+```
+
+### Getting Total Native Token Balance of Account
+```java
+TableRow tableRow = yxj.getNativeTokenAccountTotalBalance("user1").join();
+```
 
 ## Digital Contract Actions
 * use YosemiteDigitalContractJ class to call action methods

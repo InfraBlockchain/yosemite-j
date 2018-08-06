@@ -20,6 +20,10 @@ public abstract class YosemiteJ {
         mYosemiteApiRestClient = yosemiteApiRestClient;
     }
 
+    protected final boolean isEmptyArray(String[] array) {
+        return array == null || array.length == 0;
+    }
+
     private CompletableFuture<Action> getActionWithBinaryData(String contract, String action, String data, String[] permissions) {
         AbiJsonToBinRequest abiJsonToBinRequest = new AbiJsonToBinRequest(contract, action, data);
 
