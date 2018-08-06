@@ -1,5 +1,5 @@
 
-package io.yosemite.data.remote.model.response.history.action;
+package io.yosemite.data.remote.model.history.action;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

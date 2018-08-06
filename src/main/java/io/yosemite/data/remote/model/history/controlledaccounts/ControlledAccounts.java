@@ -1,4 +1,4 @@
-package io.yosemite.data.remote.model.response.history.controlledaccounts;
+package io.yosemite.data.remote.model.history.controlledaccounts;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

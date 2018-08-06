@@ -5,7 +5,7 @@ import io.yosemite.data.remote.model.api.AbiJsonToBinResponse;
 import io.yosemite.data.remote.model.api.GetRequiredKeysRequest;
 import io.yosemite.data.remote.model.api.GetRequiredKeysResponse;
 import io.yosemite.data.remote.model.chain.*;
-import io.yosemite.data.remote.model.response.chain.TableRow;
+import io.yosemite.data.remote.model.chain.TableRow;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;

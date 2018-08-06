@@ -1,4 +1,4 @@
-package io.yosemite.data.remote.model.response.history.keyaccounts;
+package io.yosemite.data.remote.model.history.keyaccounts;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

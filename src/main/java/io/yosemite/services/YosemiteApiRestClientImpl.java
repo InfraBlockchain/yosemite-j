@@ -5,10 +5,10 @@ import io.yosemite.data.remote.model.api.AbiJsonToBinResponse;
 import io.yosemite.data.remote.model.api.GetRequiredKeysRequest;
 import io.yosemite.data.remote.model.api.GetRequiredKeysResponse;
 import io.yosemite.data.remote.model.chain.*;
-import io.yosemite.data.remote.model.response.chain.TableRow;
-import io.yosemite.data.remote.model.response.history.action.Actions;
-import io.yosemite.data.remote.model.response.history.controlledaccounts.ControlledAccounts;
-import io.yosemite.data.remote.model.response.history.keyaccounts.KeyAccounts;
+import io.yosemite.data.remote.model.chain.TableRow;
+import io.yosemite.data.remote.model.history.action.Actions;
+import io.yosemite.data.remote.model.history.controlledaccounts.ControlledAccounts;
+import io.yosemite.data.remote.model.history.keyaccounts.KeyAccounts;
 
 import java.util.ArrayList;
 import java.util.Collection;

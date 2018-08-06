@@ -1,11 +1,10 @@
 import io.yosemite.data.remote.model.chain.Info;
-import io.yosemite.data.remote.model.response.history.action.Action;
-import io.yosemite.data.remote.model.response.history.action.Actions;
+import io.yosemite.data.remote.model.history.action.Action;
+import io.yosemite.data.remote.model.history.action.Actions;
 import io.yosemite.services.*;
 import io.yosemite.services.yxcontracts.YosemiteDigitalContractJ;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
 import io.yosemite.util.Consts;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.yosemite.data.remote.model.chain.PushedTransaction;

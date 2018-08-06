@@ -1,9 +1,9 @@
 package io.yosemite.services;
 
 import io.yosemite.data.remote.model.chain.Transaction;
-import io.yosemite.data.remote.model.response.history.action.Actions;
-import io.yosemite.data.remote.model.response.history.controlledaccounts.ControlledAccounts;
-import io.yosemite.data.remote.model.response.history.keyaccounts.KeyAccounts;
+import io.yosemite.data.remote.model.history.action.Actions;
+import io.yosemite.data.remote.model.history.controlledaccounts.ControlledAccounts;
+import io.yosemite.data.remote.model.history.keyaccounts.KeyAccounts;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;

@@ -1,4 +1,4 @@
-package io.yosemite.data.remote.model.response.chain;
+package io.yosemite.data.remote.model.chain;
 
 import java.util.List;
 import java.util.Map;
