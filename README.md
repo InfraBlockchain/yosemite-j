@@ -134,7 +134,7 @@ YosemiteDigitalContractJ yxj = new YosemiteDigitalContractJ(apiClient);
 * Even if createDigitalContract method returns successfully, the digital contract you have created is not actually created on the YosemiteChain.
 * The create action must be included in the block and finally confirmed by other block producers, which it is called the action is irreversible.
 * You must check the finality or irreversibility of the action so that the digital contract is actually created.
-* The program must poll(check regurarly) to confirm the irreversibility with []getActions method](#getting-the-list-of-actions).
+* The program must poll(check regurarly) to confirm the irreversibility with [getActions method](#getting-the-list-of-actions).
 ```java
 List<String> signers = Arrays.asList("user1", "user2");
 // prepare expiration time based on UTC time-zone
