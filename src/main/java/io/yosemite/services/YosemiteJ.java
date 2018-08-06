@@ -9,10 +9,8 @@ import io.yosemite.data.remote.model.chain.SignedTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 
 public abstract class YosemiteJ {
 
@@ -40,26 +38,15 @@ public abstract class YosemiteJ {
 
         CompletableFuture<PackedTransaction> packedTxFuture;
 
-        try {
-            List<String> pubKeys = mYosemiteApiRestClient.getPublicKeys().execute();
+        List<String> pubKeys = mYosemiteApiRestClient.getPublicKeys().execute();
 
-            GetRequiredKeysRequest getRequiredKeysRequest = new GetRequiredKeysRequest(txnBeforeSign, pubKeys);
+        GetRequiredKeysRequest getRequiredKeysRequest = new GetRequiredKeysRequest(txnBeforeSign, pubKeys);
 
-            packedTxFuture = mYosemiteApiRestClient.getRequiredKeys(getRequiredKeysRequest).executeAsync().thenApply(getRequiredKeysRes -> {
-
-                SignedTransaction signedTx;
-
-                try {
-                    signedTx = mYosemiteApiRestClient.signTransaction(txnBeforeSign, getRequiredKeysRes.getRequiredKeys(), chainId).execute();
-                } catch (IOException e) {
-                    throw new CompletionException(e);
-                }
-
-                return new PackedTransaction(signedTx);
-            });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        packedTxFuture = mYosemiteApiRestClient.getRequiredKeys(getRequiredKeysRequest).executeAsync().thenApply(getRequiredKeysRes -> {
+            SignedTransaction signedTx =
+                    mYosemiteApiRestClient.signTransaction(txnBeforeSign, getRequiredKeysRes.getRequiredKeys(), chainId).execute();
+            return new PackedTransaction(signedTx);
+        });
 
         return packedTxFuture;
     }
@@ -74,14 +61,14 @@ public abstract class YosemiteJ {
         return getActionWithBinaryData(contract, action, data, permissions).thenCompose(actionReq ->
                 mYosemiteApiRestClient.getInfo().executeAsync().thenCompose(info -> {
 
-                    SignedTransaction txnBeforeSign = new SignedTransaction();
+                SignedTransaction txnBeforeSign = new SignedTransaction();
 
-                    txnBeforeSign.addAction(actionReq);
-                    txnBeforeSign.setReferenceBlock(info.getHeadBlockId());
-                    txnBeforeSign.setExpiration(info.getTimeAfterHeadBlockTime(3000));
+                txnBeforeSign.addAction(actionReq);
+                txnBeforeSign.setReferenceBlock(info.getHeadBlockId());
+                txnBeforeSign.setExpiration(info.getTimeAfterHeadBlockTime(3000));
 
-                    return signAndPackTransaction(txnBeforeSign, info.getChainId()).thenCompose(packedTx -> mYosemiteApiRestClient.pushTransaction(packedTx).executeAsync());
-                })
+                return signAndPackTransaction(txnBeforeSign, info.getChainId()).thenCompose(packedTx -> mYosemiteApiRestClient.pushTransaction(packedTx).executeAsync());
+            })
         );
     }
 }

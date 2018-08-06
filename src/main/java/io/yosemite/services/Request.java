@@ -2,7 +2,6 @@ package io.yosemite.services;
 
 import retrofit2.Call;
 
-import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 public class Request<ResponseType> {
@@ -13,7 +12,7 @@ public class Request<ResponseType> {
         this.call = call;
     }
 
-    public ResponseType execute() throws IOException {
+    public ResponseType execute() {
         return ApiServiceGenerator.executeSync(call);
     }
 

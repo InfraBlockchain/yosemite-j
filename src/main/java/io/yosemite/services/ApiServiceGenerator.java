@@ -4,9 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.yosemite.data.remote.HostInterceptor;
 import io.yosemite.data.util.GsonEosTypeAdapterFactory;
-import io.yosemite.exception.EosApiError;
+import io.yosemite.exception.YosemiteApiError;
 import io.yosemite.exception.EosApiErrorCode;
-import io.yosemite.exception.EosApiException;
+import io.yosemite.exception.YosemiteApiException;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.concurrent.CompletableFuture;
 
-public class ApiServiceGenerator {
+class ApiServiceGenerator {
 
     private final static Logger logger = LoggerFactory.getLogger(ApiServiceGenerator.class);
 
@@ -35,7 +35,7 @@ public class ApiServiceGenerator {
 
     private static Retrofit retrofit;
 
-    public static <S> S createService(Class<S> serviceClass, String baseUrl) {
+    static <S> S createService(Class<S> serviceClass, String baseUrl) {
 
         builder.baseUrl(baseUrl);
         builder.client(httpClient.build());
@@ -47,7 +47,7 @@ public class ApiServiceGenerator {
     /**
      * Execute a REST call and block until the response is received.
      */
-    public static <T> T executeSync(Call<T> call) {
+    static <T> T executeSync(Call<T> call) {
         try {
             Response<T> response = call.execute();
             if (response.isSuccessful()) {
@@ -55,23 +55,23 @@ public class ApiServiceGenerator {
             } else {
                 logger.error(call.request().toString());
                 logger.error(response.toString());
-                EosApiError apiError = getEosApiError(response);
-                throw new EosApiException(apiError.getDetailedMessage(), EosApiErrorCode.get(apiError.getEosErrorCode()));
+                YosemiteApiError apiError = getEosApiError(response);
+                throw new YosemiteApiException(apiError.getDetailedMessage(), EosApiErrorCode.get(apiError.getEosErrorCode()));
             }
         } catch (IOException e) {
-            throw new EosApiException(e);
+            throw new YosemiteApiException(e);
         }
     }
 
-    public static <T> CompletableFuture<T> executeAsync(Call<T> call) {
+    static <T> CompletableFuture<T> executeAsync(Call<T> call) {
         return Async.run(() -> executeSync(call));
     }
 
     /**
      * Extracts and converts the response error body into an object.
      */
-    private static EosApiError getEosApiError(Response<?> response) throws IOException, EosApiException {
-        return (EosApiError) retrofit.responseBodyConverter(EosApiError.class, new Annotation[0])
+    private static YosemiteApiError getEosApiError(Response<?> response) throws IOException, YosemiteApiException {
+        return (YosemiteApiError) retrofit.responseBodyConverter(YosemiteApiError.class, new Annotation[0])
                 .convert(response.errorBody());
     }
 }

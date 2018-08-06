@@ -4,7 +4,11 @@ public class YosemiteApiClientFactory {
     private YosemiteApiClientFactory() { }
 
     public static YosemiteApiRestClient createYosemiteApiClient(String baseUrl) {
-        return new YosemiteApiRestClientImpl(baseUrl);
+        return createYosemiteApiClient(baseUrl, baseUrl, baseUrl);
+    }
+
+    public static YosemiteApiRestClient createYosemiteApiClient(String baseUrl, String walletBaseUrl) {
+        return createYosemiteApiClient(baseUrl, walletBaseUrl, baseUrl);
     }
 
     public static YosemiteApiRestClient createYosemiteApiClient(String baseUrl, String walletBaseUrl, String historyBaseUrl) {
