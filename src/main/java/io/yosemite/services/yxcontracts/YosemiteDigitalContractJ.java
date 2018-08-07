@@ -6,9 +6,11 @@ import com.google.gson.JsonObject;
 import io.yosemite.data.remote.model.chain.PushedTransaction;
 import io.yosemite.data.remote.model.chain.TableRow;
 import io.yosemite.data.remote.model.history.action.GetTableOptions;
+import io.yosemite.data.util.EosNameUtil;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
 import io.yosemite.util.StringUtils;
+import io.yosemite.util.Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -151,5 +153,25 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
         options.setLimit(1);
 
         return getTableRows(YOSEMITE_DIGITAL_CONTRACT_CONTRACT, creator, "dcontracts", options);
+    }
+
+    public CompletableFuture<TableRow> getSignerInfo(final String signer, final String creator, final long sequence) {
+        if (StringUtils.isEmpty(signer)) throw new IllegalArgumentException("empty signer");
+        if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
+
+        long creatorAsInteger = EosNameUtil.stringToName(creator);
+        String dcIdSerializedHex = Utils.makeWebAssembly128BitIntegerAsHexString(creatorAsInteger, sequence);
+
+        // cleos get table yx.dcontract user3 signers --index 2 --key-type i128 -L 0x0b000000000000007055729bdebaafc2 -l 1
+        GetTableOptions options = new GetTableOptions();
+        options.setIndexPosition("2"); // indicates secondary index 'dcids' of dcontract_signer_index
+                                       // defined by contracts/yx.dcontract/yx.dcontract.hpp of YosemiteChain
+        options.setKeyType("i128");
+        options.setLowerBound(dcIdSerializedHex);
+        options.setLimit(1);
+
+        System.out.println(dcIdSerializedHex);
+
+        return getTableRows(YOSEMITE_DIGITAL_CONTRACT_CONTRACT, signer, "signers", options);
     }
 }

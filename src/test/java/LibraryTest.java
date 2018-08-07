@@ -6,6 +6,7 @@ import io.yosemite.services.*;
 import io.yosemite.services.yxcontracts.YosemiteDigitalContractJ;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
 import io.yosemite.util.Consts;
+import io.yosemite.util.StringUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class LibraryTest {
         YosemiteDigitalContractJ yxj = new YosemiteDigitalContractJ(apiClient);
 
         // 0. remove digital contract first
-        PushedTransaction pushedTransaction = null;
+        PushedTransaction pushedTransaction;
         try {
             pushedTransaction = yxj.removeDigitalContract("servprovider", 11, new String[]{"servprovider@active"}).join();
             logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
@@ -115,84 +116,17 @@ public class LibraryTest {
 
         TableRow tableRow = yxj.getCreatedDigitalContract("servprovider", 11).join();
         for (Map<String, ?> row : tableRow.getRows()) {
-            System.out.println(row);
+            // There must be only one row.
+            logger.debug(row.toString());
+        }
+
+        TableRow signerInfoTable = yxj.getSignerInfo("user3", "servprovider", 11).join();
+        logger.debug(String.valueOf(signerInfoTable.getMore()));
+        for (Map<String, ?> row : signerInfoTable.getRows()) {
+            // There must be only one row.
+            logger.debug(row.toString());
+            logger.debug(StringUtils.convertHexToString((String) row.get("signerinfo")));
         }
     }
 
-    /*
-    @Test
-    public void testYxjNativeToken() {
-
-        YxApiRestClient apiClient = new YxApiRestClientImpl("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
-
-        Yxj yxj = new Yxj(apiClient);
-
-        PushedTransaction pushedTransaction = yxj.issueNativeToken("producer.a", "10000.0000 DKRW", "sysdepo", "", new String[]{"sysdepo@active"}).join();
-
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-    }
-    */
-
-    /*
-    @Test
-    public void testSynchronousRestApiClientTest() throws Exception {
-
-        YxApiRestClient apiClient = new YxApiRestClientImpl("http://127.0.0.1:8888");
-
-        // Push Contract Tx by packing the data
-
-        String contract = "eosio.token"; // sometimes called `code`
-        String action = "transfer";
-        String args = "{\"from\":\"user\",\"to\":\"tester\",\"quantity\":\"1.0000 SYS\",\"memo\":\"wow\"}";
-        String[] permissions = new String[]{"user@active"};
-
-        AbiJsonToBinReq abiJsonToBinReq = new AbiJsonToBinReq(contract, action, args);
-
-        Info info = apiClient.getInfo().execute();
-
-        logger.debug(info.getBrief());
-
-        AbiJsonToBinRes abiJsonToBinRes = apiClient.abiJsonToBin(abiJsonToBinReq).execute();
-
-        logger.debug(abiJsonToBinRes.getBinargs());
-
-        Action actionReq = new Action(contract, action);
-        actionReq.setAuthorization(permissions);
-        actionReq.setData(abiJsonToBinRes.getBinargs());
-
-        SignedTransaction txReq = new SignedTransaction();
-        txReq.addAction(actionReq);
-        txReq.setReferenceBlock(info.getHeadBlockId());
-        txReq.setExpiration(info.getTimeAfterHeadBlockTime(300000));
-
-        List<String> pubKeys = new ArrayList<>();
-        pubKeys.add("EOS8ePyQrK7XZKUKSbhKuGVCLc4XfFp4N3sf3uCZSsEDTzZXLfNVj");
-
-        GetRequiredKeysReq getRequiredKeysReq = new GetRequiredKeysReq(txReq, pubKeys);
-
-        GetRequiredKeysRes getRequiredKeysRes = apiClient.getRequiredKeys(getRequiredKeysReq).execute();
-
-        List<String> keys = getRequiredKeysRes.getRequiredKeys();
-
-        for (String key : keys) {
-            logger.debug("Pub key: " + key);
-        }
-
-        SignedTransaction signedTx = apiClient.signTransaction(txReq, keys, info.getChainId()).execute();
-
-        logger.debug("\nSigned Transaction:\n" + Utils.prettyPrintJson(signedTx));
-
-        PackedTransaction packedTx = new PackedTransaction(signedTx);
-
-        logger.debug("\nPacked Transaction:\n" + Utils.prettyPrintJson(packedTx));
-
-        PushedTransaction pushedTransaction = apiClient.pushTransaction(packedTx).execute();
-
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-    }
-    */
 }

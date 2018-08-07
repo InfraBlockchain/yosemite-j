@@ -207,11 +207,30 @@ pushedTransaction = yxj.removeDigitalContract("servprovider", 11, new String[]{"
 ```
 
 ### Getting Created Digital Contract
-* Query From RAM Database
+* It's the same as querying from RAM database.
 ```java
+import io.yosemite.data.remote.model.chain.TableRow;
+
 TableRow tableRow = yxj.getCreatedDigitalContract("servprovider", 11).join();
 for (Map<String, ?> row : tableRow.getRows()) {
-    //System.out.println(row);
+    ...
+
+    // There must be only one row.
+    break;
+}
+```
+
+### Getting Signer's Information
+```java
+import io.yosemite.data.remote.model.chain.TableRow;
+import io.yosemite.util.StringUtils;
+
+TableRow signerInfoTable = yxj.getSignerInfo("user3", "servprovider", 11).join();
+for (Map<String, ?> row : signerInfoTable.getRows()) {
+    logger.debug(StringUtils.convertHexToString((String) row.get("signerinfo")));
+
+    // There must be only one row.
+    break;
 }
 ```
 

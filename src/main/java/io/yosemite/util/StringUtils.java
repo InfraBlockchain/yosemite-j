@@ -25,7 +25,28 @@ package io.yosemite.util;
 
 
 public class StringUtils {
-   public static boolean isEmpty( CharSequence data ) {
+    public static boolean isEmpty( CharSequence data ) {
       return ( null == data ) || ( data.length() <= 0);
    }
+
+    /**
+     * Converts bytesString to java String.
+     * @param hexString hex-value concanated string e.g. 4962061d207573657233
+     * @return the result of conversion e.g. I am user3
+     */
+    public static String convertHexToString(String hexString) {
+        StringBuilder sb = new StringBuilder();
+        StringBuilder temp = new StringBuilder();
+
+        //4962061d207573657233 split into two characters 49, 62, 06, ...
+        for (int i = 0; i < hexString.length() - 1; i += 2) {
+            String output = hexString.substring(i, (i + 2));
+            int decimal = Integer.parseInt(output, 16);
+            sb.append((char) decimal);
+
+            temp.append(decimal);
+        }
+
+        return sb.toString();
+    }
 }

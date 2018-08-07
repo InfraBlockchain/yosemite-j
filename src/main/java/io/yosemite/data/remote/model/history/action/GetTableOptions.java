@@ -11,12 +11,12 @@ public class GetTableOptions {
     private String upperBound;
 
     /**
-     * Index number, 1 - primary (first), 2 - secondary index (in order defined by multi_index), 3 - third index, etc.
-     * Number or name of index can be specified, e.g. 'secondary' or '2'.
+     * Index number, 1 - primary (first), 2 - secondary indexPosition (in order defined by multi_index), 3 - third indexPosition, etc.
+     * Number or name of indexPosition can be specified, e.g. 'secondary' or '2'.
      */
-    private String index;
+    private String indexPosition;
 
-    /** The key type of --index, primary only supports (i64), all others support (i64, i128, i256, float64, float128) */
+    /** The key type of --indexPosition, primary only supports (i64), all others support (i64, i128, i256, float64, float128) */
     private String keyType;
 
     public int getLimit() {
@@ -44,11 +44,11 @@ public class GetTableOptions {
     }
 
     public String getIndexPosition() {
-        return index;
+        return indexPosition;
     }
 
-    public void setIndex(String index) {
-        this.index = index;
+    public void setIndexPosition(String indexPosition) {
+        this.indexPosition = indexPosition;
     }
 
     public String getKeyType() {

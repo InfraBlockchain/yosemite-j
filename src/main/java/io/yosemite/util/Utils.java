@@ -27,6 +27,7 @@ import com.google.gson.GsonBuilder;
 import io.yosemite.data.util.GsonEosTypeAdapterFactory;
 
 import java.io.Closeable;
+import java.math.BigInteger;
 
 public class Utils {
 
@@ -68,5 +69,17 @@ public class Utils {
                 .registerTypeAdapterFactory(new GsonEosTypeAdapterFactory())
                 .excludeFieldsWithoutExposeAnnotation()
                 .setPrettyPrinting().create().toJson(object);
+    }
+
+    public static String makeWebAssembly128BitIntegerAsHexString(long valueHigh, long valueLower) {
+        BigInteger bigInteger = makeWebAssembly128BitInteger(valueHigh, valueLower);
+        return String.format("0x%032x", bigInteger);
+    }
+
+    public static BigInteger makeWebAssembly128BitInteger(long valueHigh, long valueLower) {
+        BigInteger wasm128BitInteger = BigInteger.valueOf(Long.reverseBytes(valueLower));
+        wasm128BitInteger = wasm128BitInteger.shiftLeft(64);
+        wasm128BitInteger = wasm128BitInteger.add(BigInteger.valueOf(Long.reverseBytes(valueHigh)));
+        return wasm128BitInteger;
     }
 }
