@@ -161,22 +161,22 @@ TableRow tableRow = yxj.getNativeTokenAccountTotalBalance("user1").join();
 
 ## Token Actions
 
-### Creating Native Token
+### Creating Token
 ```java
 PushedTransaction pushedTransaction = yxj.createToken("BTC", 4, "d2", new String[]{"d2@active"}).join();
 ```
 
-### Issuing Native Token
+### Issuing Token
 ```java
 PushedTransaction pushedTransaction = yxj.issueToken("user1", "100000.0000 BTC", "d2", "my memo", new String[]{"d2@active"}).join();
 ```
 
-### Redeeming Native Token
+### Redeeming Token
 ```java
 PushedTransaction pushedTransaction = yxj.redeemToken("20000.0000 BTC", "d2", "my memo", new String[]{"d2@active"}).join();
 ```
 
-### Transferring Native Token
+### Transferring Token
 #### Without fee payer
 ```java
 PushedTransaction pushedTransaction = yxj.transferToken("user1", "user2", "100.0000 BTC", "d2", "my memo", new String[]{"user1@active"}).join();
