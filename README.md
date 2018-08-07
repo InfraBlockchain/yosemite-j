@@ -6,8 +6,8 @@ The project's goal would be something like Java version of `cleos` of `EOS.IO` w
 The first step would be to implement a wrapper for basic HTTP APIs and then the other convenient interface would be built on top of it.
 
 ## Requirements
-Java 8
-Gradle
+* Java 8
+* Gradle
 
 # Getting Started
 
