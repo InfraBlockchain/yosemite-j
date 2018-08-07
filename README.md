@@ -159,6 +159,52 @@ TableRow tableRow = yxj.getNativeTokenAccountBalance("user1").join();
 TableRow tableRow = yxj.getNativeTokenAccountTotalBalance("user1").join();
 ```
 
+## Token Actions
+
+### Creating Native Token
+```java
+PushedTransaction pushedTransaction = yxj.createToken("BTC", 4, "d2", new String[]{"d2@active"}).join();
+```
+
+### Issuing Native Token
+```java
+PushedTransaction pushedTransaction = yxj.issueToken("user1", "100000.0000 BTC", "d2", "my memo", new String[]{"d2@active"}).join();
+```
+
+### Redeeming Native Token
+```java
+PushedTransaction pushedTransaction = yxj.redeemToken("20000.0000 BTC", "d2", "my memo", new String[]{"d2@active"}).join();
+```
+
+### Transferring Native Token
+#### Without fee payer
+```java
+PushedTransaction pushedTransaction = yxj.transferToken("user1", "user2", "100.0000 BTC", "d2", "my memo", new String[]{"user1@active"}).join();
+```
+
+#### With fee payer
+```java
+PushedTransaction pushedTransaction = yxj.transferToken("user1", "user2", "100.0000 BTC", "d2", "servprovider", "my memo", new String[]{"user1@active"}).join();
+```
+
+### Getting Token Statistics of Issuer
+```java
+TableRow tableRow = yxj.getTokenStats("BTC", 4, "d2").join();
+for (Map<String, ?> row : tableRow.getRows()) {
+    //...
+}
+```
+
+### Getting Token Balance of Account
+* Balance for user1
+```java
+TableRow tableRow = yxj.getTokenAccountBalance("BTC", 4, "d2", "user1").join();
+for (Map<String, ?> row : tableRow.getRows()) {
+    // There must be only one row.
+    logger.debug(row.toString());
+}
+```
+
 ## Digital Contract Actions
 * use YosemiteDigitalContractJ class to call action methods
 ```java

@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import io.yosemite.data.remote.model.chain.PushedTransaction;
 import io.yosemite.data.remote.model.chain.TableRow;
 import io.yosemite.data.remote.model.history.action.GetTableOptions;
-import io.yosemite.data.util.EosNameUtil;
+import io.yosemite.data.remote.model.types.TypeName;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
 import io.yosemite.util.StringUtils;
@@ -159,7 +159,7 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
         if (StringUtils.isEmpty(signer)) throw new IllegalArgumentException("empty signer");
         if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
 
-        long creatorAsInteger = EosNameUtil.stringToName(creator);
+        long creatorAsInteger = TypeName.string_to_name(creator);
         String dcIdSerializedHex = Utils.makeWebAssembly128BitIntegerAsHexString(creatorAsInteger, sequence);
 
         // cleos get table yx.dcontract user3 signers --index 2 --key-type i128 -L 0x0b000000000000007055729bdebaafc2 -l 1

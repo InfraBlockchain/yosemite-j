@@ -5,6 +5,7 @@ import io.yosemite.data.remote.model.history.action.Actions;
 import io.yosemite.services.*;
 import io.yosemite.services.yxcontracts.YosemiteDigitalContractJ;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
+import io.yosemite.services.yxcontracts.YosemiteTokenJ;
 import io.yosemite.util.Consts;
 import io.yosemite.util.StringUtils;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import io.yosemite.util.Utils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertTrue;
 
@@ -61,6 +63,58 @@ public class LibraryTest {
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
 
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
+    }
+
+    //@Test
+    public void testYosemiteTokenJ() throws InterruptedException {
+
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+
+        YosemiteTokenJ yxj = new YosemiteTokenJ(apiClient);
+
+        PushedTransaction pushedTransaction = yxj.createToken("TEST", 5, "d2", new String[]{"d2@active"}).join();
+        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
+        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
+
+        Thread.sleep(1000);
+
+        pushedTransaction = yxj.issueToken("user1", "100000.00000 TEST", "d2", "my memo", new String[]{"d2@active"}).join();
+        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
+        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
+
+        Thread.sleep(1000);
+
+        pushedTransaction = yxj.transferToken("user1", "d2", "10000.00000 TEST", "d2", "my memo", new String[]{"user1@active"}).join();
+        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
+        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
+
+        Thread.sleep(1000);
+
+        pushedTransaction = yxj.transferTokenWithPayer("user1", "d2", "10000.00000 TEST", "d2", "servprovider", "my memo",
+                new String[]{"user1@active", "servprovider@active"}).join();
+        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
+        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
+
+        Thread.sleep(1000);
+
+        pushedTransaction = yxj.redeemToken("20000.00000 TEST", "d2", "my memo", new String[]{"d2@active"}).join();
+        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
+        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
+
+        Thread.sleep(1000);
+
+        TableRow tableRow = yxj.getTokenStats("TEST", 5, "d2").join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            logger.debug(row.toString());
+        }
+
+        tableRow = yxj.getTokenAccountBalance("TEST", 5, "d2", "user1").join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            logger.debug(row.toString());
+        }
     }
 
     //@Test
