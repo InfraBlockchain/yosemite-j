@@ -1,22 +1,24 @@
 import io.yosemite.data.remote.model.chain.Info;
+import io.yosemite.data.remote.model.chain.PushedTransaction;
 import io.yosemite.data.remote.model.chain.TableRow;
 import io.yosemite.data.remote.model.history.action.Action;
 import io.yosemite.data.remote.model.history.action.Actions;
-import io.yosemite.services.*;
+import io.yosemite.services.YosemiteApiClientFactory;
+import io.yosemite.services.YosemiteApiRestClient;
+import io.yosemite.services.YosemiteJ;
+import io.yosemite.services.yxcontracts.KYCStatusType;
 import io.yosemite.services.yxcontracts.YosemiteDigitalContractJ;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
 import io.yosemite.services.yxcontracts.YosemiteTokenJ;
 import io.yosemite.util.Consts;
 import io.yosemite.util.StringUtils;
+import io.yosemite.util.Utils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.yosemite.data.remote.model.chain.PushedTransaction;
-import io.yosemite.util.Utils;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertTrue;
 
@@ -73,7 +75,8 @@ public class LibraryTest {
 
         YosemiteTokenJ yxj = new YosemiteTokenJ(apiClient);
 
-        PushedTransaction pushedTransaction = yxj.createToken("TEST", 5, "d2", new String[]{"d2@active"}).join();
+        EnumSet<YosemiteTokenJ.CanSetOptionsType> emptyOptions = EnumSet.noneOf(YosemiteTokenJ.CanSetOptionsType.class);
+        PushedTransaction pushedTransaction = yxj.createToken("TEST", 5, "d2", emptyOptions, new String[]{"d2@active"}).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
@@ -115,6 +118,37 @@ public class LibraryTest {
             // There must be only one row.
             logger.debug(row.toString());
         }
+    }
+
+    //@Test
+    public void testYosemiteTokenManagement() throws InterruptedException {
+
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+
+        YosemiteTokenJ yxj = new YosemiteTokenJ(apiClient);
+
+        EnumSet<YosemiteTokenJ.CanSetOptionsType> allOptions = EnumSet.allOf(YosemiteTokenJ.CanSetOptionsType.class);
+        PushedTransaction pushedTransaction = yxj.createToken("XYZ", 4, "d2", allOptions, new String[]{"d2@active"}).join();
+        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
+        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
+
+        Thread.sleep(1000);
+
+        EnumSet<KYCStatusType> kycStatusPhoneAuth = EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH);
+        pushedTransaction = yxj.setTokenKYCRule("XYZ", 4, "d2", YosemiteTokenJ.KYCRuleType.KYC_RULE_TRANSFER_RECEIVE, kycStatusPhoneAuth, new String[]{"d2@active"}).join();
+        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
+        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
+
+        EnumSet<YosemiteTokenJ.TokenOptionsType> freezeTokenTransfer = EnumSet.of(YosemiteTokenJ.TokenOptionsType.FREEZE_TOKEN_TRANSFER);
+        pushedTransaction = yxj.setTokenOptions("XYZ", 4, "d2", freezeTokenTransfer, true, new String[]{"d2@active"}).join();
+        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
+        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
+
+        List<String> accounts = Arrays.asList("user1", "user2");
+        pushedTransaction = yxj.freezeAccounts("XYZ", 4, "d2", accounts, true, new String[]{"d2@active"}).join();
+        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
+        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
     }
 
     //@Test

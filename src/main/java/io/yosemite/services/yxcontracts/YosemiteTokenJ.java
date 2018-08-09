@@ -14,6 +14,8 @@ import io.yosemite.services.YosemiteJ;
 import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
 
+import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static io.yosemite.util.Consts.YOSEMITE_TOKEN_CONTRACT;
@@ -26,10 +28,14 @@ public class YosemiteTokenJ extends YosemiteJ {
         super(yosemiteApiRestClient);
     }
 
-    public CompletableFuture<PushedTransaction> createToken(
-            String symbol, int precision, String issuer, String[] permissions) {
-        if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
+    private void checkPrecision(int precision) {
         if (precision < 4 || precision > 18) throw new IllegalArgumentException("wrong precision");
+    }
+
+    public CompletableFuture<PushedTransaction> createToken(
+            String symbol, int precision, String issuer, EnumSet<CanSetOptionsType> canSetOptions, String[] permissions) {
+        if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
+        checkPrecision(precision);
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
 
         String eosSymbolStr = precision + "," + symbol;
@@ -38,6 +44,7 @@ public class YosemiteTokenJ extends YosemiteJ {
         symbolObj.addProperty("symbol", eosSymbolStr);
         symbolObj.addProperty("issuer", issuer);
         arrayObj.add(symbolObj);
+        arrayObj.add(CanSetOptionsType.getAsBitFlags(canSetOptions));
 
         return pushAction(YOSEMITE_TOKEN_CONTRACT, "create", new Gson().toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
@@ -113,10 +120,74 @@ public class YosemiteTokenJ extends YosemiteJ {
         return object;
     }
 
+    public CompletableFuture<PushedTransaction> setTokenKYCRule(
+            String symbol, int precision, String issuer, KYCRuleType kycRuleType, EnumSet<KYCStatusType> kycVectors, String[] permissions) {
+        if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
+        checkPrecision(precision);
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+
+        String eosSymbolStr = precision + "," + symbol;
+        JsonArray arrayObj = new JsonArray();
+        JsonObject symbolObj = new JsonObject();
+        symbolObj.addProperty("symbol", eosSymbolStr);
+        symbolObj.addProperty("issuer", issuer);
+        arrayObj.add(symbolObj);
+        arrayObj.add(kycRuleType.getValue());
+        arrayObj.add(KYCStatusType.getAsBitFlags(kycVectors));
+
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "setkycrule", new Gson().toJson(arrayObj),
+                isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
+    }
+
+    public CompletableFuture<PushedTransaction> setTokenOptions(
+            String symbol, int precision, String issuer, EnumSet<TokenOptionsType> options, boolean overwrite, String[] permissions) {
+        if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
+        checkPrecision(precision);
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+
+        String eosSymbolStr = precision + "," + symbol;
+        JsonArray arrayObj = new JsonArray();
+        JsonObject symbolObj = new JsonObject();
+        symbolObj.addProperty("symbol", eosSymbolStr);
+        symbolObj.addProperty("issuer", issuer);
+        arrayObj.add(symbolObj);
+        arrayObj.add(TokenOptionsType.getAsBitFlags(options));
+        arrayObj.add(overwrite ? 1 : 0);
+
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "setoptions", new Gson().toJson(arrayObj),
+                isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
+    }
+
+    public CompletableFuture<PushedTransaction> freezeAccounts(
+            String symbol, int precision, String issuer, final List<String> accounts, boolean freeze, final String[] permissions) {
+        if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
+        checkPrecision(precision);
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+        if (accounts == null || accounts.isEmpty()) throw new IllegalArgumentException("empty accounts");
+
+        String eosSymbolStr = precision + "," + symbol;
+        JsonArray arrayObj = new JsonArray();
+        JsonObject symbolObj = new JsonObject();
+        symbolObj.addProperty("symbol", eosSymbolStr);
+        symbolObj.addProperty("issuer", issuer);
+        arrayObj.add(symbolObj);
+
+        JsonArray accountsObj = new JsonArray();
+        for (String account : accounts) {
+            accountsObj.add(account);
+        }
+        arrayObj.add(accountsObj);
+        arrayObj.add(freeze ? 1 : 0);
+
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "freezeacc", new Gson().toJson(arrayObj),
+                isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
+    }
+
+
     public CompletableFuture<TableRow> getTokenStats(String symbol, int precision, String issuer) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
-        if (precision < 4 || precision > 18) throw new IllegalArgumentException("wrong precision");
+        checkPrecision(precision);
 
         String eosSymbolStr = precision + "," + symbol;
 
@@ -131,7 +202,7 @@ public class YosemiteTokenJ extends YosemiteJ {
         if (StringUtils.isEmpty(account)) throw new IllegalArgumentException("wrong account");
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
-        if (precision < 4 || precision > 18) throw new IllegalArgumentException("wrong precision");
+        checkPrecision(precision);
 
         String yxSymbolSerializedHex = Utils.makeWebAssembly128BitIntegerAsHexString(
                 TypeSymbol.stringToSymbol(precision, symbol), TypeName.string_to_name(issuer));
@@ -146,4 +217,82 @@ public class YosemiteTokenJ extends YosemiteJ {
         return getTableRows(YOSEMITE_TOKEN_CONTRACT, account, "taccounts", options);
     }
 
+    /**
+     * Set<CanSetOptionsType> statusFlags = EnumSet.of(
+     *             CanSetOptionsType.FREEZE_TOKEN_TRANSFER,
+     *             CanSetOptionsType.FREEZE_ACCOUNT);
+     */
+    public enum CanSetOptionsType {
+        NONE(), // == 0
+        FREEZE_TOKEN_TRANSFER((short)0),
+        FREEZE_ACCOUNT((short)1),
+        SET_KYC_RULE((short)2),
+        ;
+
+        private final short value;
+
+        // Must be only used by NONE
+        CanSetOptionsType() {
+            this.value = 0;
+        }
+
+        CanSetOptionsType(short shift) {
+            this.value = (short) (1 << shift);
+        }
+
+        public short getValue() {
+            return value;
+        }
+
+        public static short getAsBitFlags(EnumSet<CanSetOptionsType> flags) {
+            short value = 0;
+            for (CanSetOptionsType flag : flags) {
+                value |= flag.getValue();
+            }
+            return value;
+        }
+    }
+
+    /**
+     * KYC Rule Type for Non-native Token
+     */
+    public enum KYCRuleType {
+        KYC_RULE_TRANSFER_SEND((short)0),
+        KYC_RULE_TRANSFER_RECEIVE((short)1)
+        ;
+
+        private final short value;
+
+        KYCRuleType(short value) {
+            this.value = value;
+        }
+
+        public short getValue() {
+            return value;
+        }
+    }
+
+    public enum TokenOptionsType {
+        NONE((short)0),
+        FREEZE_TOKEN_TRANSFER((short)1)
+        ;
+
+        private final short value;
+
+        TokenOptionsType(short value) {
+            this.value = value;
+        }
+
+        public short getValue() {
+            return value;
+        }
+
+        public static short getAsBitFlags(EnumSet<TokenOptionsType> flags) {
+            short value = 0;
+            for (TokenOptionsType flag : flags) {
+                value |= flag.getValue();
+            }
+            return value;
+        }
+    }
 }
