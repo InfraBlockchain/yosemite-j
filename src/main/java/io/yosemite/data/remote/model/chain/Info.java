@@ -26,10 +26,10 @@ package io.yosemite.data.remote.model.chain;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import io.yosemite.util.Utils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -132,19 +132,18 @@ public class Info {
     }
 
     public String getTimeAfterHeadBlockTime(int diffInMilSec) {
-        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        DateFormat sdf = Utils.SIMPLE_DATE_FORMAT_FOR_EOS.get();
         try {
-            Date date = sdf.parse( this.headBlockTime);
+            Date date = sdf.parse(this.headBlockTime);
 
             Calendar c = Calendar.getInstance();
             c.setTime(date);
-            c.add( Calendar.MILLISECOND, diffInMilSec);
+            c.add(Calendar.MILLISECOND, diffInMilSec);
             date = c.getTime();
 
             return sdf.format(date);
-
         } catch (ParseException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //TODO
             return this.headBlockTime;
         }
     }

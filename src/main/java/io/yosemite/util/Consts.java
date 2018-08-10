@@ -35,7 +35,7 @@ public final class Consts {
     public static final String  DEFAULT_WALLET_NAME = "default";
     public static final boolean DEFAULT_SAVE_PASSWORD= true;
 
-    public static final int TX_EXPIRATION_IN_MILSEC = 30000;
+    public static final int TX_EXPIRATION_IN_MILLIS = 1000 * 60 * 2; // 2 minutes (from cleos)
 
     public static final String DEFAULT_SYMBOL_STRING = "DKRW";
     public static final int DEFAULT_SYMBOL_PRECISION = 4;

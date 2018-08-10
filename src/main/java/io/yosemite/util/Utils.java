@@ -28,9 +28,16 @@ import io.yosemite.data.util.GsonEosTypeAdapterFactory;
 
 import java.io.Closeable;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 public class Utils {
-
+    public final static ThreadLocal<SimpleDateFormat> SIMPLE_DATE_FORMAT_FOR_EOS =
+            ThreadLocal.withInitial(() -> {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                return sdf;
+            });
 
     public static void closeSilently(Closeable c) {
         if (null != c) {

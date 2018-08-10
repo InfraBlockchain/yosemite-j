@@ -4,23 +4,22 @@ import com.google.gson.annotations.Expose;
 import io.yosemite.crypto.util.BitUtils;
 import io.yosemite.crypto.util.HexUtils;
 import io.yosemite.data.remote.model.types.EosType;
+import io.yosemite.util.Utils;
 
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 public class TransactionHeader implements EosType.Packer {
     @Expose
     private String expiration;
 
     @Expose
-    private int ref_block_num = 0; // uint16_t
+    private int ref_block_num; // uint16_t
 
     @Expose
-    private long ref_block_prefix = 0;// uint32_t
+    private long ref_block_prefix;// uint32_t
 
     @Expose
     private long max_net_usage_words; // fc::unsigned_int
@@ -67,13 +66,10 @@ public class TransactionHeader implements EosType.Packer {
         return ref_block_prefix;
     }
 
-
     private Date getExpirationAsDate(String dateStr) {
-        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        DateFormat sdf = Utils.SIMPLE_DATE_FORMAT_FOR_EOS.get();
         try {
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
             return sdf.parse(dateStr);
-
         } catch (ParseException e) {
             e.printStackTrace();
             return new Date();

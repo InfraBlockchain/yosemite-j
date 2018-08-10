@@ -10,6 +10,7 @@ import io.yosemite.data.remote.model.history.action.Actions;
 import io.yosemite.data.remote.model.history.action.GetTableOptions;
 import io.yosemite.data.remote.model.history.controlledaccounts.ControlledAccounts;
 import io.yosemite.data.remote.model.history.keyaccounts.KeyAccounts;
+import io.yosemite.util.Consts;
 import io.yosemite.util.StringUtils;
 
 import java.util.ArrayList;
@@ -22,17 +23,17 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     private final YosemiteChainApiService yxChainApiService;
     private final YosemiteHistoryApiService yxHistoryApiService;
     private final YosemiteWalletApiService yxWalletApiService;
+    private final int txExpirationInMillis;
 
     YosemiteApiRestClientImpl(String baseUrl) {
-        yxChainApiService = ApiServiceGenerator.createService(YosemiteChainApiService.class, baseUrl);
-        yxWalletApiService = ApiServiceGenerator.createService(YosemiteWalletApiService.class, baseUrl);
-        yxHistoryApiService = ApiServiceGenerator.createService(YosemiteHistoryApiService.class, baseUrl);
+        this(baseUrl, baseUrl, baseUrl, Consts.TX_EXPIRATION_IN_MILLIS);
     }
 
-    YosemiteApiRestClientImpl(String chainBaseUrl, String walletBaseUrl, String historyBaseUrl) {
+    YosemiteApiRestClientImpl(String chainBaseUrl, String walletBaseUrl, String historyBaseUrl, int txExpirationInMillis) {
         yxChainApiService = ApiServiceGenerator.createService(YosemiteChainApiService.class, chainBaseUrl);
         yxWalletApiService = ApiServiceGenerator.createService(YosemiteWalletApiService.class, walletBaseUrl);
         yxHistoryApiService = ApiServiceGenerator.createService(YosemiteHistoryApiService.class, historyBaseUrl);
+        this.txExpirationInMillis = txExpirationInMillis;
     }
 
     @Override
@@ -140,5 +141,10 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
         requestParameters.put("controlling_account", controllingAccountName);
 
         return new Request<>(yxHistoryApiService.getControlledAccounts(requestParameters));
+    }
+
+    @Override
+    public int getTxExpirationInMillis() {
+        return txExpirationInMillis;
     }
 }

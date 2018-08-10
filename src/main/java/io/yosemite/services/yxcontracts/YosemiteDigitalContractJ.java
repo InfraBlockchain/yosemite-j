@@ -12,10 +12,8 @@ import io.yosemite.services.YosemiteJ;
 import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 
 import static io.yosemite.util.Consts.YOSEMITE_DIGITAL_CONTRACT_CONTRACT;
@@ -24,13 +22,6 @@ import static io.yosemite.util.Consts.YOSEMITE_DIGITAL_CONTRACT_CONTRACT;
  * @author Eugene Chung
  */
 public class YosemiteDigitalContractJ extends YosemiteJ {
-    private final static ThreadLocal<SimpleDateFormat> SIMPLE_DATE_FORMAT_THREAD_LOCAL =
-            ThreadLocal.withInitial(() -> {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-                return sdf;
-            });
-
     private final static int MAX_INPUT_STRING_LENGTH = 256;
 
     public YosemiteDigitalContractJ(YosemiteApiRestClient yosemiteApiRestClient) {
@@ -61,7 +52,7 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
             signersObj.add(signer);
         }
         arrayObj.add(signersObj);
-        arrayObj.add(SIMPLE_DATE_FORMAT_THREAD_LOCAL.get().format(expiration));
+        arrayObj.add(Utils.SIMPLE_DATE_FORMAT_FOR_EOS.get().format(expiration));
         arrayObj.add(options);
 
         return pushAction(YOSEMITE_DIGITAL_CONTRACT_CONTRACT, "create", new Gson().toJson(arrayObj),

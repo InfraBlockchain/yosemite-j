@@ -42,4 +42,5 @@ public interface YosemiteApiRestClient {
 
     Request<ControlledAccounts> getControlledAccounts(String controllingAccountName);
 
+    int getTxExpirationInMillis();
 }

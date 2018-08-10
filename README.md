@@ -81,6 +81,14 @@ YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApi
 YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
 ```
 
+### Setting transaction expiration time
+Even if a transaction is successfully accepted by the Yosemite Chain, there is a possiblility that the transaction is failed to be in the irreversible block.
+For such pending transaction, it can be expired. The dapps can set the expiration time of transaction in milliseconds.
+```java
+// set transaction expiration time as 30 seconds
+YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", 30000);
+```
+
 ### Pushing action
 If you want to push an action to a deployed contract on the blockchain, you can use `pushAction` method.
 API calls are asynchronously composed using `CompletableFuture` in each method.
