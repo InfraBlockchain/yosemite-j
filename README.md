@@ -74,9 +74,12 @@ Info info = infoFuture.get();
 ```
 
 ## Using YosemiteJ
-`YosemiteJ` is a helper class that encapsulates complexities of set of APIs to do useful actions.
+`YosemiteJ` classes are helper classes that encapsulates complexities of set of APIs to do useful actions.
+The classes are packaged under `io.yosemite.services.yxcontracts`.
 
 ```java
+import io.yosemite.services.yxcontracts;
+
 YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
 ```
@@ -123,6 +126,10 @@ for (Action action : result.getActions()) {
 
 ### Issuing Native Token
 ```java
+import io.yosemite.services.yxcontracts;
+
+YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
 PushedTransaction pushedTransaction = yxj.issueNativeToken("servprovider", "1000000.0000 DKRW", "sysdepo", "memo", new String[]{"sysdepo@active"}).join();
 ```
 
@@ -216,6 +223,8 @@ for (Map<String, ?> row : tableRow.getRows()) {
 ## Digital Contract Actions
 * use YosemiteDigitalContractJ class to call action methods
 ```java
+import io.yosemite.services.yxcontracts;
+
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
         "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
 
