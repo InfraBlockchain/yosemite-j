@@ -44,7 +44,7 @@ public class Action implements EosType.Packer {
     private TypeActionName name;
 
     @Expose
-    private List<TypePermissionLevel> authorization = null;
+    private List<TypePermissionLevel> authorization;
 
     @Expose
     private JsonElement data;
