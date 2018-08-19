@@ -74,14 +74,19 @@ Info info = infoFuture.get();
 ```
 
 ## Using YosemiteJ
-`YosemiteJ` classes are helper classes that encapsulates complexities of set of APIs to do useful actions.
-The classes are packaged under `io.yosemite.services.yxcontracts`.
+`YosemiteJ` classes are helper classes that encapsulates complexities of set of APIs to do useful actions. Since `YosemiteJ` is an abstract class,
+you should use the following concrete classee under `io.yosemite.services.yxcontracts`.
+
+* YosemiteSystemJ
+* YosemiteDigitalContractJ
+* YosemiteNativeTokenJ
+* YosemiteTokenJ
 
 ```java
 import io.yosemite.services.yxcontracts;
 
 YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
-YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
+YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
 ```
 
 ### Setting transaction expiration time
@@ -106,7 +111,7 @@ String[] permissions = new String[]{"user1@active"};
 PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, permissions).join();
 
 String txId = pushedTransaction.getTransactionId();
-``` 
+```
 
 ### Getting the list of actions
 ```java
@@ -121,6 +126,21 @@ for (Action action : result.getActions()) {
 * https://developers.eos.io/eosio-cpp/docs/exchange-deposit-withdraw#section-polling-account-history
 
 # Yosemite Actions
+
+## System Actions
+
+### Create a new account
+```java
+import io.yosemite.services.yxcontracts;
+
+YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
+
+PushedTransaction pushedTransaction = yxj.createAccount("identity", "user1account",
+                "EOS8Ledj...vr9gj",
+                "EOS8Ledj...vr9gj",
+                new String[]{"identity@active"}).join();
+``` 
 
 ## Native Token Actions
 
@@ -272,7 +292,7 @@ pushedTransaction = yxj.removeDigitalContract("servprovider", 11, new String[]{"
 ### Getting Created Digital Contract
 * It's the same as querying from RAM database.
 ```java
-import io.yosemite.data.remote.model.chain.TableRow;
+import io.yosemite.data.remote.chain.TableRow;
 
 TableRow tableRow = yxj.getCreatedDigitalContract("servprovider", 11).join();
 for (Map<String, ?> row : tableRow.getRows()) {
@@ -285,7 +305,7 @@ for (Map<String, ?> row : tableRow.getRows()) {
 
 ### Getting Signer's Information
 ```java
-import io.yosemite.data.remote.model.chain.TableRow;
+import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.util.StringUtils;
 
 TableRow signerInfoTable = yxj.getSignerInfo("user3", "servprovider", 11).join();

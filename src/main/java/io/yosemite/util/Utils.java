@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
 public class Utils {
+
     public final static ThreadLocal<SimpleDateFormat> SIMPLE_DATE_FORMAT_FOR_EOS =
             ThreadLocal.withInitial(() -> {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -69,7 +70,6 @@ public class Utils {
             return defaultValue;
         }
     }
-
 
     public static String prettyPrintJson(Object object) {
         return new GsonBuilder()

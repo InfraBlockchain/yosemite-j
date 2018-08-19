@@ -1,16 +1,14 @@
 package io.yosemite.services;
 
-import io.yosemite.data.remote.model.api.AbiJsonToBinRequest;
-import io.yosemite.data.remote.model.api.AbiJsonToBinResponse;
-import io.yosemite.data.remote.model.api.GetRequiredKeysRequest;
-import io.yosemite.data.remote.model.api.GetRequiredKeysResponse;
-import io.yosemite.data.remote.model.chain.*;
-import io.yosemite.data.remote.model.chain.TableRow;
-import io.yosemite.data.remote.model.history.action.Actions;
-import io.yosemite.data.remote.model.history.action.GetTableOptions;
-import io.yosemite.data.remote.model.history.controlledaccounts.ControlledAccounts;
-import io.yosemite.data.remote.model.history.keyaccounts.KeyAccounts;
-import io.yosemite.util.Consts;
+import io.yosemite.data.remote.api.AbiJsonToBinRequest;
+import io.yosemite.data.remote.api.AbiJsonToBinResponse;
+import io.yosemite.data.remote.api.GetRequiredKeysRequest;
+import io.yosemite.data.remote.api.GetRequiredKeysResponse;
+import io.yosemite.data.remote.chain.*;
+import io.yosemite.data.remote.history.action.Actions;
+import io.yosemite.data.remote.history.action.GetTableOptions;
+import io.yosemite.data.remote.history.controlledaccounts.ControlledAccounts;
+import io.yosemite.data.remote.history.keyaccounts.KeyAccounts;
 import io.yosemite.util.StringUtils;
 
 import java.util.ArrayList;
@@ -20,30 +18,27 @@ import java.util.List;
 
 public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
 
-    private final YosemiteChainApiService yxChainApiService;
-    private final YosemiteHistoryApiService yxHistoryApiService;
-    private final YosemiteWalletApiService yxWalletApiService;
+    private final ApiServiceExecutor<YosemiteChainApiService> yxChainApiService;
+    private final ApiServiceExecutor<YosemiteHistoryApiService> yxHistoryApiService;
+    private final ApiServiceExecutor<YosemiteWalletApiService> yxWalletApiService;
+
     private final int txExpirationInMillis;
 
-    YosemiteApiRestClientImpl(String baseUrl) {
-        this(baseUrl, baseUrl, baseUrl, Consts.TX_EXPIRATION_IN_MILLIS);
-    }
-
     YosemiteApiRestClientImpl(String chainBaseUrl, String walletBaseUrl, String historyBaseUrl, int txExpirationInMillis) {
-        yxChainApiService = ApiServiceGenerator.createService(YosemiteChainApiService.class, chainBaseUrl);
-        yxWalletApiService = ApiServiceGenerator.createService(YosemiteWalletApiService.class, walletBaseUrl);
-        yxHistoryApiService = ApiServiceGenerator.createService(YosemiteHistoryApiService.class, historyBaseUrl);
+        yxChainApiService = ApiServiceExecutor.create(YosemiteChainApiService.class, chainBaseUrl);
+        yxWalletApiService = ApiServiceExecutor.create(YosemiteWalletApiService.class, walletBaseUrl);
+        yxHistoryApiService = ApiServiceExecutor.create(YosemiteHistoryApiService.class, historyBaseUrl);
         this.txExpirationInMillis = txExpirationInMillis;
     }
 
     @Override
     public Request<Info> getInfo() {
-        return new Request<>(yxChainApiService.getInfo());
+        return new Request<>(yxChainApiService.getService().getInfo(), yxChainApiService);
     }
 
     @Override
     public Request<Block> getBlock(String blockNumberorId) {
-        return new Request<>(yxChainApiService.getBlock(blockNumberorId));
+        return new Request<>(yxChainApiService.getService().getBlock(blockNumberorId), yxChainApiService);
     }
 
     @Override
@@ -72,27 +67,27 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
                 requestParameters.put("key_type", options.getKeyType());
             }
         }
-        return new Request<>(yxChainApiService.getTableRows(requestParameters));
+        return new Request<>(yxChainApiService.getService().getTableRows(requestParameters), yxChainApiService);
     }
 
     @Override
     public Request<AbiJsonToBinResponse> abiJsonToBin(AbiJsonToBinRequest req) {
-        return new Request<>(yxChainApiService.abiJsonToBin(req));
+        return new Request<>(yxChainApiService.getService().abiJsonToBin(req), yxChainApiService);
     }
 
     @Override
     public Request<GetRequiredKeysResponse> getRequiredKeys(GetRequiredKeysRequest req) {
-        return new Request<>(yxChainApiService.getRequiredKeys(req));
+        return new Request<>(yxChainApiService.getService().getRequiredKeys(req), yxChainApiService);
     }
 
     @Override
     public Request<PushedTransaction> pushTransaction(PackedTransaction req) {
-        return new Request<>(yxChainApiService.pushTransaction(req));
+        return new Request<>(yxChainApiService.getService().pushTransaction(req), yxChainApiService);
     }
 
     @Override
     public Request<List<String>> getPublicKeys() {
-        return new Request<>(yxWalletApiService.getPublicKeys());
+        return new Request<>(yxWalletApiService.getService().getPublicKeys(), yxWalletApiService);
     }
 
     @Override
@@ -102,45 +97,45 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
         collectionReq.add(pubKeys);
         collectionReq.add(chainid);
 
-        return new Request<>(yxWalletApiService.signTransaction(collectionReq));
+        return new Request<>(yxWalletApiService.getService().signTransaction(collectionReq), yxWalletApiService);
     }
 
     @Override
-    public Request<Actions> getActions(String accountName, Integer pos, Integer offset){
+    public Request<Actions> getActions(String accountName, Integer pos, Integer offset) {
         LinkedHashMap<String, Object> requestParameters = new LinkedHashMap<>(3);
 
         requestParameters.put("account_name", accountName);
         requestParameters.put("pos", pos);
         requestParameters.put("offset", offset);
 
-        return new Request<>(yxHistoryApiService.getActions(requestParameters));
+        return new Request<>(yxHistoryApiService.getService().getActions(requestParameters), yxHistoryApiService);
     }
 
     @Override
-    public Request<Transaction> getTransaction(String id){
+    public Request<Transaction> getTransaction(String id) {
         LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(1);
 
         requestParameters.put("id", id);
 
-        return new Request<>(yxHistoryApiService.getTransaction(requestParameters));
+        return new Request<>(yxHistoryApiService.getService().getTransaction(requestParameters), yxHistoryApiService);
     }
 
     @Override
-    public Request<KeyAccounts> getKeyAccounts(String publicKey){
+    public Request<KeyAccounts> getKeyAccounts(String publicKey) {
         LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(1);
 
         requestParameters.put("public_key", publicKey);
 
-        return new Request<>(yxHistoryApiService.getKeyAccounts(requestParameters));
+        return new Request<>(yxHistoryApiService.getService().getKeyAccounts(requestParameters), yxHistoryApiService);
     }
 
     @Override
-    public Request<ControlledAccounts> getControlledAccounts(String controllingAccountName){
+    public Request<ControlledAccounts> getControlledAccounts(String controllingAccountName) {
         LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(1);
 
         requestParameters.put("controlling_account", controllingAccountName);
 
-        return new Request<>(yxHistoryApiService.getControlledAccounts(requestParameters));
+        return new Request<>(yxHistoryApiService.getService().getControlledAccounts(requestParameters), yxHistoryApiService);
     }
 
     @Override

@@ -1,16 +1,19 @@
 package io.yosemite.services;
 
-import io.yosemite.data.remote.model.api.AbiJsonToBinRequest;
-import io.yosemite.data.remote.model.api.AbiJsonToBinResponse;
-import io.yosemite.data.remote.model.api.GetRequiredKeysRequest;
-import io.yosemite.data.remote.model.api.GetRequiredKeysResponse;
-import io.yosemite.data.remote.model.chain.*;
-import io.yosemite.data.remote.model.chain.TableRow;
-import io.yosemite.data.remote.model.history.action.Actions;
-import io.yosemite.data.remote.model.history.action.GetTableOptions;
-import io.yosemite.data.remote.model.history.controlledaccounts.ControlledAccounts;
-import io.yosemite.data.remote.model.history.keyaccounts.KeyAccounts;
+import dagger.BindsInstance;
+import dagger.Component;
+import io.yosemite.LibraryModule;
+import io.yosemite.data.remote.api.AbiJsonToBinRequest;
+import io.yosemite.data.remote.api.AbiJsonToBinResponse;
+import io.yosemite.data.remote.api.GetRequiredKeysRequest;
+import io.yosemite.data.remote.api.GetRequiredKeysResponse;
+import io.yosemite.data.remote.chain.*;
+import io.yosemite.data.remote.history.action.Actions;
+import io.yosemite.data.remote.history.action.GetTableOptions;
+import io.yosemite.data.remote.history.controlledaccounts.ControlledAccounts;
+import io.yosemite.data.remote.history.keyaccounts.KeyAccounts;
 
+import javax.inject.Named;
 import java.util.List;
 
 public interface YosemiteApiRestClient {

@@ -27,7 +27,7 @@ package io.yosemite.crypto.ec;
 import com.google.common.base.Preconditions;
 import io.yosemite.crypto.digest.Sha256;
 import io.yosemite.crypto.Hmac;
-import io.yosemite.data.remote.model.types.EosByteWriter;
+import io.yosemite.data.types.EosByteWriter;
 
 import java.math.BigInteger;
 import java.util.Arrays;

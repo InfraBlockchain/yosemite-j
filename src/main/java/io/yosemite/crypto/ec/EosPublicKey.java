@@ -38,6 +38,7 @@ public class EosPublicKey {
     private final long mCheck;
     private final CurveParam mCurveParam;
     private final byte[] mData;
+    private String mBase58Str;
 
     public static class IllegalEosPubkeyFormatException extends IllegalArgumentException {
         public IllegalEosPubkeyFormatException(String pubkeyStr) {
@@ -80,19 +81,24 @@ public class EosPublicKey {
         }
 
         mCheck = checksumRef.data;
+
+        mBase58Str = base58Str;
     }
 
     public byte[] getBytes() {
         return mData;
     }
 
-
     @Override
     public String toString() {
 
-        boolean isR1 = mCurveParam.isType(CurveParam.SECP256_R1);
+        if (mBase58Str == null) {
+            boolean isR1 = mCurveParam.isType(CurveParam.SECP256_R1);
 
-        return EosEcUtil.encodeEosCrypto(isR1 ? PREFIX : LEGACY_PREFIX, isR1 ? mCurveParam : null, mData);
+            mBase58Str = EosEcUtil.encodeEosCrypto(isR1 ? PREFIX : LEGACY_PREFIX, isR1 ? mCurveParam : null, mData);
+        }
+
+        return mBase58Str;
 
 //        byte[] postfixBytes = isR1 ? EosEcUtil.PREFIX_R1.getBytes() : new byte[0] ;
 //        byte[] toDigest = new byte[mData.length + postfixBytes.length];

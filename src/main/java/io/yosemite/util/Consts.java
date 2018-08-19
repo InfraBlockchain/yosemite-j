@@ -26,14 +26,13 @@ package io.yosemite.util;
 
 public final class Consts {
 
+    public static final String YOSEMITE_SYSTEM_CONTRACT = "eosio";
     public static final String YOSEMITE_NATIVE_TOKEN_CONTRACT = "yx.ntoken";
     public static final String YOSEMITE_TOKEN_CONTRACT = "yx.token";
     public static final String YOSEMITE_DIGITAL_CONTRACT_CONTRACT = "yx.dcontract";
 
-    public static final String DEFAULT_SERVANT_ACCOUNT = "eosio";
-
-    public static final String  DEFAULT_WALLET_NAME = "default";
-    public static final boolean DEFAULT_SAVE_PASSWORD= true;
+    public static final String DEFAULT_WALLET_NAME = "default";
+    public static final boolean DEFAULT_SAVE_PASSWORD = true;
 
     public static final int TX_EXPIRATION_IN_MILLIS = 1000 * 60 * 2; // 2 minutes (from cleos)
 
@@ -41,7 +40,7 @@ public final class Consts {
     public static final int DEFAULT_SYMBOL_PRECISION = 4;
 
     // constants from /libraries/include/eosio/chain/config.hpp
-    public static final int DEFAULT_BASE_PER_TRANSACTION_NET_USAGE  = 100;
-    public static final int DEFAULT_BASE_PER_TRANSACTION_CPU_USAGE  = 500;
-    public static final int DEFAULT_BASE_PER_ACTION_CPU_USAGE       = 1000;
+    public static final int DEFAULT_BASE_PER_TRANSACTION_NET_USAGE = 100;
+    public static final int DEFAULT_BASE_PER_TRANSACTION_CPU_USAGE = 500;
+    public static final int DEFAULT_BASE_PER_ACTION_CPU_USAGE = 1000;
 }

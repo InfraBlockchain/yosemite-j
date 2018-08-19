@@ -1,11 +1,11 @@
 package io.yosemite.services;
 
-import io.yosemite.data.remote.model.api.AbiJsonToBinRequest;
-import io.yosemite.data.remote.model.api.AbiJsonToBinResponse;
-import io.yosemite.data.remote.model.api.GetRequiredKeysRequest;
-import io.yosemite.data.remote.model.api.GetRequiredKeysResponse;
-import io.yosemite.data.remote.model.chain.*;
-import io.yosemite.data.remote.model.chain.TableRow;
+import io.yosemite.data.remote.api.AbiJsonToBinRequest;
+import io.yosemite.data.remote.api.AbiJsonToBinResponse;
+import io.yosemite.data.remote.api.GetRequiredKeysRequest;
+import io.yosemite.data.remote.api.GetRequiredKeysResponse;
+import io.yosemite.data.remote.chain.*;
+import io.yosemite.data.remote.chain.TableRow;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;

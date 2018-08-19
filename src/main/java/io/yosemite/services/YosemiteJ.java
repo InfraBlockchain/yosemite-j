@@ -1,9 +1,12 @@
 package io.yosemite.services;
 
-import io.yosemite.data.remote.model.api.AbiJsonToBinRequest;
-import io.yosemite.data.remote.model.api.GetRequiredKeysRequest;
-import io.yosemite.data.remote.model.chain.*;
-import io.yosemite.data.remote.model.history.action.GetTableOptions;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import io.yosemite.data.remote.api.AbiJsonToBinRequest;
+import io.yosemite.data.remote.api.GetRequiredKeysRequest;
+import io.yosemite.data.remote.chain.*;
+import io.yosemite.data.remote.history.action.GetTableOptions;
+import io.yosemite.data.util.GsonEosTypeAdapterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +18,10 @@ public abstract class YosemiteJ {
     private final static Logger logger = LoggerFactory.getLogger(YosemiteJ.class);
 
     private final YosemiteApiRestClient mYosemiteApiRestClient;
+
+    protected static final Gson gson = new GsonBuilder()
+            .registerTypeAdapterFactory(new GsonEosTypeAdapterFactory())
+            .excludeFieldsWithoutExposeAnnotation().create();
 
     protected YosemiteJ(YosemiteApiRestClient yosemiteApiRestClient) {
         mYosemiteApiRestClient = yosemiteApiRestClient;
@@ -63,14 +70,14 @@ public abstract class YosemiteJ {
         return getActionWithBinaryData(contract, action, data, permissions).thenCompose(actionReq ->
                 mYosemiteApiRestClient.getInfo().executeAsync().thenCompose(info -> {
 
-                SignedTransaction txnBeforeSign = new SignedTransaction();
+                    SignedTransaction txnBeforeSign = new SignedTransaction();
 
-                txnBeforeSign.addAction(actionReq);
-                txnBeforeSign.setReferenceBlock(info.getHeadBlockId());
-                txnBeforeSign.setExpiration(info.getTimeAfterHeadBlockTime(mYosemiteApiRestClient.getTxExpirationInMillis()));
+                    txnBeforeSign.addAction(actionReq);
+                    txnBeforeSign.setReferenceBlock(info.getHeadBlockId());
+                    txnBeforeSign.setExpiration(info.getTimeAfterHeadBlockTime(mYosemiteApiRestClient.getTxExpirationInMillis()));
 
-                return signAndPackTransaction(txnBeforeSign, info.getChainId()).thenCompose(packedTx -> mYosemiteApiRestClient.pushTransaction(packedTx).executeAsync());
-            })
+                    return signAndPackTransaction(txnBeforeSign, info.getChainId()).thenCompose(packedTx -> mYosemiteApiRestClient.pushTransaction(packedTx).executeAsync());
+                })
         );
     }
 

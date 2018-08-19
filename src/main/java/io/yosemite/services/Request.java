@@ -7,16 +7,19 @@ import java.util.concurrent.CompletableFuture;
 public class Request<ResponseType> {
 
     private Call<ResponseType> call;
+    private ApiServiceExecutor apiServiceExecutor;
 
-    public Request(Call<ResponseType> call) {
+    public Request(Call<ResponseType> call,
+                   ApiServiceExecutor apiServiceExecutor) {
         this.call = call;
+        this.apiServiceExecutor = apiServiceExecutor;
     }
 
     public ResponseType execute() {
-        return ApiServiceGenerator.executeSync(call);
+        return (ResponseType) this.apiServiceExecutor.executeSync(call);
     }
 
     public CompletableFuture<ResponseType> executeAsync() {
-        return ApiServiceGenerator.executeAsync(call);
+        return this.apiServiceExecutor.executeAsync(call);
     }
 }

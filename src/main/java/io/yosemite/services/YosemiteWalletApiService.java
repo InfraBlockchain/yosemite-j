@@ -1,6 +1,6 @@
 package io.yosemite.services;
 
-import io.yosemite.data.remote.model.chain.SignedTransaction;
+import io.yosemite.data.remote.chain.SignedTransaction;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;

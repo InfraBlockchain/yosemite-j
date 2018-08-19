@@ -1,11 +1,15 @@
-import io.yosemite.data.remote.model.chain.Info;
-import io.yosemite.data.remote.model.chain.PushedTransaction;
-import io.yosemite.data.remote.model.chain.TableRow;
-import io.yosemite.data.remote.model.history.action.Action;
-import io.yosemite.data.remote.model.history.action.Actions;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import io.yosemite.data.remote.chain.Info;
+import io.yosemite.data.remote.chain.PushedTransaction;
+import io.yosemite.data.remote.chain.TableRow;
+import io.yosemite.data.remote.history.action.Actions;
+import io.yosemite.data.remote.history.action.OrderedActionResult;
+import io.yosemite.data.util.GsonEosTypeAdapterFactory;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
+import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import io.yosemite.services.yxcontracts.KYCStatusType;
 import io.yosemite.services.yxcontracts.YosemiteDigitalContractJ;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
@@ -13,7 +17,6 @@ import io.yosemite.services.yxcontracts.YosemiteTokenJ;
 import io.yosemite.util.Consts;
 import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +28,25 @@ import static org.junit.Assert.assertTrue;
 public class LibraryTest {
 
     final static Logger logger = LoggerFactory.getLogger(LibraryTest.class);
+
+    private Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonEosTypeAdapterFactory())
+            .excludeFieldsWithoutExposeAnnotation().create();
+
+    //@Test
+    public void createAccountTest() {
+
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+
+        YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
+        PushedTransaction pushedTransaction = yxj.createAccount("idauth1", "joepark5good",
+                "EOS8Ledj7tk8M9T36PxyHvUvrdqoQmg2qCKhyK4sjsZHgZAPvr9gj",
+                "EOS8Ledj7tk8M9T36PxyHvUvrdqoQmg2qCKhyK4sjsZHgZAPvr9gj",
+                new String[]{"idauth1@active"}
+        ).join();
+
+        logger.debug(pushedTransaction.getTransactionId());
+    }
 
     //@Test
     public void testGetInfo() throws IOException {
@@ -42,7 +64,7 @@ public class LibraryTest {
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
         Actions result = apiClient.getActions(Consts.YOSEMITE_DIGITAL_CONTRACT_CONTRACT, -1, -20).execute();
         System.out.println("LastIrreversibleBlock : " + result.getLastIrreversibleBlock());
-        for (Action action : result.getActions()) {
+        for (OrderedActionResult action : result.getActions()) {
             System.out.println(action.getAccountActionSeq() + " " + action.getBlockNum());
         }
     }
@@ -175,7 +197,7 @@ public class LibraryTest {
         Date expirationTime = calendar.getTime();
 
         pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
-                signers, expirationTime, (short)0, new String[]{"servprovider@active"}).join();
+                signers, expirationTime, (short) 0, new String[]{"servprovider@active"}).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
