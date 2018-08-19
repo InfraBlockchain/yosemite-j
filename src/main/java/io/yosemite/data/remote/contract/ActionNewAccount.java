@@ -5,9 +5,11 @@ import com.google.gson.annotations.SerializedName;
 import io.yosemite.crypto.util.HexUtils;
 import io.yosemite.data.types.*;
 
+import static io.yosemite.util.Consts.YOSEMITE_SYSTEM_CONTRACT;
+
 public class ActionNewAccount implements EosType.Packer {
 
-    public static final String CONTRACT = "yosemite";
+    public static final String CONTRACT = YOSEMITE_SYSTEM_CONTRACT;
     public static final String ACTION = "newaccount";
 
     @Expose

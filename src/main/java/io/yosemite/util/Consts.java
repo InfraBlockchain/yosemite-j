@@ -26,7 +26,7 @@ package io.yosemite.util;
 
 public final class Consts {
 
-    public static final String YOSEMITE_SYSTEM_CONTRACT = "eosio";
+    public static final String YOSEMITE_SYSTEM_CONTRACT = "yosemite";
     public static final String YOSEMITE_NATIVE_TOKEN_CONTRACT = "yx.ntoken";
     public static final String YOSEMITE_TOKEN_CONTRACT = "yx.token";
     public static final String YOSEMITE_DIGITAL_CONTRACT_CONTRACT = "yx.dcontract";
