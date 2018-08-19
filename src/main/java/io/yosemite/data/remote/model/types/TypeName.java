@@ -29,7 +29,8 @@ public class TypeName implements EosType.Packer {
     private static final String CHAR_MAP = ".12345abcdefghijklmnopqrstuvwxyz";
 
     private static final int MAX_NAME_IDX = 12;
-    private long mValue;
+    private final long mValue;
+    private volatile String form;
 
     static byte char_to_symbol(char c) {
         if (c >= 'a' && c <= 'z')
@@ -87,6 +88,7 @@ public class TypeName implements EosType.Packer {
 
     public TypeName(String name) {
         mValue = string_to_name(name);
+        this.form = name;
     }
 
     @Override
@@ -96,7 +98,12 @@ public class TypeName implements EosType.Packer {
 
     @Override
     public String toString() {
-        return name_to_string(mValue);
+        String form = this.form;
+        if (form == null) {
+            form = name_to_string(mValue);
+            this.form = form;
+        }
+        return form;
     }
 
 }
