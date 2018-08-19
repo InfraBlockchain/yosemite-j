@@ -1,6 +1,5 @@
 # Yosemite J - Yosemite Chain Java API
 
-This version is currently working with Yosemite Chain `yosemite-master` branch and `e9816f3`commit.
 The project's goal would be something like Java version of `cleos` of `EOS.IO` which provides convenient interfaces for the useful commands such as pushing action including some native actions of Yostemite Public Blockchain.
 
 The first step would be to implement a wrapper for basic HTTP APIs and then the other convenient interface would be built on top of it.
@@ -89,17 +88,23 @@ YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApi
 YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
 ```
 
+### Transaction and its actions
+In YosemiteChain, a transaction includes one or more actions. As the same as general transaction concept, the transaction is rolled back if at least one of the actions is failed.
+
+### Synching or Polling the Result of Transaction
+Even if a transaction is successfully accepted by the YosemiteChain, it's not that the transaction becomes irreversible immediately, which means it is the part of a block. The DApps should wait for or poll the transaction becomes irreversible.
+
 ### Setting transaction expiration time
-Even if a transaction is successfully accepted by the Yosemite Chain, there is a possiblility that the transaction is failed to be in the irreversible block.
-For such pending transaction, it can be expired. The dapps can set the expiration time of transaction in milliseconds.
+Even if a transaction is successfully accepted by the YosemiteChain, there is a possiblility that the transaction is failed to be in the irreversible block.
+For such pending transaction, it can be expired. The DApps can set the expiration time of transaction in milliseconds.
 ```java
 // set transaction expiration time as 30 seconds
 YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", 30000);
 ```
 
 ### Pushing action
-If you want to push an action to a deployed contract on the blockchain, you can use `pushAction` method.
-API calls are asynchronously composed using `CompletableFuture` in each method.
+If you want to push an action as a transaction to a deployed contract on the blockchain, you can use `pushAction` method.
+API calls are asynchronously composed using `CompletableFuture` in each method. The returned `PushedTransaction` instance provides the transaction id.
 
 ```java
 // contract and authorization information
@@ -113,7 +118,7 @@ PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, per
 String txId = pushedTransaction.getTransactionId();
 ```
 
-### Getting the list of actions
+### Getting the list of actions for checking the irreversibility of the transaction
 ```java
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
         "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
@@ -126,6 +131,8 @@ for (Action action : result.getActions()) {
 * https://developers.eos.io/eosio-cpp/docs/exchange-deposit-withdraw#section-polling-account-history
 
 # Yosemite Actions
+
+Note that most methods below are just the wrapper of HTTP JSON request using `pushAction` method.
 
 ## System Actions
 
@@ -250,13 +257,8 @@ YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClie
 
 YosemiteDigitalContractJ yxj = new YosemiteDigitalContractJ(apiClient);
 ```
-* Allmost all of methods return Java 8 CompletableFuture. That means you can get the result synchronously or asynchronously.
 
 ### Creating Digital Contract
-* Even if createDigitalContract method returns successfully, the digital contract you have created is not actually created on the YosemiteChain.
-* The create action must be included in the block and finally confirmed by other block producers, which it is called the action is irreversible.
-* You must check the finality or irreversibility of the action so that the digital contract is actually created.
-* The program must poll(check regurarly) to confirm the irreversibility with [getActions method](#getting-the-list-of-actions).
 ```java
 List<String> signers = Arrays.asList("user1", "user2");
 // prepare expiration time based on UTC time-zone
@@ -267,6 +269,10 @@ Date expirationTime = calendar.getTime();
 PushedTransaction pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
         signers, expirationTime, (short)0, new String[]{"servprovider@active"}).join();
 ```
+* Even if createDigitalContract method returns successfully, the digital contract you have created is not actually created on the YosemiteChain.
+* The create action must be included in the block and finally confirmed by other block producers, which it is called the action is irreversible.
+* You must check the finality or irreversibility of the action so that the digital contract is actually created.
+* The program must poll(check regurarly) to confirm the irreversibility with [getActions method](#getting-the-list-of-actions).
 
 ### Adding Additional Signers
 ```java

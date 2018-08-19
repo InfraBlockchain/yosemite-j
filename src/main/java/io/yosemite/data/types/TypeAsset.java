@@ -31,10 +31,11 @@ import java.util.regex.Pattern;
 
 public class TypeAsset implements EosType.Packer {
 
-    public static final long MAX_AMOUNT = (1 << 62) - 1;
+    public static final long MAX_AMOUNT = (1L << 62) - 1;
 
-    private long mAmount;
-    private TypeSymbol mSymbol;
+    private final long mAmount;
+    private final TypeSymbol mSymbol;
+    private volatile String form;
 
     public TypeAsset(String value) {
 
@@ -98,15 +99,20 @@ public class TypeAsset implements EosType.Packer {
 
     @Override
     public String toString() {
-        long precisionVal = precision();
-        String result = String.valueOf(mAmount / precisionVal);
+        String form = this.form;
+        if (form == null) {
+            long precisionVal = precision();
+            String result = String.valueOf(mAmount / precisionVal);
 
-        if (decimals() > 0) {
-            long fract = mAmount % precisionVal;
-            result += "." + String.valueOf(precisionVal + fract).substring(1);
+            if (decimals() > 0) {
+                long fract = mAmount % precisionVal;
+                result += "." + String.valueOf(precisionVal + fract).substring(1);
+            }
+
+            form = result + " " + symbolName();
+            this.form = form;
         }
-
-        return result + " " + symbolName();
+        return form;
     }
 
     @Override

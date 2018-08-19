@@ -4,19 +4,20 @@ import com.google.gson.annotations.Expose;
 import io.yosemite.data.types.EosType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Transaction extends TransactionHeader {
 
     @Expose
-    private List<Action> context_free_actions = new ArrayList<>();
+    private List<Action> context_free_actions = Collections.emptyList();
 
     @Expose
-    private List<Action> actions = null;
+    private List<Action> actions;
 
     // Extentions are prefixed with type and are a buffer that can be interpreted by code that is aware and ignored by unaware code.
     @Expose
-    private List<String> transaction_extensions = new ArrayList<>();
+    private List<String> transaction_extensions = Collections.emptyList();
 
     public Transaction() {
         super();

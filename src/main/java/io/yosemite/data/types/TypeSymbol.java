@@ -34,7 +34,8 @@ public class TypeSymbol implements EosType.Packer {
     public static String sCoreSymbolString = Consts.DEFAULT_SYMBOL_STRING;
     public static int sCoreSymbolPrecision = Consts.DEFAULT_SYMBOL_PRECISION;
 
-    private long mValue;
+    private final long mValue;
+    private volatile String form;
 
     public static void setCoreSymbol(int precision, String str) {
         sCoreSymbolString = str;
@@ -139,7 +140,12 @@ public class TypeSymbol implements EosType.Packer {
 
     @Override
     public String toString() {
-        return decimals() + "," + name();
+        String form = this.form;
+        if (form == null) {
+            form = decimals() + "," + name();
+            this.form = form;
+        }
+        return form;
     }
 
     @Override
