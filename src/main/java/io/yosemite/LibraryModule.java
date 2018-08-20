@@ -59,7 +59,6 @@ public class LibraryModule {
     @Provides
     @Singleton
     static OkHttpClient providesOkHttpClient(HostInterceptor hostInterceptor, HttpLoggingInterceptor httpLoggingInterceptor) {
-        System.out.print("providesOkHttpClient");
         return new OkHttpClient.Builder()
                 .addInterceptor(new HostInterceptor())
                 .addInterceptor(httpLoggingInterceptor)
@@ -73,7 +72,6 @@ public class LibraryModule {
                                      CallAdapter.Factory adapterFactory,
                                      @Named("baseUrl") String baseUrl
     ) {
-        System.out.print("providesRetrofit: " + baseUrl);
         return new Retrofit.Builder()
                 .addConverterFactory(converterFactory)
                 .addCallAdapterFactory(adapterFactory)
