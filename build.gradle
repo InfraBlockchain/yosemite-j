@@ -6,6 +6,15 @@
  * user guide available at https://docs.gradle.org/4.9/userguide/java_library_plugin.html
  */
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+    }
+}
+
 plugins {
     // Apply the java-library plugin to add support for Java Library
     id 'java-library'
@@ -68,9 +77,10 @@ repositories {
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'maven'
+apply plugin: 'com.github.johnrengelman.shadow'
 
-version = '0.2.0-SNAPSHOT'
-group = 'org.yosemite'
+version = '0.3.0-SNAPSHOT'
+group = 'io.yosemite'
 
 jar {
     manifest {
