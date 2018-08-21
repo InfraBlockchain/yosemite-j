@@ -17,6 +17,7 @@ import io.yosemite.services.yxcontracts.YosemiteTokenJ;
 import io.yosemite.util.Consts;
 import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +37,12 @@ public class LibraryTest {
     public void createAccountTest() {
 
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
 
         YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
-        PushedTransaction pushedTransaction = yxj.createAccount("idauth1", "joepark5good",
-                "EOS8Ledj7tk8M9T36PxyHvUvrdqoQmg2qCKhyK4sjsZHgZAPvr9gj",
-                "EOS8Ledj7tk8M9T36PxyHvUvrdqoQmg2qCKhyK4sjsZHgZAPvr9gj",
+        PushedTransaction pushedTransaction = yxj.createAccount("idauth1", "joepark1good",
+                "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ",
+                "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ",
                 new String[]{"idauth1@active"}
         ).join();
 
@@ -52,7 +53,7 @@ public class LibraryTest {
     public void testGetInfo() throws IOException {
 
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
         Info result = apiClient.getInfo().execute();
         System.out.println(result.getBrief());
     }

@@ -1,6 +1,5 @@
 package io.yosemite.services;
 
-import com.google.gson.Gson;
 import dagger.BindsInstance;
 import dagger.Component;
 import io.yosemite.LibraryModule;

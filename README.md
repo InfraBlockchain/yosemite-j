@@ -12,9 +12,9 @@ The first step would be to implement a wrapper for basic HTTP APIs and then the 
 
 ## Blockchain Setup
 Please refer to the [Yosemite Blockchain Guide](https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/yosemite_bios/yosemite_bios_testnet_permissioned.md) for getting prepared.
-You should be aware of HTTP endpoints for blockchain node and `keosd` for your wallet access.
+You should be aware of HTTP endpoints for blockchain node and `keyos` for your wallet access.
 
-Public testnet(http://testnet.yosemitelabs.org:8888) is already given for developers and it is recommended to run `keosd` in secure environment. 
+Public testnet(http://testnet.yosemitelabs.org:8888) is already given for developers and it is recommended to run `keyos` in secure environment. 
 
 ## Dependency
 
@@ -144,8 +144,8 @@ YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApi
 YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
 
 PushedTransaction pushedTransaction = yxj.createAccount("identity", "user1account",
-                "EOS8Ledj...vr9gj",
-                "EOS8Ledj...vr9gj",
+                "YOS8Ledj...vr9gj",
+                "YOS8Ledj...vr9gj",
                 new String[]{"identity@active"}).join();
 ``` 
 
@@ -325,7 +325,7 @@ for (Map<String, ?> row : signerInfoTable.getRows()) {
 
 ## References 
 
-## Supported EOS.IO HTTP APIs
+## Supported HTTP APIs
 
 #### Chain
  - [x] get_info
@@ -377,5 +377,3 @@ for (Map<String, ?> row : signerInfoTable.getRows()) {
  - [ ] add_greylist_accounts
  - [ ] remove_grelist_accounts
  
-### YosemiteJ APIs
-[API references](https://github.com/YosemiteLabs/yosemite-j) - Not available yet

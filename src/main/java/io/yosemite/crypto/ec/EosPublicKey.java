@@ -30,7 +30,8 @@ import io.yosemite.util.RefValue;
 import java.util.Arrays;
 
 public class EosPublicKey {
-    private static final String LEGACY_PREFIX = "EOS";
+    private static final String PREFIX_YOSEMITE = "YOS";
+    private static final String LEGACY_PREFIX_EOS = "EOS";
     private static final String PREFIX = "PUB";
 
     private static final int CHECK_BYTE_LEN = 4;
@@ -40,9 +41,9 @@ public class EosPublicKey {
     private final byte[] mData;
     private String mBase58Str;
 
-    public static class IllegalEosPubkeyFormatException extends IllegalArgumentException {
-        public IllegalEosPubkeyFormatException(String pubkeyStr) {
-            super("invalid eos public key : " + pubkeyStr);
+    public static class IllegalPubKeyFormatException extends IllegalArgumentException {
+        public IllegalPubKeyFormatException(String pubkeyStr) {
+            super("invalid public key : " + pubkeyStr);
         }
     }
 
@@ -53,7 +54,6 @@ public class EosPublicKey {
     public EosPublicKey(byte[] data, CurveParam curveParam) {
         mData = Arrays.copyOf(data, 33);
         mCurveParam = curveParam;
-
         mCheck = BitUtils.uint32ToLong(Ripemd160.from(mData, 0, mData.length).bytes(), 0);
     }
 
@@ -61,23 +61,36 @@ public class EosPublicKey {
         RefValue<Long> checksumRef = new RefValue<>();
 
         String[] parts = EosEcUtil.safeSplitEosCryptoString(base58Str);
-        if (base58Str.startsWith(LEGACY_PREFIX)) {
-            if (parts.length == 1) {
-                mCurveParam = EcTools.getCurveParam(CurveParam.SECP256_K1);
-                mData = EosEcUtil.getBytesIfMatchedRipemd160(base58Str.substring(LEGACY_PREFIX.length()), null, checksumRef);
-            } else {
-                throw new IllegalEosPubkeyFormatException(base58Str);
-            }
-        } else {
-            if (parts.length < 3) {
-                throw new IllegalEosPubkeyFormatException(base58Str);
-            }
 
-            // [0]: prefix, [1]: curve type, [2]: data
-            if (false == PREFIX.equals(parts[0])) throw new IllegalEosPubkeyFormatException(base58Str);
-
+        if (parts.length == 3) {
             mCurveParam = EosEcUtil.getCurveParamFrom(parts[1]);
+        } else if (parts.length == 1) {
+            mCurveParam = EcTools.getCurveParam(CurveParam.SECP256_K1);
+        } else {
+            throw new IllegalPubKeyFormatException(base58Str);
+        }
+
+        int curveParamType = mCurveParam.getCurveParamType();
+
+        if (curveParamType == CurveParam.SECP256_K1) {
+
+            String prefix = null;
+
+            if (base58Str.startsWith(PREFIX_YOSEMITE)) {
+                prefix = PREFIX_YOSEMITE;
+            } else if (base58Str.startsWith(LEGACY_PREFIX_EOS)) {
+                prefix = LEGACY_PREFIX_EOS;
+            }
+
+            if (prefix != null) {
+                mData = EosEcUtil.getBytesIfMatchedRipemd160(base58Str.substring(prefix.length()), null, checksumRef);
+            } else {
+                throw new IllegalPubKeyFormatException(base58Str);
+            }
+        } else if (curveParamType == CurveParam.SECP256_R1 && PREFIX.equals(parts[0])) {
             mData = EosEcUtil.getBytesIfMatchedRipemd160(parts[2], parts[1], checksumRef);
+        } else {
+            throw new IllegalPubKeyFormatException(base58Str);
         }
 
         mCheck = checksumRef.data;
@@ -95,7 +108,7 @@ public class EosPublicKey {
         if (mBase58Str == null) {
             boolean isR1 = mCurveParam.isType(CurveParam.SECP256_R1);
 
-            mBase58Str = EosEcUtil.encodeEosCrypto(isR1 ? PREFIX : LEGACY_PREFIX, isR1 ? mCurveParam : null, mData);
+            mBase58Str = EosEcUtil.encodeEosCrypto(isR1 ? PREFIX : PREFIX_YOSEMITE, isR1 ? mCurveParam : null, mData);
         }
 
         return mBase58Str;
