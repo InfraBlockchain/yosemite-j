@@ -1,6 +1,6 @@
 # Yosemite J - Yosemite Chain Java API
 
-The project's goal would be something like Java version of `cleos` of `EOS.IO` which provides convenient interfaces for the useful commands such as pushing action including some native actions of Yostemite Public Blockchain.
+The project's goal would be something like Java version of `clyos` which provides convenient interfaces for the useful commands such as pushing action including some native actions of Yostemite Public Blockchain.
 
 The first step would be to implement a wrapper for basic HTTP APIs and then the other convenient interface would be built on top of it.
 
