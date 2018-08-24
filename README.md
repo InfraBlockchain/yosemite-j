@@ -21,9 +21,9 @@ Public testnet(http://testnet.yosemitelabs.org:8888) is already given for develo
 #### Build and add archive
 1. Build the library project
 ```
-> git clone git@github.com:YosemiteLabs/yosemite-j.git
-> cd yosemite-j 
-> ./gradlew build
+git clone git@github.com:YosemiteLabs/yosemite-j.git
+cd yosemite-j 
+./gradlew build
 ```
 
 2. Get your archive
