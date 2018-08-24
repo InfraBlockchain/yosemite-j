@@ -257,6 +257,7 @@ YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClie
 
 YosemiteDigitalContractJ yxj = new YosemiteDigitalContractJ(apiClient);
 ```
+* [yx.dcontract](https://github.com/YosemiteLabs/yosemite-public-blockchain/tree/yosemite-master/contracts/yx.dcontract) would help you to understand the chain-side.
 
 ### Creating Digital Contract
 ```java
@@ -335,7 +336,7 @@ for (Map<String, ?> row : signerInfoTable.getRows()) {
  - [ ] get_abi
  - [ ] get_code
  - [ ] get_raw_code_and_abi
- - [ ] get_table_rows
+ - [x] get_table_rows
  - [ ] get_currency_balance
  - [x] abi_json_to_bin
  - [ ] abi_bin_to_json
