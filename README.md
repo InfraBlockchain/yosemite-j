@@ -63,7 +63,7 @@ Info info = apiClient.getInfo().execute();
 ```
 
 ### To Send Asynchronous Requests
-Asynchronous calls use `Executors.newCachedThreadPool()` to handle requests.
+Asynchronous calls use `Java 8 ForkJoinPool` to handle requests.
 ```java
 Future<Info> infoFuture = apiClient.getInfo().executeAsync();
 
