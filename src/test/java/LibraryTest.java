@@ -36,13 +36,14 @@ public class LibraryTest {
             .excludeFieldsWithoutExposeAnnotation().create();
 
     //@Test
-    public void signDigeset() {
+    public void signDigest() {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
 
-        String result = apiClient.signDigest("hello", "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ").execute();
+        YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
+        String signedData = yxj.sign("hello", "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ").join();
 
-        logger.debug(result);
+        logger.debug(signedData);
     }
 
     //@Test

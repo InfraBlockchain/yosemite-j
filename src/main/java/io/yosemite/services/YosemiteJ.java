@@ -2,6 +2,7 @@ package io.yosemite.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.yosemite.crypto.digest.Sha256;
 import io.yosemite.data.remote.api.AbiJsonToBinRequest;
 import io.yosemite.data.remote.api.GetRequiredKeysRequest;
 import io.yosemite.data.remote.chain.*;
@@ -10,6 +11,7 @@ import io.yosemite.data.util.GsonYosemiteTypeAdapterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -58,6 +60,12 @@ public abstract class YosemiteJ {
         });
 
         return packedTxFuture;
+    }
+
+    public final CompletableFuture<String> sign(String data, String pubKey) {
+        String sha256hex = Sha256.from(data.getBytes(StandardCharsets.UTF_8)).toString();
+
+        return mYosemiteApiRestClient.signDigest(sha256hex, pubKey).executeAsync();
     }
 
     public final CompletableFuture<PushedTransaction> pushAction(

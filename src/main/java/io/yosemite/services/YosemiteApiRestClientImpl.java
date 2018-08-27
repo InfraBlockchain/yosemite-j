@@ -113,13 +113,11 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
-    public Request<String> signDigest(String data, String pubKey) {
+    public Request<String> signDigest(String hexData, String pubKey) {
 
         Collection collectionReq = new ArrayList();
 
-        String sha256hex = Sha256.from(data.getBytes(StandardCharsets.UTF_8)).toString();
-
-        collectionReq.add(sha256hex);
+        collectionReq.add(hexData);
         collectionReq.add(pubKey);
 
         return new Request<>(yxWalletApiService.getService().signDigest(collectionReq), yxWalletApiService);

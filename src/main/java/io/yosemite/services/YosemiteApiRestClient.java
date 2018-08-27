@@ -35,7 +35,7 @@ public interface YosemiteApiRestClient {
 
     Request<SignedTransaction> signTransaction(SignedTransaction transactionToSign, List<String> pubKeys, String chainId);
 
-    Request<String> signDigest(String data, String pubKey);
+    Request<String> signDigest(String hexData, String pubKey);
 
     /* History */
     Request<Actions> getActions(String accountName, Integer pos, Integer offset);
