@@ -62,8 +62,8 @@ public abstract class YosemiteJ {
         return packedTxFuture;
     }
 
-    public final CompletableFuture<String> sign(String data, String pubKey) {
-        String sha256hex = Sha256.from(data.getBytes(StandardCharsets.UTF_8)).toString();
+    public final CompletableFuture<String> sign(byte[] dataTosign, String pubKey) {
+        String sha256hex = Sha256.from(dataTosign).toString();
 
         return mYosemiteApiRestClient.signDigest(sha256hex, pubKey).executeAsync();
     }

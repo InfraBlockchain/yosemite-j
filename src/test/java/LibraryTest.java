@@ -1,5 +1,8 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.yosemite.crypto.digest.Sha256;
+import io.yosemite.crypto.ec.EcDsa;
+import io.yosemite.crypto.ec.EcSignature;
 import io.yosemite.data.remote.chain.Block;
 import io.yosemite.data.remote.chain.Info;
 import io.yosemite.data.remote.chain.PushedTransaction;
@@ -19,11 +22,13 @@ import io.yosemite.services.yxcontracts.YosemiteTokenJ;
 import io.yosemite.util.Consts;
 import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.junit.Assert.assertTrue;
@@ -36,18 +41,28 @@ public class LibraryTest {
             .excludeFieldsWithoutExposeAnnotation().create();
 
     //@Test
-    public void signDigest() {
+    public void testSignDigestAndVerify() {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
 
-        YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
-        String signedData = yxj.sign("hello", "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ").join();
+        String strData = "hello";
+        byte[] data = strData.getBytes(StandardCharsets.UTF_8);
+        String pubKey = "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ";
 
-        logger.debug(signedData);
+        YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
+        String sigString = yxj.sign(data, pubKey).join();
+
+        EcSignature signature = new EcSignature(sigString);
+
+        logger.info("Data to sign: " + strData);
+        logger.info("Public Key corresponding to a private key to sign: " + pubKey);
+        logger.info("Signature: " + signature.toString());
+
+        Assert.assertTrue(EcDsa.verifySignature(data, signature, pubKey));
     }
 
     //@Test
-    public void createAccountTest() {
+    public void tesetCreateAccountTest() {
 
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");

@@ -129,44 +129,10 @@ public class EcDsa {
         return t;
     }
 
-    public static EcSignature sign(Sha256 hash, EosPrivateKey key) {
-        BigInteger privAsBI = key.getAsBigInteger();
-        SigChecker checker = new SigChecker(hash.getBytes(), privAsBI);
+    public static boolean verifySignature(byte[] message, EcSignature signature, String pubKey) {
+        EosPublicKey recoveredPubKey = recoverPubKey(Sha256.from(message).getBytes(), signature);
 
-        CurveParam curveParam = key.getCurveParam();
-
-        int nonce = 0;
-        while (true) {
-            deterministicGenerateK(curveParam, hash.getBytes(), privAsBI, checker, nonce++);
-
-            if (checker.s.compareTo(curveParam.halfCurveOrder()) > 0) {//  Secp256k1Param.HALF_CURVE_ORDER) > 0) {
-                checker.s = curveParam.n().subtract(checker.s);//   Secp256k1Param.n.subtract(checker.s);
-            }
-
-            if (checker.isRSEachLength(32)) {
-                break;
-            }
-        }
-
-        EcSignature signature = new EcSignature(checker.r, checker.s, curveParam);
-
-        byte[] data = hash.getBytes();
-
-        EosPublicKey pubKey = key.getPublicKey();
-
-        for (int i = 0; i < 4; i++) {
-            EosPublicKey recovered = recoverPubKey(curveParam, data, signature, i);
-            if (pubKey.equals(recovered)) {
-                signature.setRecid(i);
-                break;
-            }
-        }
-
-        if (signature.recId < 0) {
-            throw new IllegalStateException("could not find recid. Was this data signed with this key?");
-        }
-
-        return signature;
+        return recoveredPubKey.toString().equals(pubKey)? true : false;
     }
 
     public static EosPublicKey recoverPubKey(byte[] messageSigned, EcSignature signature) {

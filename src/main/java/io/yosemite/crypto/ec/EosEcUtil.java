@@ -176,6 +176,10 @@ public class EosEcUtil {
             }
         }
 
+        if (StringUtils.isEmpty(prefix)) {
+            prefix = EcSignature.PREFIX_YSG;
+        }
+
         byte[] toHashData = new byte[data.length + typePart.length()];
         System.arraycopy(data, 0, toHashData, 0, data.length);
         if (typePart.length() > 0) {
@@ -189,7 +193,6 @@ public class EosEcUtil {
 
         System.arraycopy(data, 0, dataToEncodeBase58, 0, data.length); // copy source data
         System.arraycopy(checksumBytes, 0, dataToEncodeBase58, data.length, 4); // copy checksum data
-
 
         String result;
         if (StringUtils.isEmpty(typePart)) {

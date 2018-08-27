@@ -31,18 +31,22 @@ import java.util.Arrays;
 
 
 public class EcSignature {
-    private static final String PREFIX = "SIG";
+
+    public static final String PREFIX_YSG = "YSG";
+    public static final String PREFIX = "SIG";
 
     public int recId = -1;
 
     public final BigInteger r;
     public final BigInteger s;
     public final CurveParam curveParam;
+    public final String prefix;
 
     public EcSignature(BigInteger r, BigInteger s, CurveParam curveParam) {
         this.r = r;
         this.s = s;
         this.curveParam = curveParam;
+        this.prefix = null;
     }
 
     public EcSignature(BigInteger r, BigInteger s, CurveParam curveParam, int recId) {
@@ -54,12 +58,14 @@ public class EcSignature {
     public EcSignature(String base58Str) {
         String[] parts = EosEcUtil.safeSplitEosCryptoString(base58Str);
         if (parts.length < 3) {
-            throw new IllegalArgumentException("Invalid private key format: " + base58Str);
+            throw new IllegalArgumentException("Invalid signature format: " + base58Str);
         }
 
-        if (PREFIX.equals(parts[0]) == false) {
+        if (!PREFIX.equals(parts[0]) && !PREFIX_YSG.equals(parts[0])) {
             throw new IllegalArgumentException("Signature Key has invalid prefix: " + base58Str);
         }
+
+        this.prefix = parts[0];
 
         if (StringUtils.isEmpty(parts[2])) {
             throw new IllegalArgumentException("Signature has no data: " + base58Str);
@@ -140,7 +146,7 @@ public class EcSignature {
         System.arraycopy(EcTools.integerToBytes(this.r, 32), 0, sigData, 1, 32);
         System.arraycopy(EcTools.integerToBytes(this.s, 32), 0, sigData, 33, 32);
 
-        return EosEcUtil.encodeEosCrypto(PREFIX, curveParam, sigData);
+        return EosEcUtil.encodeEosCrypto(this.prefix, curveParam, sigData);
     }
 
     @Override
