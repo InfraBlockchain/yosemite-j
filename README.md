@@ -143,6 +143,17 @@ for (Action action : result.getActions()) {
 ```
 * https://developers.eos.io/eosio-cpp/docs/exchange-deposit-withdraw#section-polling-account-history
 
+### Sign arbitrary data
+```java
+String dataToSign = "hello";
+String pubKey = "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ";
+String signedData = yxj.sign(dataToSign, pubKey).join();
+
+// Or if you want to sign a byte array, use REST API client
+String sha256hex = Sha256.from(dataToSign.getBytes(StandardCharsets.UTF_8)).toString();
+signedData = apiClient.signDigest(sha256hex, pubKey).execute();
+```
+
 # Yosemite Actions
 
 Note that most methods below are just the wrapper of HTTP JSON request using `pushAction` method.
