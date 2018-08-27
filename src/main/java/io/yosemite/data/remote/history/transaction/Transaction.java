@@ -27,7 +27,7 @@ public class Transaction {
     private Integer lastIrreversibleBlock;
 
     @Expose
-    private List<ActionTrace> traces = null;
+    private List<ActionTrace> traces;
 
     @Expose
     private String status;
