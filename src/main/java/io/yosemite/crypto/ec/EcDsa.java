@@ -129,8 +129,8 @@ public class EcDsa {
         return t;
     }
 
-    public static boolean verifySignature(byte[] message, EcSignature signature, String pubKey) {
-        EosPublicKey recoveredPubKey = recoverPubKey(Sha256.from(message).getBytes(), signature);
+    public static boolean verifySignature(byte[] message, String signature, String pubKey) {
+        EosPublicKey recoveredPubKey = recoverPubKey(Sha256.from(message).getBytes(), new EcSignature(signature));
 
         return recoveredPubKey.toString().equals(pubKey)? true : false;
     }

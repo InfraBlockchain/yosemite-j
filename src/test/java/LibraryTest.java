@@ -41,7 +41,7 @@ public class LibraryTest {
     private Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonYosemiteTypeAdapterFactory())
             .excludeFieldsWithoutExposeAnnotation().create();
 
-    //@Test
+    @Test
     public void testSignDigestAndVerify() {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
@@ -51,13 +51,11 @@ public class LibraryTest {
         String pubKey = "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ";
 
         YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
-        String sigString = yxj.sign(data, pubKey).join();
-
-        EcSignature signature = new EcSignature(sigString);
+        String signature = yxj.sign(data, pubKey).join();
 
         logger.info("Data to sign: " + strData);
         logger.info("Public Key corresponding to a private key to sign: " + pubKey);
-        logger.info("Signature: " + signature.toString());
+        logger.info("Signature: " + signature);
 
         Assert.assertTrue(EcDsa.verifySignature(data, signature, pubKey));
     }

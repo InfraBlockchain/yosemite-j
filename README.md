@@ -145,13 +145,13 @@ for (Action action : result.getActions()) {
 
 ### Sign arbitrary data & verify signature
 ```java
+import io.yosemite.crypto.ec.EcDsa;
+
 String strData = "hello";
 byte[] data = strData.getBytes(StandardCharsets.UTF_8);
 String pubKey = "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ";
 
-String sigString = yxj.sign(data, pubKey).join();
-
-EcSignature signature = new EcSignature(sigString);
+String signature = yxj.sign(data, pubKey).join();
 
 boolean isVerified = EcDsa.verifySignature(data, signature, pubKey);
 ```
