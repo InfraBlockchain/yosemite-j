@@ -16,4 +16,7 @@ public interface YosemiteWalletApiService {
 
     @POST("/v1/wallet/sign_transaction")
     Call<SignedTransaction> signTransaction(@Body Collection transactionData);
+
+    @POST("/v1/wallet/sign_digest")
+    Call<String> signDigest(@Body Collection dataToSign);
 }

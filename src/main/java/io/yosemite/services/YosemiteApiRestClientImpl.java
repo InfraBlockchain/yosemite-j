@@ -1,5 +1,6 @@
 package io.yosemite.services;
 
+import io.yosemite.crypto.digest.Sha256;
 import io.yosemite.data.remote.api.AbiJsonToBinRequest;
 import io.yosemite.data.remote.api.AbiJsonToBinResponse;
 import io.yosemite.data.remote.api.GetRequiredKeysRequest;
@@ -11,6 +12,7 @@ import io.yosemite.data.remote.history.controlledaccounts.ControlledAccounts;
 import io.yosemite.data.remote.history.keyaccounts.KeyAccounts;
 import io.yosemite.util.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -37,8 +39,8 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
-    public Request<Block> getBlock(String blockNumberorId) {
-        return new Request<>(yxChainApiService.getService().getBlock(blockNumberorId), yxChainApiService);
+    public Request<Block> getBlock(String blockNumberOrId) {
+        return new Request<>(yxChainApiService.getService().getBlock(blockNumberOrId), yxChainApiService);
     }
 
     @Override
@@ -98,6 +100,19 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
         collectionReq.add(chainid);
 
         return new Request<>(yxWalletApiService.getService().signTransaction(collectionReq), yxWalletApiService);
+    }
+
+    @Override
+    public Request<String> signDigest(String data, String pubKey) {
+
+        Collection collectionReq = new ArrayList();
+
+        String sha256hex = Sha256.from(data.getBytes(StandardCharsets.UTF_8)).toString();
+
+        collectionReq.add(sha256hex);
+        collectionReq.add(pubKey);
+
+        return new Request<>(yxWalletApiService.getService().signDigest(collectionReq), yxWalletApiService);
     }
 
     @Override

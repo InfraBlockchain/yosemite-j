@@ -17,7 +17,7 @@ public interface YosemiteApiRestClient {
     /* Chain */
     Request<Info> getInfo();
 
-    Request<Block> getBlock(String blockNumberorId);
+    Request<Block> getBlock(String blockNumberOrId);
 
     Request<TableRow> getTableRows(String code, String scope, String table, GetTableOptions options);
 
@@ -31,6 +31,8 @@ public interface YosemiteApiRestClient {
     Request<List<String>> getPublicKeys();
 
     Request<SignedTransaction> signTransaction(SignedTransaction transactionToSign, List<String> pubKeys, String chainId);
+
+    Request<String> signDigest(String data, String pubKey);
 
     /* History */
     Request<Actions> getActions(String accountName, Integer pos, Integer offset);
