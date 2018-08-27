@@ -60,7 +60,7 @@ public class LibraryTest {
         System.out.println(result);
     }
 
-    @Test
+    //@Test
     public void testGetBlock() throws IOException {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
