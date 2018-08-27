@@ -66,6 +66,11 @@ public class TypeAsset implements EosType.Packer {
         this.mSymbol = symbol;
     }
 
+    public TypeAsset(TypeAsset typeAsset) {
+        this.mAmount = typeAsset.mAmount;
+        this.mSymbol = typeAsset.mSymbol;
+    }
+
     public boolean isAmountInRange() {
         return -MAX_AMOUNT <= mAmount && mAmount <= MAX_AMOUNT;
     }
@@ -83,7 +88,6 @@ public class TypeAsset implements EosType.Packer {
         return (mSymbol != null) ? mSymbol.precision() : 0;
     }
 
-
     public String symbolName() {
         if (mSymbol != null) {
             return mSymbol.name();
@@ -91,7 +95,6 @@ public class TypeAsset implements EosType.Packer {
 
         return "";
     }
-
 
     public long getAmount() {
         return mAmount;

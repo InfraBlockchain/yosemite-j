@@ -1,11 +1,13 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.yosemite.data.remote.chain.Block;
 import io.yosemite.data.remote.chain.Info;
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
+import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.action.OrderedActionResult;
-import io.yosemite.data.util.GsonEosTypeAdapterFactory;
+import io.yosemite.data.util.GsonYosemiteTypeAdapterFactory;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
@@ -30,7 +32,7 @@ public class LibraryTest {
 
     final static Logger logger = LoggerFactory.getLogger(LibraryTest.class);
 
-    private Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonEosTypeAdapterFactory())
+    private Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonYosemiteTypeAdapterFactory())
             .excludeFieldsWithoutExposeAnnotation().create();
 
     //@Test
@@ -40,7 +42,7 @@ public class LibraryTest {
 
         String result = apiClient.signDigest("hello", "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ").execute();
 
-        logger.debug("Result: " + result);
+        logger.debug(result);
     }
 
     //@Test
@@ -65,7 +67,23 @@ public class LibraryTest {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
         Info result = apiClient.getInfo().execute();
-        System.out.println(result.getBrief());
+        System.out.println(result);
+    }
+
+    //@Test
+    public void testGetBlock() throws IOException {
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+        Block result = apiClient.getBlock("1").execute();
+        System.out.println(Utils.prettyPrintJson(result));
+    }
+
+    //@Test
+    public void testGetAccount() throws IOException {
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+        Account result = apiClient.getAccount("yosemite").execute();
+        System.out.println(Utils.prettyPrintJson(result));
     }
 
     //@Test

@@ -23,15 +23,16 @@
  */
 package io.yosemite.data.remote.chain;
 
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import io.yosemite.data.types.TypeSymbol;
 import io.yosemite.util.Utils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
 
 public class Info {
 
@@ -82,6 +83,14 @@ public class Info {
     @Expose
     @SerializedName("block_net_limit")
     private long blockNetLimit;
+
+    @Expose
+    @SerializedName("server_version_string")
+    private Optional<String> serverVersionString;
+
+    @Expose
+    @SerializedName("native_token_symbol")
+    private TypeSymbol nativeTokenSymbol;
 
     public String getServerVersion() {
         return serverVersion;
@@ -148,13 +157,23 @@ public class Info {
         }
     }
 
-    public String getBrief(){
-        return    "\nserver version: "  + serverVersion
-                + "\nhead block num: " + headBlockNum
-                + "\nhead block id: " + headBlockId
-                + "\nchain id: " + chainId
-                + "\nlast irreversible block: " + lastIrreversibleBlockNum
-                + "\nhead block time: " + headBlockTime
-                + "\nhead block producer: " + headBlockProducer;
+    public String toString() {
+        return Utils.prettyPrintJson(this);
+    }
+
+    public Optional<String> getServerVersionString() {
+        return serverVersionString;
+    }
+
+    public void setServerVersionString(Optional<String> serverVersionString) {
+        this.serverVersionString = serverVersionString;
+    }
+
+    public TypeSymbol getNativeTokenSymbol() {
+        return nativeTokenSymbol;
+    }
+
+    public void setNativeTokenSymbol(TypeSymbol nativeTokenSymbol) {
+        this.nativeTokenSymbol = nativeTokenSymbol;
     }
 }
