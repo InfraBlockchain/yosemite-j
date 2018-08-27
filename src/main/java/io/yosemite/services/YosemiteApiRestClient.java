@@ -5,6 +5,7 @@ import io.yosemite.data.remote.api.AbiJsonToBinResponse;
 import io.yosemite.data.remote.api.GetRequiredKeysRequest;
 import io.yosemite.data.remote.api.GetRequiredKeysResponse;
 import io.yosemite.data.remote.chain.*;
+import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.action.GetTableOptions;
 import io.yosemite.data.remote.history.controlledaccounts.ControlledAccounts;
@@ -17,7 +18,9 @@ public interface YosemiteApiRestClient {
     /* Chain */
     Request<Info> getInfo();
 
-    Request<Block> getBlock(String blockNumberorId);
+    Request<Block> getBlock(String blockNumberOrId);
+
+    Request<Account> getAccount(String accountName);
 
     Request<TableRow> getTableRows(String code, String scope, String table, GetTableOptions options);
 

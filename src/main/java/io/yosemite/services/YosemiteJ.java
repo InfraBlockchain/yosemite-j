@@ -6,7 +6,7 @@ import io.yosemite.data.remote.api.AbiJsonToBinRequest;
 import io.yosemite.data.remote.api.GetRequiredKeysRequest;
 import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.history.action.GetTableOptions;
-import io.yosemite.data.util.GsonEosTypeAdapterFactory;
+import io.yosemite.data.util.GsonYosemiteTypeAdapterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,7 @@ public abstract class YosemiteJ {
     private final YosemiteApiRestClient mYosemiteApiRestClient;
 
     protected static final Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(new GsonEosTypeAdapterFactory())
+            .registerTypeAdapterFactory(new GsonYosemiteTypeAdapterFactory())
             .excludeFieldsWithoutExposeAnnotation().create();
 
     protected YosemiteJ(YosemiteApiRestClient yosemiteApiRestClient) {

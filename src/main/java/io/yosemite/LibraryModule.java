@@ -5,8 +5,8 @@ import com.google.gson.GsonBuilder;
 import dagger.Module;
 import dagger.Provides;
 import io.yosemite.data.remote.HostInterceptor;
-import io.yosemite.data.util.GsonEosTypeAdapterFactory;
-import io.yosemite.services.ApiServiceExecutor;
+import io.yosemite.data.util.GsonYosemiteTypeAdapterFactory;
+import io.yosemite.data.util.OptionalTypeAdapter;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.CallAdapter;
@@ -25,7 +25,8 @@ public class LibraryModule {
     @Singleton
     static Gson providesGson() {
         return new GsonBuilder()
-                .registerTypeAdapterFactory(new GsonEosTypeAdapterFactory())
+                .registerTypeAdapterFactory(new GsonYosemiteTypeAdapterFactory())
+                .registerTypeAdapterFactory(OptionalTypeAdapter.FACTORY)
                 .excludeFieldsWithoutExposeAnnotation().create();
     }
 

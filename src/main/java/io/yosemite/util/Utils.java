@@ -24,7 +24,7 @@
 package io.yosemite.util;
 
 import com.google.gson.GsonBuilder;
-import io.yosemite.data.util.GsonEosTypeAdapterFactory;
+import io.yosemite.data.util.GsonYosemiteTypeAdapterFactory;
 
 import java.io.Closeable;
 import java.math.BigInteger;
@@ -73,7 +73,7 @@ public class Utils {
 
     public static String prettyPrintJson(Object object) {
         return new GsonBuilder()
-                .registerTypeAdapterFactory(new GsonEosTypeAdapterFactory())
+                .registerTypeAdapterFactory(new GsonYosemiteTypeAdapterFactory())
                 .excludeFieldsWithoutExposeAnnotation()
                 .setPrettyPrinting().create().toJson(object);
     }

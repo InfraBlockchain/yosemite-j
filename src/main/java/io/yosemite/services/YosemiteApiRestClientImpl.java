@@ -5,6 +5,7 @@ import io.yosemite.data.remote.api.AbiJsonToBinResponse;
 import io.yosemite.data.remote.api.GetRequiredKeysRequest;
 import io.yosemite.data.remote.api.GetRequiredKeysResponse;
 import io.yosemite.data.remote.chain.*;
+import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.action.GetTableOptions;
 import io.yosemite.data.remote.history.controlledaccounts.ControlledAccounts;
@@ -37,8 +38,17 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
-    public Request<Block> getBlock(String blockNumberorId) {
-        return new Request<>(yxChainApiService.getService().getBlock(blockNumberorId), yxChainApiService);
+    public Request<Block> getBlock(String blockNumberOrId) {
+        LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(1);
+        requestParameters.put("block_num_or_id", blockNumberOrId);
+        return new Request<>(yxChainApiService.getService().getBlock(requestParameters), yxChainApiService);
+    }
+
+    @Override
+    public Request<Account> getAccount(String accountName) {
+        LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(1);
+        requestParameters.put("account_name", accountName);
+        return new Request<>(yxChainApiService.getService().getAccount(requestParameters), yxChainApiService);
     }
 
     @Override

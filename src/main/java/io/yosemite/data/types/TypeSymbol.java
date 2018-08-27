@@ -37,6 +37,10 @@ public class TypeSymbol implements EosType.Packer {
     private final long mValue;
     private volatile String form;
 
+    public TypeSymbol(TypeSymbol typeSymbol) {
+        mValue = typeSymbol.mValue;
+    }
+
     public static void setCoreSymbol(int precision, String str) {
         sCoreSymbolString = str;
         sCoreSymbolPrecision = precision;
@@ -96,6 +100,10 @@ public class TypeSymbol implements EosType.Packer {
 
     public TypeSymbol() {
         this(sCoreSymbolPrecision, sCoreSymbolString);
+    }
+
+    public TypeSymbol(String from) {
+        mValue = fromString(from).mValue;
     }
 
     public TypeSymbol(int precision, CharSequence symbolName) {

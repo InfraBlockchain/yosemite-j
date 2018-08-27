@@ -16,9 +16,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 
-public class GsonEosTypeAdapterFactory implements TypeAdapterFactory {
+public class GsonYosemiteTypeAdapterFactory implements TypeAdapterFactory {
 
-    private Map<Class<?>, TypeAdapter<?>> adapters = new LinkedHashMap<>();
+    private final Map<Class<?>, TypeAdapter<?>> adapters = new LinkedHashMap<>();
 
     {
         adapters.put(TypeName.class, new TypeNameAdapter<>(TypeName.class));
@@ -26,8 +26,11 @@ public class GsonEosTypeAdapterFactory implements TypeAdapterFactory {
         adapters.put(TypeActionName.class, new TypeNameAdapter<>(TypeActionName.class));
         adapters.put(TypePermissionName.class, new TypeNameAdapter<>(TypePermissionName.class));
         adapters.put(TypeScopeName.class, new TypeNameAdapter<>(TypeScopeName.class));
+        adapters.put(TypeSymbol.class, new TypeNameAdapter<>(TypeSymbol.class));
         adapters.put(TypeAsset.class, new TypeNameAdapter<>(TypeAsset.class));
         adapters.put(TypePublicKey.class, new TypeNameAdapter<>(TypePublicKey.class));
+        adapters.put(TypeYxSymbol.class, new TypeNameAdapter<>(TypeYxSymbol.class));
+        adapters.put(TypeYxAsset.class, new TypeNameAdapter<>(TypeYxAsset.class));
     }
 
     @Override
