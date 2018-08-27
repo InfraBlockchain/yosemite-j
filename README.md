@@ -143,15 +143,17 @@ for (Action action : result.getActions()) {
 ```
 * https://developers.eos.io/eosio-cpp/docs/exchange-deposit-withdraw#section-polling-account-history
 
-### Sign arbitrary data
+### Sign arbitrary data & verify signature
 ```java
-String dataToSign = "hello";
+String strData = "hello";
+byte[] data = strData.getBytes(StandardCharsets.UTF_8);
 String pubKey = "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ";
-String signedData = yxj.sign(dataToSign, pubKey).join();
 
-// Or if you want to sign a byte array, use REST API client
-String sha256hex = Sha256.from(dataToSign.getBytes(StandardCharsets.UTF_8)).toString();
-signedData = apiClient.signDigest(sha256hex, pubKey).execute();
+String sigString = yxj.sign(data, pubKey).join();
+
+EcSignature signature = new EcSignature(sigString);
+
+boolean isVerified = EcDsa.verifySignature(data, signature, pubKey);
 ```
 
 # Yosemite Actions
