@@ -358,7 +358,7 @@ for (Map<String, ?> row : signerInfoTable.getRows()) {
  - [x] get_info
  - [x] get_block
  - [ ] get_block_header_state
- - [ ] get_account
+ - [x] get_account
  - [ ] get_abi
  - [ ] get_code
  - [ ] get_raw_code_and_abi
@@ -387,7 +387,7 @@ for (Map<String, ?> row : signerInfoTable.getRows()) {
  - [x] sign_transaction
  - [ ] set_dir
  - [ ] set_eosio_key
- - [ ] sign_digest
+ - [x] sign_digest
  - [ ] create_key
 
 #### History
