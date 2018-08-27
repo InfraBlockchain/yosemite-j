@@ -3,6 +3,8 @@ package io.yosemite.data.remote.chain;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Optional;
+
 public class Block {
 
     @Expose
@@ -29,9 +31,9 @@ public class Block {
     @SerializedName("schedule_version")
     private String scheduleVersion;
 
-    @Expose
+    //@Expose
     @SerializedName("new_producers")
-    private String newProducers;
+    private Optional<ProducerScheduleType> newProducers;
 
     @Expose
     @SerializedName("producer_signature")
@@ -107,11 +109,11 @@ public class Block {
         this.scheduleVersion = scheduleVersion;
     }
 
-    public String getNewProducers() {
+    public Optional<ProducerScheduleType> getNewProducers() {
         return newProducers;
     }
 
-    public void setNewProducers(String newProducers) {
+    public void setNewProducers(Optional<ProducerScheduleType> newProducers) {
         this.newProducers = newProducers;
     }
 

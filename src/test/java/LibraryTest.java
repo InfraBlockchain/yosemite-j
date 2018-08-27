@@ -10,6 +10,7 @@ import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.action.OrderedActionResult;
+import io.yosemite.data.remote.history.transaction.Transaction;
 import io.yosemite.data.util.GsonYosemiteTypeAdapterFactory;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
@@ -90,7 +91,7 @@ public class LibraryTest {
     public void testGetBlock() throws IOException {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
-        Block result = apiClient.getBlock("1").execute();
+        Block result = apiClient.getBlock("74187").execute();
         System.out.println(Utils.prettyPrintJson(result));
     }
 
@@ -104,7 +105,6 @@ public class LibraryTest {
 
     //@Test
     public void testGetActions() throws IOException {
-
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
         Actions result = apiClient.getActions(Consts.YOSEMITE_DIGITAL_CONTRACT_CONTRACT, -1, -20).execute();
@@ -115,8 +115,17 @@ public class LibraryTest {
     }
 
     //@Test
-    public void testYosemiteNativeTokenJ() {
+    public void testGetTransaction() throws IOException {
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+        Transaction result = apiClient.getTransaction("a4f2bfe30205cf8805aa17014759152414bc6db6879b9de465fefe91cd118db5").execute();
+        System.out.println("LastIrreversibleBlock : " + result.getLastIrreversibleBlock());
+        System.out.println("Block : " + result.getBlockNum());
+        System.out.println(Utils.prettyPrintJson(result));
+    }
 
+    //@Test
+    public void testYosemiteNativeTokenJ() {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
 
