@@ -112,7 +112,7 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
-    public Request<Transaction> getTransaction(String id) {
+    public Request<io.yosemite.data.remote.history.transaction.Transaction> getTransaction(String id) {
         LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(1);
 
         requestParameters.put("id", id);

@@ -1,8 +1,5 @@
 package io.yosemite.services;
 
-import dagger.BindsInstance;
-import dagger.Component;
-import io.yosemite.LibraryModule;
 import io.yosemite.data.remote.api.AbiJsonToBinRequest;
 import io.yosemite.data.remote.api.AbiJsonToBinResponse;
 import io.yosemite.data.remote.api.GetRequiredKeysRequest;
@@ -13,7 +10,6 @@ import io.yosemite.data.remote.history.action.GetTableOptions;
 import io.yosemite.data.remote.history.controlledaccounts.ControlledAccounts;
 import io.yosemite.data.remote.history.keyaccounts.KeyAccounts;
 
-import javax.inject.Named;
 import java.util.List;
 
 public interface YosemiteApiRestClient {
@@ -39,7 +35,7 @@ public interface YosemiteApiRestClient {
     /* History */
     Request<Actions> getActions(String accountName, Integer pos, Integer offset);
 
-    Request<Transaction> getTransaction(String id);
+    Request<io.yosemite.data.remote.history.transaction.Transaction> getTransaction(String id);
 
     Request<KeyAccounts> getKeyAccounts(String publicKey);
 

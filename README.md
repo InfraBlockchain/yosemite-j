@@ -118,6 +118,19 @@ PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, per
 String txId = pushedTransaction.getTransactionId();
 ```
 
+### Getting the transaction information
+```java
+import io.yosemite.data.remote.history.transaction.Transaction;
+
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+        "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+Transaction tx = apiClient.getTransaction("312ad1eb7e6c797ed5a19e09da0c0f8bc3c67b3b8ee4ef93a49a76c3cb0c394b").execute();
+if (tx.getBlockNum() <= tx.getLastIrreversibleBlock()) {
+    //transaction is irreversible now
+    //
+}
+```
+
 ### Getting the list of actions for checking the irreversibility of the transaction
 ```java
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
