@@ -286,7 +286,7 @@ PushedTransaction pushedTransaction = yxj.createDigitalContract("servprovider", 
 * Even if createDigitalContract method returns successfully, the digital contract you have created is not actually created on the YosemiteChain.
 * The create action must be included in the block and finally confirmed by other block producers, which it is called the action is irreversible.
 * You must check the finality or irreversibility of the action so that the digital contract is actually created.
-* The program must poll(check regurarly) to confirm the irreversibility with [getActions method](#getting-the-list-of-actions).
+* The program must poll(check regurarly) to confirm the irreversibility with [getTransaction method](#getting-the-transaction-information) or [getActions method](#getting-the-list-of-actions).
 
 ### Adding Additional Signers
 ```java
