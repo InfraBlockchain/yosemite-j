@@ -6,12 +6,16 @@ import com.google.gson.annotations.SerializedName;
 /**
  * @author Eugene Chung
  */
-public class TxIrreversibilityResponse extends EventResponse {
+public class TxIrreversibilityResponse extends EventBase {
     @Expose
-    @SerializedName("response")
-    private TxIrreversibilityResponseDetail response;
+    @SerializedName("tx_id")
+    private String transactionId;
 
-    public void setResponse(TxIrreversibilityResponseDetail response) {
-        this.response = response;
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 }

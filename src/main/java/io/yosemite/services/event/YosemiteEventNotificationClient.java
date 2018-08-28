@@ -2,7 +2,6 @@ package io.yosemite.services.event;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import io.yosemite.data.remote.event.TxIrreversibilityParameters;
 import io.yosemite.data.remote.event.TxIrreversibilityRequest;
 import io.yosemite.data.remote.event.TxIrreversibilityResponse;
 import io.yosemite.services.ApiServiceExecutor;
@@ -68,15 +67,12 @@ public class YosemiteEventNotificationClient extends WebSocketListener {
     public String checkTransactionIrreversibility(String transactionId, Long blockNumberHint, EventNotificationCallback<TxIrreversibilityResponse> callback) {
         checkConnected();
 
-        TxIrreversibilityParameters parameters = new TxIrreversibilityParameters();
-        parameters.setTransactionId(transactionId);
-        parameters.setBlockNumberHint(blockNumberHint);
-
-        TxIrreversibilityRequest request = new TxIrreversibilityRequest();
         String requestId = generateRequestId();
+        TxIrreversibilityRequest request = new TxIrreversibilityRequest();
         request.setRequestId(requestId);
         request.setName(EventNames.TX_IRREVERSIBILITY.getName());
-        request.setParameters(parameters);
+        request.setTransactionId(transactionId);
+        request.setBlockNumberHint(blockNumberHint);
 
         requestIdToCallbackMap.put(requestId, callback);
         boolean result = webSocket.send(gson.toJson(request));
