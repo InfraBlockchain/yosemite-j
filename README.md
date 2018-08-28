@@ -16,32 +16,41 @@ You should be aware of HTTP endpoints for blockchain node and `keyos` for your w
 
 Public testnet(http://testnet.yosemitelabs.org:8888) is already given for developers and it is recommended to run `keyos` in secure environment. 
 
-## Dependency
+## Using Library
 
-#### Build and add archive
-1. Build the library project
+### Build and add archive
+#### 1. Build the library project
 ```
 git clone git@github.com:YosemiteLabs/yosemite-j.git
 cd yosemite-j 
 ./gradlew build
 ```
 
-2. Get your archive
+#### 2. Get your archive
 ```
-build/libs/yosemitej-{version}.jar
-```
-
-#### Gradle
-```
-compile ('org.yosemite:yosemitej:0.2.0-SNAPSHOT')
+build/libs/yosemitej-${version}-SNAPSHOT.jar
 ```
 
-#### Maven
+### Using dependency management tool
+Currently, we do not support public repository. Instead, you can publish to a maven local repository.
+
+#### 1. Publish to a local maven repository
+```
+./gradlew publishToMavenLocal
+```   
+
+#### 2. Specify the dependency from your project
+* Gradle
+```
+compile ('io.yosemite:yosemitej:${version}-SNAPSHOT')
+```
+
+* Maven
 ```
 <dependency>
-  <groupId>org.yosemite</groupId>
+  <groupId>io.yosemite</groupId>
   <artifactId>yosemitej</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
+  <version>${version}-SNAPSHOT</version>
 </dependency>
 ```
 
