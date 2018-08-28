@@ -359,9 +359,27 @@ for (Map<String, ?> row : signerInfoTable.getRows()) {
 }
 ```
 
+## Event Notification
+
+### Checking Transaction Irreversibility
+```java
+import io.yosemite.services.event.YosemiteEventNotificationClient;
+import io.yosemite.services.event.YosemiteEventNotificationClientFactory;
+
+YosemiteEventNotificationClient yosemiteEventNotificationClient =
+        YosemiteEventNotificationClientFactory.createYosemiteEventNotificationClient("ws://127.0.0.1:8888");
+...
+PushedTransaction pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
+        signers, expirationTime, (short) 0, new String[]{"servprovider@active"}).join();
+logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
+...
+yosemiteEventNotificationClient.registerTransactionId(pushedTransaction.getTransactionId());
+```
+
+
 ## References 
 
-## Supported HTTP APIs
+### Supported HTTP APIs
 
 #### Chain
  - [x] get_info

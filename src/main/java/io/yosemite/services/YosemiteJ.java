@@ -71,10 +71,6 @@ public abstract class YosemiteJ {
     public final CompletableFuture<PushedTransaction> pushAction(
             final String contract, final String action, final String data, final String[] permissions) {
 
-        logger.debug(contract);
-        logger.debug(action);
-        logger.debug(data);
-
         return getActionWithBinaryData(contract, action, data, permissions).thenCompose(actionReq ->
                 mYosemiteApiRestClient.getInfo().executeAsync().thenCompose(info -> {
 
