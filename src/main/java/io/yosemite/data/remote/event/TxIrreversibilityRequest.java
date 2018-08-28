@@ -6,11 +6,7 @@ import com.google.gson.annotations.SerializedName;
 /**
  * @author Eugene Chung
  */
-public class TxIrreversibilityRequest {
-    //{"name":"tx_irreversibility","parameters":{"tx_id":"a4f2bfe30205cf8805aa17014759152414bc6db6879b9de465fefe91cd118db5"}}
-    @Expose
-    private final String name = "tx_irreversibility";
-
+public class TxIrreversibilityRequest extends EventRequest {
     @Expose
     @SerializedName("params")
     private TxIrreversibilityParameters parameters;

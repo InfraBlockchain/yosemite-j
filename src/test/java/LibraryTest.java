@@ -1,13 +1,12 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.yosemite.crypto.digest.Sha256;
 import io.yosemite.crypto.ec.EcDsa;
-import io.yosemite.crypto.ec.EcSignature;
 import io.yosemite.data.remote.chain.Block;
 import io.yosemite.data.remote.chain.Info;
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.chain.account.Account;
+import io.yosemite.data.remote.event.TxIrreversibilityResponse;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.action.OrderedActionResult;
 import io.yosemite.data.remote.history.transaction.Transaction;
@@ -15,6 +14,7 @@ import io.yosemite.data.util.GsonYosemiteTypeAdapterFactory;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
+import io.yosemite.services.event.EventNotificationCallback;
 import io.yosemite.services.event.YosemiteEventNotificationClient;
 import io.yosemite.services.event.YosemiteEventNotificationClientFactory;
 import io.yosemite.services.yxcontracts.YosemiteSystemJ;
@@ -26,7 +26,6 @@ import io.yosemite.util.Consts;
 import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
 import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -293,6 +292,18 @@ public class LibraryTest {
         }
     }
 
+    private class TestEventCallback implements EventNotificationCallback<TxIrreversibilityResponse> {
+
+        @Override
+        public void eventNotified(TxIrreversibilityResponse response, Map<String, Object> responseJsonMap) {
+            logger.debug(responseJsonMap.toString());
+        }
+
+        @Override
+        public void errorOccurred(Throwable error) {
+        }
+    }
+
     //@Test
     public void testYosemiteEventNotification() throws InterruptedException {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
@@ -308,7 +319,7 @@ public class LibraryTest {
         try {
             pushedTransaction = yxj.removeDigitalContract("servprovider", 11, new String[]{"servprovider@active"}).join();
             logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
-            yosemiteEventNotificationClient.registerTransactionId(pushedTransaction.getTransactionId());
+            yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());
         } catch (Exception ignored) {
         }
 
@@ -323,18 +334,18 @@ public class LibraryTest {
                 signers, expirationTime, (short) 0, new String[]{"servprovider@active"}).join();
         logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-        yosemiteEventNotificationClient.registerTransactionId(pushedTransaction.getTransactionId());
+        yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());
 
         // 2. sign contract by signers
         pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", null).join();
         logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-        yosemiteEventNotificationClient.registerTransactionId(pushedTransaction.getTransactionId());
+        yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());
 
         pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user1", "I am user1", null).join();
         logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-        yosemiteEventNotificationClient.registerTransactionId(pushedTransaction.getTransactionId());
+        yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());
 
         Thread.sleep(5000);
         yosemiteEventNotificationClient.unsubscribe();

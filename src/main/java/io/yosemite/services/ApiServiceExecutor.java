@@ -22,7 +22,7 @@ public final class ApiServiceExecutor<Service> {
 
     private Retrofit retrofit;
 
-    public ApiServiceExecutor(Class<Service> serviceClass, Retrofit retrofit) {
+    private ApiServiceExecutor(Class<Service> serviceClass, Retrofit retrofit) {
         this.retrofit = retrofit;
         this.service = this.retrofit.create(serviceClass);
     }
