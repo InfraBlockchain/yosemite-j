@@ -17,6 +17,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.concurrent.TimeUnit;
 
 @Module
 public class LibraryModule {
@@ -63,6 +64,9 @@ public class LibraryModule {
         return new OkHttpClient.Builder()
                 .addInterceptor(new HostInterceptor())
                 .addInterceptor(httpLoggingInterceptor)
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
                 .build();
     }
 
