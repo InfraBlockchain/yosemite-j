@@ -27,7 +27,7 @@ public final class ApiServiceExecutor<Service> {
         this.service = this.retrofit.create(serviceClass);
     }
 
-    static <S> ApiServiceExecutor<S> create(Class<S> serviceClass, String baseUrl) {
+    public static <S> ApiServiceExecutor<S> create(Class<S> serviceClass, String baseUrl) {
         ApiServiceComponent apiServiceComponent = DaggerApiServiceComponent.builder().baseUrl(baseUrl).build();
         return new ApiServiceExecutor(serviceClass, apiServiceComponent.retrofit());
     }

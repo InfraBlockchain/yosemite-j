@@ -98,7 +98,7 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
         }
 
         return pushAction(YOSEMITE_DIGITAL_CONTRACT_CONTRACT, "sign", new Gson().toJson(arrayObj),
-                isEmptyArray(permissions) ? new String[]{signer + "@active"} : permissions);
+                isEmptyArray(permissions) ? new String[]{signer + "@active", creator + "@active"} : permissions);
     }
 
     public CompletableFuture<PushedTransaction> updateAdditionalDocumentHash(

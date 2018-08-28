@@ -31,6 +31,7 @@ public final class Consts {
     public static final String YOSEMITE_TOKEN_CONTRACT = "yx.token";
     public static final String YOSEMITE_DIGITAL_CONTRACT_CONTRACT = "yx.dcontract";
 
+    public static final String DEFAULT_KEYOS_HTTP_URL = "http://127.0.0.1:8900";
     public static final String DEFAULT_WALLET_NAME = "default";
     public static final boolean DEFAULT_SAVE_PASSWORD = true;
 

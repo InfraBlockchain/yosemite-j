@@ -15,6 +15,8 @@ import io.yosemite.data.util.GsonYosemiteTypeAdapterFactory;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
+import io.yosemite.services.event.YosemiteEventNotificationClient;
+import io.yosemite.services.event.YosemiteEventNotificationClientFactory;
 import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import io.yosemite.services.yxcontracts.KYCStatusType;
 import io.yosemite.services.yxcontracts.YosemiteDigitalContractJ;
@@ -264,11 +266,11 @@ public class LibraryTest {
         Thread.sleep(1000);
 
         // 3. sign contract by signers
-        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", new String[]{"user2@active"}).join();
+        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", new String[]{"user2@active", "servprovider@active"}).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
-        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user3", "I am user3", new String[]{"user3@active"}).join();
+        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user3", "I am user3", new String[]{"user3@active", "servprovider@active"}).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
@@ -291,4 +293,50 @@ public class LibraryTest {
         }
     }
 
+    //@Test
+    public void testYosemiteEventNotification() throws InterruptedException {
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+        YosemiteEventNotificationClient yosemiteEventNotificationClient =
+                YosemiteEventNotificationClientFactory.createYosemiteEventNotificationClient("ws://127.0.0.1:8888");
+        yosemiteEventNotificationClient.subscribe();
+
+        YosemiteDigitalContractJ yxj = new YosemiteDigitalContractJ(apiClient);
+
+        // 0. remove digital contract first
+        PushedTransaction pushedTransaction;
+        try {
+            pushedTransaction = yxj.removeDigitalContract("servprovider", 11, new String[]{"servprovider@active"}).join();
+            logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
+            yosemiteEventNotificationClient.registerTransactionId(pushedTransaction.getTransactionId());
+        } catch (Exception ignored) {
+        }
+
+        // 1. create digital contract
+        List<String> signers = Arrays.asList("user1", "user2");
+        // prepare expiration time based on UTC time-zone
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.add(Calendar.HOUR, 48);
+        Date expirationTime = calendar.getTime();
+
+        pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
+                signers, expirationTime, (short) 0, new String[]{"servprovider@active"}).join();
+        logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
+        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
+        yosemiteEventNotificationClient.registerTransactionId(pushedTransaction.getTransactionId());
+
+        // 2. sign contract by signers
+        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", null).join();
+        logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
+        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
+        yosemiteEventNotificationClient.registerTransactionId(pushedTransaction.getTransactionId());
+
+        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user1", "I am user1", null).join();
+        logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
+        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
+        yosemiteEventNotificationClient.registerTransactionId(pushedTransaction.getTransactionId());
+
+        Thread.sleep(5000);
+        yosemiteEventNotificationClient.unsubscribe();
+    }
 }
