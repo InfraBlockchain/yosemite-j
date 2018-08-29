@@ -82,6 +82,20 @@ apply plugin: 'com.github.johnrengelman.shadow'
 version = '0.3.0-SNAPSHOT'
 group = 'io.yosemite'
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'yosemitej'
+            from components.java
+            pom {
+                name = 'Yosemite Java SDK'
+                description = 'The project\'s goal would be something like Java version of clyos which provides convenient interfaces for the useful commands such as pushing action including some native actions of Yostemite Public Blockchain'
+                url = 'http://yosemitex.com'
+            }
+        }
+    }
+}
+
 jar {
     manifest {
         attributes('Implementation-Title': project.name,
