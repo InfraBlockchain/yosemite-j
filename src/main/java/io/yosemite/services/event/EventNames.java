@@ -1,7 +1,9 @@
 package io.yosemite.services.event;
 
 public enum EventNames {
-    TX_IRREVERSIBILITY("tx_irreversibility");
+    TX_IRREVERSIBILITY("tx_irreversibility"),
+    ERROR("error")
+    ;
 
     private final String name;
 

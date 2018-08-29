@@ -2,6 +2,7 @@ package io.yosemite.services.event;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import io.yosemite.data.remote.event.ErrorResponse;
 import io.yosemite.data.remote.event.TxIrreversibilityRequest;
 import io.yosemite.data.remote.event.TxIrreversibilityResponse;
 import io.yosemite.services.ApiServiceExecutor;
@@ -78,7 +79,7 @@ public class YosemiteEventNotificationClient extends WebSocketListener {
         boolean result = webSocket.send(gson.toJson(request));
         if (!result) {
             requestIdToCallbackMap.remove(requestId);
-            callback.errorOccurred(new Exception("WebSocket send failed")); //TODO:define exception
+            callback.errorOccurred(new WebSocketException("WebSocket send failed"));
             return null;
         }
 
@@ -107,6 +108,15 @@ public class YosemiteEventNotificationClient extends WebSocketListener {
                 if (callback != null) {
                     callback.eventNotified(response, resultMap);
                 }
+            } else if (EventNames.ERROR.getName().equals(name)) {
+                JsonElement jsonElement = gson.toJsonTree(resultMap);
+                ErrorResponse response = gson.fromJson(jsonElement, ErrorResponse.class);
+
+                EventNotificationCallback<TxIrreversibilityResponse> callback =
+                        (EventNotificationCallback<TxIrreversibilityResponse>) requestIdToCallbackMap.remove(response.getRequestId());
+                if (callback != null) {
+                    callback.errorOccurred(new EventNotificationException(response.getCode(), response.getMessage()));
+                }
             }
         }
 
@@ -120,7 +130,7 @@ public class YosemiteEventNotificationClient extends WebSocketListener {
             webSocket.close(1000, null);
             setWebSocket(null);
             for (EventNotificationCallback<?> callback : requestIdToCallbackMap.values()) {
-                callback.errorOccurred(new Exception("WebSocket closed by remote peer")); //TODO:define exception
+                callback.errorOccurred(new WebSocketException("WebSocket closed by remote peer"));
             }
             requestIdToCallbackMap.clear();
         }
@@ -129,7 +139,7 @@ public class YosemiteEventNotificationClient extends WebSocketListener {
         public void onFailure(WebSocket webSocket, Throwable t, Response response) {
             setWebSocket(null);
             for (EventNotificationCallback<?> callback : requestIdToCallbackMap.values()) {
-                callback.errorOccurred(t); //TODO:define exception
+                callback.errorOccurred(new WebSocketException(t));
             }
             requestIdToCallbackMap.clear();
         }
