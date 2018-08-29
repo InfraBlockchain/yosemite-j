@@ -1,12 +1,10 @@
 package io.yosemite;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import dagger.Module;
 import dagger.Provides;
 import io.yosemite.data.remote.HostInterceptor;
-import io.yosemite.data.util.GsonYosemiteTypeAdapterFactory;
-import io.yosemite.data.util.OptionalTypeAdapter;
+import io.yosemite.util.Utils;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.CallAdapter;
@@ -25,10 +23,7 @@ public class LibraryModule {
     @Provides
     @Singleton
     static Gson providesGson() {
-        return new GsonBuilder()
-                .registerTypeAdapterFactory(new GsonYosemiteTypeAdapterFactory())
-                .registerTypeAdapterFactory(OptionalTypeAdapter.FACTORY)
-                .excludeFieldsWithoutExposeAnnotation().create();
+        return Utils.createYosemiteJGsonBuilder().create();
     }
 
     @Provides

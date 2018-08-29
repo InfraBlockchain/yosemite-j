@@ -25,6 +25,7 @@ package io.yosemite.util;
 
 import com.google.gson.GsonBuilder;
 import io.yosemite.data.util.GsonYosemiteTypeAdapterFactory;
+import io.yosemite.data.util.OptionalTypeAdapter;
 
 import java.io.Closeable;
 import java.math.BigInteger;
@@ -71,11 +72,15 @@ public class Utils {
         }
     }
 
-    public static String prettyPrintJson(Object object) {
+    public static GsonBuilder createYosemiteJGsonBuilder() {
         return new GsonBuilder()
                 .registerTypeAdapterFactory(new GsonYosemiteTypeAdapterFactory())
-                .excludeFieldsWithoutExposeAnnotation()
-                .setPrettyPrinting().create().toJson(object);
+                .registerTypeAdapterFactory(OptionalTypeAdapter.FACTORY)
+                .excludeFieldsWithoutExposeAnnotation();
+    }
+
+    public static String prettyPrintJson(Object object) {
+        return createYosemiteJGsonBuilder().setPrettyPrinting().create().toJson(object);
     }
 
     public static String makeWebAssembly128BitIntegerAsHexString(long valueHigh, long valueLower) {

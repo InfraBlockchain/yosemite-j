@@ -359,9 +359,41 @@ for (Map<String, ?> row : signerInfoTable.getRows()) {
 }
 ```
 
+## Event Notification
+
+### Checking Transaction Irreversibility
+* The methods of EventNotificationCallback would be called by the different thread from checkTransactionIrreversibility() caller thread.
+```java
+import io.yosemite.services.event.YosemiteEventNotificationClient;
+import io.yosemite.services.event.YosemiteEventNotificationClientFactory;
+import io.yosemite.services.event.EventNotificationCallback;
+
+    private class TestEventCallback implements EventNotificationCallback<TxIrreversibilityResponse> {
+
+        @Override
+        public void eventNotified(TxIrreversibilityResponse response, Map<String, Object> responseJsonMap) {
+            logger.debug(responseJsonMap.toString());
+        }
+
+        @Override
+        public void errorOccurred(Throwable error) {
+        }
+    }
+
+YosemiteEventNotificationClient yosemiteEventNotificationClient =
+        YosemiteEventNotificationClientFactory.createYosemiteEventNotificationClient("ws://127.0.0.1:8888");
+...
+PushedTransaction pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
+        signers, expirationTime, (short) 0, new String[]{"servprovider@active"}).join();
+logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
+...
+yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());
+```
+
+
 ## References 
 
-## Supported HTTP APIs
+### Supported HTTP APIs
 
 #### Chain
  - [x] get_info

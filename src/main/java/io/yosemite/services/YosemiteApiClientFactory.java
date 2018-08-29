@@ -1,10 +1,6 @@
 package io.yosemite.services;
 
-import dagger.Component;
-import io.yosemite.LibraryModule;
 import io.yosemite.util.Consts;
-
-import javax.inject.Singleton;
 
 public class YosemiteApiClientFactory {
 
@@ -72,9 +68,6 @@ public class YosemiteApiClientFactory {
      */
     public static YosemiteApiRestClient createYosemiteApiClient(String baseUrl, String walletBaseUrl,
                                                                 String historyBaseUrl, int txExpirationInMillis) {
-
-
-
         return new YosemiteApiRestClientImpl(baseUrl, walletBaseUrl, historyBaseUrl, txExpirationInMillis);
     }
 }

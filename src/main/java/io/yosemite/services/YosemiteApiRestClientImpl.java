@@ -1,6 +1,5 @@
 package io.yosemite.services;
 
-import io.yosemite.crypto.digest.Sha256;
 import io.yosemite.data.remote.api.AbiJsonToBinRequest;
 import io.yosemite.data.remote.api.AbiJsonToBinResponse;
 import io.yosemite.data.remote.api.GetRequiredKeysRequest;
@@ -13,7 +12,6 @@ import io.yosemite.data.remote.history.controlledaccounts.ControlledAccounts;
 import io.yosemite.data.remote.history.keyaccounts.KeyAccounts;
 import io.yosemite.util.StringUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
