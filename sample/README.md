@@ -7,9 +7,9 @@ So we are going to provide quick command guideline for preparation.
 * It assumes that PATH environment is set to `yosemite`, `clyos`, and `keyos` executables.
 * https://github.com/YosemiteLabs/yosemite-public-blockchain#local-single-node-testnet
    * execute yosemite like below;
-   ```
+```
 yosemite --filter-on yx.dcontract:create: --filter-on yx.dcontract:sign:
-   ```
+```
 
 ### prepare wallet and its management daemon(keyos)
 * create default wallet (keyos is executed implicitly by clyos)
