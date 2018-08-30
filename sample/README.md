@@ -63,8 +63,9 @@ clyos push action yx.txfee settxfee '{"operation":"tf.dcremove", "fee":"0.0000 D
 ```
 
 ## Build
+It assumes that yosemite-j library is prepared with `./gradlew shadowJar`.
+
 ```shell
-./gradlew shadowJar
 javac -classpath ../build/libs/yosemitej-0.3.0-SNAPSHOT-all.jar io/yosemite/sample/DigitalContractJSample.java
 ```
 ## Execute
