@@ -61,3 +61,13 @@ clyos push action yx.txfee settxfee '{"operation":"tf.dcsign", "fee":"30.0000 DK
 clyos push action yx.txfee settxfee '{"operation":"tf.dcupadd", "fee":"5.0000 DKRW"}}' -p yosemite
 clyos push action yx.txfee settxfee '{"operation":"tf.dcremove", "fee":"0.0000 DKRW"}}' -p yosemite
 ```
+
+## Build
+```shell
+./gradlew shadowJar
+javac -classpath ../build/libs/yosemitej-0.3.0-SNAPSHOT-all.jar io/yosemite/sample/DigitalContractJSample.java
+```
+## Execute
+```shell
+java -classpath ../build/libs/yosemitej-0.3.0-SNAPSHOT-all.jar:. io.yosemite.sample.DigitalContractJSample
+```
