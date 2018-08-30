@@ -285,7 +285,7 @@ for (Map<String, ?> row : tableRow.getRows()) {
 ## Digital Contract Actions
 * use YosemiteDigitalContractJ class to call action methods
 ```java
-import io.yosemite.services.yxcontracts;
+import io.yosemite.services.yxcontracts.*;
 
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
         "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
@@ -295,6 +295,8 @@ YosemiteDigitalContractJ yxj = new YosemiteDigitalContractJ(apiClient);
 * [yx.dcontract](https://github.com/YosemiteLabs/yosemite-public-blockchain/tree/yosemite-master/contracts/yx.dcontract) would help you to understand the chain-side.
 
 ### Creating Digital Contract
+import io.yosemite.services.yxcontracts.*;
+
 ```java
 List<String> signers = Arrays.asList("user1", "user2");
 // prepare expiration time based on UTC time-zone
@@ -303,7 +305,7 @@ calendar.add(Calendar.HOUR, 48); // contract will be expired after 2 days
 Date expirationTime = calendar.getTime();
 
 PushedTransaction pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
-        signers, expirationTime, (short)0, new String[]{"servprovider@active"}).join();
+        signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short)0, new String[]{"servprovider@active"}).join();
 ```
 * Even if createDigitalContract method returns successfully, the digital contract you have created is not actually created on the YosemiteChain.
 * The create action must be included in the block and finally confirmed by other block producers, which it is called the action is irreversible.
@@ -384,7 +386,7 @@ YosemiteEventNotificationClient yosemiteEventNotificationClient =
         YosemiteEventNotificationClientFactory.createYosemiteEventNotificationClient("ws://127.0.0.1:8888");
 ...
 PushedTransaction pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
-        signers, expirationTime, (short) 0, new String[]{"servprovider@active"}).join();
+        signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short) 0, new String[]{"servprovider@active"}).join();
 logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
 ...
 yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());

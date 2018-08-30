@@ -13,6 +13,7 @@ import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
 
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -30,7 +31,9 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
 
     public CompletableFuture<PushedTransaction> createDigitalContract(
             final String creator, final long sequence, final String digitalContractHash, final String additionalDocumentHash,
-            final List<String> signers, final Date expiration, final short options, final String[] permissions) {
+            final List<String> signers, final Date expiration,
+            int accountType, EnumSet<KYCStatusType> kycVectors,
+            final short options, final String[] permissions) {
         if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
         if (StringUtils.isEmpty(digitalContractHash)) throw new IllegalArgumentException("empty digitalContractHash");
@@ -38,6 +41,7 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
         if (additionalDocumentHash.length() > MAX_INPUT_STRING_LENGTH) throw new IllegalArgumentException("too long additionalDocumentHash");
         if (signers == null || signers.isEmpty()) throw new IllegalArgumentException("empty signers");
         if (expiration == null) throw new IllegalArgumentException("wrong expiration");
+        if (accountType < 0) throw new IllegalArgumentException("negative accountType");
         if (options < 0) throw new IllegalArgumentException("negative option");
 
         JsonArray arrayObj = new JsonArray();
@@ -53,6 +57,8 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
         }
         arrayObj.add(signersObj);
         arrayObj.add(Utils.SIMPLE_DATE_FORMAT_FOR_EOS.get().format(expiration));
+        arrayObj.add(accountType);
+        arrayObj.add(KYCStatusType.getAsBitFlags(kycVectors));
         arrayObj.add(options);
 
         return pushAction(YOSEMITE_DIGITAL_CONTRACT_CONTRACT, "create", new Gson().toJson(arrayObj),

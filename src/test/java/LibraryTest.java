@@ -259,7 +259,7 @@ public class LibraryTest {
         Date expirationTime = calendar.getTime();
 
         pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
-                signers, expirationTime, (short) 0, new String[]{"servprovider@active"}).join();
+                signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short) 0, new String[]{"servprovider@active"}).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
@@ -313,8 +313,8 @@ public class LibraryTest {
         }
     }
 
-    //@Test
-    public void testYosemiteEventNotification() throws InterruptedException {
+    @Test
+    public void testYosemiteEventNotificationWithDigitalContract() throws InterruptedException {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
         YosemiteEventNotificationClient yosemiteEventNotificationClient =
@@ -340,7 +340,7 @@ public class LibraryTest {
         Date expirationTime = calendar.getTime();
 
         pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
-                signers, expirationTime, (short) 0, new String[]{"servprovider@active"}).join();
+                signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short) 0, new String[]{"servprovider@active"}).join();
         logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
         yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());
