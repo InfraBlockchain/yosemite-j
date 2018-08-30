@@ -362,7 +362,7 @@ import io.yosemite.util.StringUtils;
 
 TableRow signerInfoTable = yxj.getSignerInfo("user3", "servprovider", 11).join();
 for (Map<String, ?> row : signerInfoTable.getRows()) {
-    logger.debug(StringUtils.convertHexToString((String) row.get("signerinfo")));
+    logger.debug((String) row.get("signerinfo"));
 
     // There must be only one row.
     break;
