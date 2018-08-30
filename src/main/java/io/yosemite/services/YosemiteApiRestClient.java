@@ -31,6 +31,8 @@ public interface YosemiteApiRestClient {
     Request<PushedTransaction> pushTransaction(PackedTransaction req);
 
     /* Wallet */
+    Request<String> createKey(String walletName, String keyType);
+
     Request<List<String>> getPublicKeys();
 
     Request<SignedTransaction> signTransaction(SignedTransaction transactionToSign, List<String> pubKeys, String chainId);

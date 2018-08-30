@@ -17,8 +17,6 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class YosemiteJ {
 
-    private final static Logger logger = LoggerFactory.getLogger(YosemiteJ.class);
-
     private final YosemiteApiRestClient mYosemiteApiRestClient;
 
     protected static final Gson gson = new GsonBuilder()

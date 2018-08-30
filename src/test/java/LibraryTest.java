@@ -44,6 +44,14 @@ public class LibraryTest {
             .excludeFieldsWithoutExposeAnnotation().create();
 
     //@Test
+    public void walletTest() {
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+
+        apiClient.createKey("default", "k1").execute();
+    }
+
+    //@Test
     public void testSignDigestAndVerify() {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
