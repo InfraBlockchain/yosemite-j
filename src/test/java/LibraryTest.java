@@ -297,7 +297,7 @@ public class LibraryTest {
         for (Map<String, ?> row : signerInfoTable.getRows()) {
             // There must be only one row.
             logger.debug(row.toString());
-            logger.debug(StringUtils.convertHexToString((String) row.get("signerinfo")));
+            logger.debug((String) row.get("signerinfo"));
         }
     }
 

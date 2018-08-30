@@ -60,7 +60,7 @@ public final class ApiServiceExecutor<Service> {
         return Async.run(() -> executeSync(call));
     }
 
-    private YosemiteApiError getEosApiError(Response<?> response) throws IOException, YosemiteApiException {
+    private YosemiteApiError getEosApiError(Response<?> response) throws IOException {
         return (YosemiteApiError) retrofit.responseBodyConverter(YosemiteApiError.class, new Annotation[0])
                 .convert(response.errorBody());
     }

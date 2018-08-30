@@ -167,8 +167,6 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
         options.setLowerBound(dcIdSerializedHex);
         options.setLimit(1);
 
-        System.out.println(dcIdSerializedHex);
-
         return getTableRows(YOSEMITE_DIGITAL_CONTRACT_CONTRACT, signer, "signers", options);
     }
 }
