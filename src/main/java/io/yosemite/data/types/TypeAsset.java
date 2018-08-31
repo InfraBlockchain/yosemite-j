@@ -24,6 +24,7 @@
 package io.yosemite.data.types;
 
 import io.yosemite.util.StringUtils;
+import io.yosemite.util.Utils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,7 +42,7 @@ public class TypeAsset implements EosType.Packer {
 
         value = value.trim();
 
-        Pattern pattern = Pattern.compile("^([0-9]+)\\.?([0-9]*)([ ][a-zA-Z0-9]{1,7})?$");//\\s(\\w)$");
+        Pattern pattern = Utils.EOSIO_ASSET_PATTERN.get();
         Matcher matcher = pattern.matcher(value);
 
         if (matcher.find()) {

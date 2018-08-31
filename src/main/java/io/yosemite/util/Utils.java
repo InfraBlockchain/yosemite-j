@@ -31,6 +31,7 @@ import java.io.Closeable;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 public class Utils {
 
@@ -39,6 +40,11 @@ public class Utils {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                 sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
                 return sdf;
+            });
+
+    public final static ThreadLocal<Pattern> EOSIO_ASSET_PATTERN =
+            ThreadLocal.withInitial(() -> {
+                return Pattern.compile("^([0-9]+)\\.?([0-9]*)([ ][a-zA-Z0-9]{1,7})?$");//\\s(\\w)$");
             });
 
     public static void closeSilently(Closeable c) {
