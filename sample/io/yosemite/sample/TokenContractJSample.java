@@ -2,29 +2,33 @@ package io.yosemite.sample;
 
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
+import io.yosemite.data.remote.history.transaction.Transaction;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
 import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import io.yosemite.services.yxcontracts.YosemiteTokenJ;
-import io.yosemite.util.Utils;
 
 import java.util.EnumSet;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 public class TokenContractJSample {
     private static final String SYSTEM_DEPOSITORY_ACCOUNT = "d1";
     private static final String TOKEN_PROVIDER_ACCOUNT = "tkprovider";
 
     public static void main(String[] args) {
+        boolean wait_for_irreversibility = false;
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900");
 
         if (args.length > 0) {
-            if ("-prepare".equals(args[0])) {
-                prepareTokenProvider(apiClient);
-                return;
+            for (String arg : args) {
+                if ("-prepare".equals(arg)) {
+                    prepareTokenProvider(apiClient);
+                    return;
+                } else if ("-wait-irr".equals(arg)) {
+                    wait_for_irreversibility = true;
+                }
             }
         }
 
@@ -55,14 +59,19 @@ public class TokenContractJSample {
         pushedTransaction = yxTokenJ.transferTokenWithPayer("user1", TOKEN_PROVIDER_ACCOUNT, "1.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT,
                 TOKEN_PROVIDER_ACCOUNT, "my memo", null).join();
         log("TransferWithPayer Transaction:" + pushedTransaction.getTransactionId());
+        if (wait_for_irreversibility) {
+            waitForIrreversibility(apiClient, pushedTransaction);
+        }
 
         pushedTransaction = yxTokenJ.redeemToken("1.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo", null).join();
         log("Redeem Transaction:" + pushedTransaction.getTransactionId());
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            //ignored
+        if (!wait_for_irreversibility) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                //ignored
+            }
         }
 
         TableRow tableRow = yxTokenJ.getTokenStats("XYZ", 8, TOKEN_PROVIDER_ACCOUNT).join();
@@ -75,6 +84,27 @@ public class TokenContractJSample {
         for (Map<String, ?> row : tableRow.getRows()) {
             // There must be only one row.
             log(row.toString());
+        }
+    }
+
+    private static void waitForIrreversibility(YosemiteApiRestClient apiRestClient, PushedTransaction pushedTransaction) {
+        int waitTime = apiRestClient.getTxExpirationInMillis() + 10000; // + 10 seconds
+        do {
+            Transaction tx = apiRestClient.getTransaction(pushedTransaction.getTransactionId()).execute();
+            if (tx.getLastIrreversibleBlock() >= tx.getBlockNum()) {
+                log(pushedTransaction.getTransactionId() + " is irreversible.");
+                break;
+            } else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+                waitTime = waitTime - 1000;
+            }
+        } while (waitTime > 0);
+
+        if (waitTime <= 0) {
+            throw new RuntimeException("Transaction could be expired");
         }
     }
 

@@ -2,6 +2,7 @@ package io.yosemite.sample;
 
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
+import io.yosemite.data.remote.history.transaction.Transaction;
 import io.yosemite.services.*;
 import io.yosemite.services.yxcontracts.*;
 
@@ -12,13 +13,18 @@ public class DigitalContractJSample {
     private static final String SERVICE_PROVIDER_ACCOUNT = "servprovider";
 
     public static void main(String[] args) {
+        boolean wait_for_irreversibility = false;
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900");
 
         if (args.length > 0) {
-            if ("-prepare".equals(args[0])) {
-                prepareServiceProvider(apiClient);
-                return;
+            for (String arg : args) {
+                if ("-prepare".equals(arg)) {
+                    prepareServiceProvider(apiClient);
+                    return;
+                } else if ("-wait-irr".equals(arg)) {
+                    wait_for_irreversibility = true;
+                }
             }
         }
 
@@ -68,20 +74,27 @@ public class DigitalContractJSample {
         // 3. sign contract by signers
         pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 11, "user2", "", new String[]{"user2@active", "servprovider@active"}).join();
         log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
+        if (wait_for_irreversibility) {
+            waitForIrreversibility(apiClient, pushedTransaction);
+        }
 
         pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 11, "user1", "I am user1", null).join();
         log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
+        if (wait_for_irreversibility) {
+            waitForIrreversibility(apiClient, pushedTransaction);
+        }
 
         // update additional info
         pushedTransaction = digitalContractJ.updateAdditionalDocumentHash(SERVICE_PROVIDER_ACCOUNT, 11, "added after signing", null).join();
         log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
 
-        try {
-            // sleep just for certainty
-            //TODO:This code should be changed to transaction polling
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            log(e.toString());
+        if (!wait_for_irreversibility) {
+            try {
+                // sleep 1 sec just for single node irreversibility
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                log(e.toString());
+            }
         }
 
         log("");
@@ -98,6 +111,27 @@ public class DigitalContractJSample {
         for (Map<String, ?> row : signerInfoTable.getRows()) {
             // There must be only one row.
             log((String) row.get("signerinfo"));
+        }
+    }
+
+    private static void waitForIrreversibility(YosemiteApiRestClient apiRestClient, PushedTransaction pushedTransaction) {
+        int waitTime = apiRestClient.getTxExpirationInMillis() + 10000; // + 10 seconds
+        do {
+            Transaction tx = apiRestClient.getTransaction(pushedTransaction.getTransactionId()).execute();
+            if (tx.getLastIrreversibleBlock() >= tx.getBlockNum()) {
+                log(pushedTransaction.getTransactionId() + " is irreversible.");
+                break;
+            } else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+                waitTime = waitTime - 1000;
+            }
+        } while (waitTime > 0);
+
+        if (waitTime <= 0) {
+            throw new RuntimeException("Transaction could be expired");
         }
     }
 
