@@ -165,6 +165,16 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
+    public Request<io.yosemite.data.remote.history.transaction.Transaction> getTransactionSimplified(String id) {
+        LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(1);
+
+        requestParameters.put("id", id);
+        requestParameters.put("simplified", Boolean.TRUE.toString());
+
+        return new Request<>(yxHistoryApiService.getService().getTransaction(requestParameters), yxHistoryApiService);
+    }
+
+    @Override
     public Request<KeyAccounts> getKeyAccounts(String publicKey) {
         LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(1);
 

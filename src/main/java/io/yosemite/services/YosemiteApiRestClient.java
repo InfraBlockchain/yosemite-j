@@ -48,6 +48,8 @@ public interface YosemiteApiRestClient {
 
     Request<io.yosemite.data.remote.history.transaction.Transaction> getTransaction(String id);
 
+    Request<io.yosemite.data.remote.history.transaction.Transaction> getTransactionSimplified(String id);
+
     Request<KeyAccounts> getKeyAccounts(String publicKey);
 
     Request<ControlledAccounts> getControlledAccounts(String controllingAccountName);

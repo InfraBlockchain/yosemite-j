@@ -133,6 +133,16 @@ public class LibraryTest {
     }
 
     //@Test
+    public void testGetTransactionSimplified() throws IOException {
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+        Transaction result = apiClient.getTransactionSimplified("fe92c7cbdc536d180cc7e2aeae0a4e2c543be48f868e80fd335576ee0a903a7d").execute();
+        System.out.println("LastIrreversibleBlock : " + result.getLastIrreversibleBlock());
+        System.out.println("Block : " + result.getBlockNum());
+        System.out.println(Utils.prettyPrintJson(result));
+    }
+
+    //@Test
     public void testYosemiteNativeTokenJ() {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
