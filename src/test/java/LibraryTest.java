@@ -313,7 +313,7 @@ public class LibraryTest {
         }
     }
 
-    @Test
+    //@Test
     public void testYosemiteEventNotificationWithDigitalContract() throws InterruptedException {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
