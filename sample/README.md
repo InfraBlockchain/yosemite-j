@@ -59,12 +59,21 @@ clyos push action yosemite authsysdepo '["d1"]' -p yosemite@active
 clyos push action yosemite regidauth '["d1","http://d1.org",1]' -p d1@active -p yosemite@active
 clyos push action yosemite authidauth '["d1"]' -p yosemite@active
 
-# set transaction fee to yx.dcontract service
+# set transaction fee to yx.dcontract service (for DigitalContractJSample)
 clyos push action yx.txfee settxfee '{"operation":"tf.dccreate", "fee":"50.0000 DKRW"}}' -p yosemite
 clyos push action yx.txfee settxfee '{"operation":"tf.dcaddsign", "fee":"10.0000 DKRW"}}' -p yosemite
 clyos push action yx.txfee settxfee '{"operation":"tf.dcsign", "fee":"30.0000 DKRW"}}' -p yosemite
 clyos push action yx.txfee settxfee '{"operation":"tf.dcupadd", "fee":"5.0000 DKRW"}}' -p yosemite
 clyos push action yx.txfee settxfee '{"operation":"tf.dcremove", "fee":"0.0000 DKRW"}}' -p yosemite
+
+# set transaction fee to yx.token service (for TokenContractJSample)
+clyos push action yx.txfee settxfee '{"operation":"tf.tcreate", "fee":"10000.0000 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tissue", "fee":"100.0000 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tredeem", "fee":"100.0000 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.ttransfer", "fee":"10.0000 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tsetkyc", "fee":"5.0000 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tsetopts", "fee":"5.0000 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tfreezeac", "fee":"5.0000 DKRW"}}' -p yosemite
 ```
 
 ## Build
@@ -72,8 +81,10 @@ It assumes that yosemite-j library is prepared with `./gradlew shadowJar`.
 
 ```shell
 javac -classpath ../build/libs/yosemitej-0.3.0-SNAPSHOT-all.jar io/yosemite/sample/DigitalContractJSample.java
+javac -classpath ../build/libs/yosemitej-0.3.0-SNAPSHOT-all.jar io/yosemite/sample/TokenContractJSample.java
 ```
 ## Execute
 ```shell
 java -classpath ../build/libs/yosemitej-0.3.0-SNAPSHOT-all.jar:. io.yosemite.sample.DigitalContractJSample
+java -classpath ../build/libs/yosemitej-0.3.0-SNAPSHOT-all.jar:. io.yosemite.sample.TokenContractJSample
 ```

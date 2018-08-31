@@ -8,6 +8,9 @@ import io.yosemite.services.yxcontracts.*;
 import java.util.*;
 
 public class DigitalContractJSample {
+    private static final String SYSTEM_DEPOSITORY_ACCOUNT = "d1";
+    private static final String SERVICE_PROVIDER_ACCOUNT = "servprovider";
+
     public static void main(String[] args) {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900");
@@ -25,13 +28,13 @@ public class DigitalContractJSample {
             createKeyPairAndAccount(apiClient, yxSystemJ, "user1");
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
-            e.printStackTrace();
+            log(e.toString());
         }
 
         try {
             createKeyPairAndAccount(apiClient, yxSystemJ, "user2");
         } catch (Exception e) {
-            e.printStackTrace();
+            log(e.toString());
         }
 
         // KYC process done by Identity Authority Service
@@ -46,7 +49,7 @@ public class DigitalContractJSample {
         // 0. remove digital contract first
         PushedTransaction pushedTransaction;
         try {
-            pushedTransaction = digitalContractJ.removeDigitalContract("servprovider", 11, null).join();
+            pushedTransaction = digitalContractJ.removeDigitalContract(SERVICE_PROVIDER_ACCOUNT, 11, null).join();
             log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
         } catch (Exception ignored) {
         }
@@ -58,19 +61,19 @@ public class DigitalContractJSample {
         calendar.add(Calendar.HOUR, 48);
         Date expirationTime = calendar.getTime();
 
-        pushedTransaction = digitalContractJ.createDigitalContract("servprovider", 11, "test1234", "",
+        pushedTransaction = digitalContractJ.createDigitalContract(SERVICE_PROVIDER_ACCOUNT, 11, "test1234", "",
                 signers, expirationTime, 0, EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH), (short) 0, null).join();
         log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
 
         // 3. sign contract by signers
-        pushedTransaction = digitalContractJ.signDigitalDocument("servprovider", 11, "user2", "", new String[]{"user2@active", "servprovider@active"}).join();
+        pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 11, "user2", "", new String[]{"user2@active", "servprovider@active"}).join();
         log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
 
-        pushedTransaction = digitalContractJ.signDigitalDocument("servprovider", 11, "user1", "I am user1", null).join();
+        pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 11, "user1", "I am user1", null).join();
         log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
 
         // update additional info
-        pushedTransaction = digitalContractJ.updateAdditionalDocumentHash("servprovider", 11, "added after signing", null).join();
+        pushedTransaction = digitalContractJ.updateAdditionalDocumentHash(SERVICE_PROVIDER_ACCOUNT, 11, "added after signing", null).join();
         log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
 
         try {
@@ -78,12 +81,12 @@ public class DigitalContractJSample {
             //TODO:This code should be changed to transaction polling
             Thread.sleep(1000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log(e.toString());
         }
 
         log("");
         log("[Digital Contract]");
-        TableRow tableRow = digitalContractJ.getCreatedDigitalContract("servprovider", 11).join();
+        TableRow tableRow = digitalContractJ.getCreatedDigitalContract(SERVICE_PROVIDER_ACCOUNT, 11).join();
         for (Map<String, ?> row : tableRow.getRows()) {
             // There must be only one row.
             log(row.toString());
@@ -91,7 +94,7 @@ public class DigitalContractJSample {
 
         log("");
         log("[Digital Contract Signer Info : user1]");
-        TableRow signerInfoTable = digitalContractJ.getSignerInfo("user1", "servprovider", 11).join();
+        TableRow signerInfoTable = digitalContractJ.getSignerInfo("user1", SERVICE_PROVIDER_ACCOUNT, 11).join();
         for (Map<String, ?> row : signerInfoTable.getRows()) {
             // There must be only one row.
             log((String) row.get("signerinfo"));
@@ -114,15 +117,16 @@ public class DigitalContractJSample {
 
         // create the key pair of the service provider and create its account
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, "servprovider");
+            createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT);
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
-            e.printStackTrace();
+            log(e.toString());
         }
 
         // issue native token by system depository
         YosemiteNativeTokenJ nativeTokenJ = new YosemiteNativeTokenJ(apiClient);
-        nativeTokenJ.issueNativeToken("servprovider", "1000000.0000 DKRW", "d1", "", null);
+        PushedTransaction pushedTransaction = nativeTokenJ.issueNativeToken(SERVICE_PROVIDER_ACCOUNT, "1000000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "", null).join();
+        log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
     }
 
     private static void createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ, String accountName) {
