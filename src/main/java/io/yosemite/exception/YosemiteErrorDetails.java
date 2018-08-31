@@ -1,19 +1,23 @@
 package io.yosemite.exception;
 
+import com.google.gson.annotations.Expose;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-public class EosErrorDetails {
-
+public class YosemiteErrorDetails {
+    @Expose
     private String message;
 
+    @Expose
     private String file;
 
+    @Expose
     private Integer lineNumber;
 
+    @Expose
     private String method;
 
-    private EosErrorDetails() {
+    private YosemiteErrorDetails() {
 
     }
 

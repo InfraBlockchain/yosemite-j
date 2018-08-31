@@ -1,6 +1,6 @@
 package io.yosemite.services;
 
-import io.yosemite.exception.EosApiErrorCode;
+import io.yosemite.exception.YosemiteApiErrorCode;
 import io.yosemite.exception.YosemiteApiError;
 import io.yosemite.exception.YosemiteApiException;
 import io.yosemite.util.Async;
@@ -49,7 +49,7 @@ public final class ApiServiceExecutor<Service> {
                 logger.error(call.request().toString());
                 logger.error(response.toString());
                 YosemiteApiError apiError = getEosApiError(response);
-                throw new YosemiteApiException(apiError.getDetailedMessage(), EosApiErrorCode.get(apiError.getEosErrorCode()));
+                throw new YosemiteApiException(apiError.getDetailedMessage(), YosemiteApiErrorCode.get(apiError.getEosErrorCode()));
             }
         } catch (IOException e) {
             throw new YosemiteApiException(e);
