@@ -13,6 +13,7 @@ import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
 
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -30,14 +31,26 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
 
     public CompletableFuture<PushedTransaction> createDigitalContract(
             final String creator, final long sequence, final String digitalContractHash, final String additionalDocumentHash,
-            final List<String> signers, final Date expiration, final short options, final String[] permissions) {
+            final List<String> signers, final Date expiration) {
+        return createDigitalContract(creator, sequence, digitalContractHash, additionalDocumentHash, signers, expiration,
+                0, EnumSet.noneOf(KYCStatusType.class), (short)0, null);
+    }
+
+    public CompletableFuture<PushedTransaction> createDigitalContract(
+            final String creator, final long sequence, final String digitalContractHash, final String additionalDocumentHash,
+            final List<String> signers, final Date expiration,
+            int accountType, EnumSet<KYCStatusType> kycVectors,
+            final short options, final String[] permissions) {
         if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
         if (StringUtils.isEmpty(digitalContractHash)) throw new IllegalArgumentException("empty digitalContractHash");
         if (digitalContractHash.length() > MAX_INPUT_STRING_LENGTH) throw new IllegalArgumentException("too long digitalContractHash");
-        if (additionalDocumentHash.length() > MAX_INPUT_STRING_LENGTH) throw new IllegalArgumentException("too long additionalDocumentHash");
+        if (additionalDocumentHash != null && additionalDocumentHash.length() > MAX_INPUT_STRING_LENGTH) {
+            throw new IllegalArgumentException("too long additionalDocumentHash");
+        }
         if (signers == null || signers.isEmpty()) throw new IllegalArgumentException("empty signers");
         if (expiration == null) throw new IllegalArgumentException("wrong expiration");
+        if (accountType < 0) throw new IllegalArgumentException("negative accountType");
         if (options < 0) throw new IllegalArgumentException("negative option");
 
         JsonArray arrayObj = new JsonArray();
@@ -46,13 +59,15 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
         digitalContractIdObj.addProperty("sequence", Long.toString(sequence));
         arrayObj.add(digitalContractIdObj);
         arrayObj.add(digitalContractHash);
-        arrayObj.add(additionalDocumentHash);
+        arrayObj.add(additionalDocumentHash == null ? "" : additionalDocumentHash);
         JsonArray signersObj = new JsonArray();
         for (String signer : signers) {
             signersObj.add(signer);
         }
         arrayObj.add(signersObj);
         arrayObj.add(Utils.SIMPLE_DATE_FORMAT_FOR_EOS.get().format(expiration));
+        arrayObj.add(accountType);
+        arrayObj.add(KYCStatusType.getAsBitFlags(kycVectors));
         arrayObj.add(options);
 
         return pushAction(YOSEMITE_DIGITAL_CONTRACT_CONTRACT, "create", new Gson().toJson(arrayObj),
@@ -81,6 +96,11 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
     }
 
     public CompletableFuture<PushedTransaction> signDigitalDocument(
+            final String creator, final long sequence, final String signer, final String signerInfo) {
+        return signDigitalDocument(creator, sequence, signer, signerInfo, null);
+    }
+
+    public CompletableFuture<PushedTransaction> signDigitalDocument(
             final String creator, final long sequence, final String signer, final String signerInfo, final String[] permissions) {
         if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
@@ -93,9 +113,7 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
         digitalContractIdObj.addProperty("sequence", Long.toString(sequence));
         arrayObj.add(digitalContractIdObj);
         arrayObj.add(signer);
-        if (signerInfo != null) {
-            arrayObj.add(signerInfo);
-        }
+        arrayObj.add(signerInfo == null ? "" : signerInfo);
 
         return pushAction(YOSEMITE_DIGITAL_CONTRACT_CONTRACT, "sign", new Gson().toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{signer + "@active", creator + "@active"} : permissions);
@@ -160,8 +178,6 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
         options.setKeyType("i128");
         options.setLowerBound(dcIdSerializedHex);
         options.setLimit(1);
-
-        System.out.println(dcIdSerializedHex);
 
         return getTableRows(YOSEMITE_DIGITAL_CONTRACT_CONTRACT, signer, "signers", options);
     }

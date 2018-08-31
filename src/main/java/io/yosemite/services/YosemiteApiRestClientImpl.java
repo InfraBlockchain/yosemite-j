@@ -101,11 +101,23 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
+    public Request<String> createKey() {
+        return createKey("default");
+    }
+
+    @Override
+    public Request<String> createKey(String walletName) {
+        return createKey("default", "k1");
+    }
+
+    @Override
     public Request<String> createKey(String walletName, String keyType) {
+        if (StringUtils.isEmpty(walletName)) throw new IllegalArgumentException();
+        if (StringUtils.isEmpty(keyType)) throw new IllegalArgumentException();
 
         Collection collectionReq = new ArrayList();
 
-        collectionReq.add(StringUtils.isEmpty(walletName) ? "default" : walletName);
+        collectionReq.add(walletName);
         collectionReq.add(keyType);
 
         return new Request<>(yxWalletApiService.getService().createKey(collectionReq), yxWalletApiService);

@@ -31,6 +31,14 @@ cd yosemite-j
 build/libs/yosemitej-${version}-SNAPSHOT.jar
 ```
 
+#### Library with all dependencies
+```
+./gradlew shadowJar
+
+build/libs/yosemitej-${version}-SNAPSHOT-all.jar
+```
+
+
 ### Using dependency management tool
 Currently, we do not support public repository. Instead, you can publish to a maven local repository.
 
@@ -63,7 +71,7 @@ _Please make sure that you have opened and unlocked your wallet_
 
 First create the http service.
 ```java
-YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 ```
 
 ### To Send Synchronous Requests
@@ -91,9 +99,9 @@ you should use the following concrete classee under `io.yosemite.services.yxcont
 * YosemiteTokenJ
 
 ```java
-import io.yosemite.services.yxcontracts;
+import io.yosemite.services.yxcontracts.*;
 
-YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
 ```
 
@@ -108,7 +116,7 @@ Even if a transaction is successfully accepted by the YosemiteChain, there is a 
 For such pending transaction, it can be expired. The DApps can set the expiration time of transaction in milliseconds.
 ```java
 // set transaction expiration time as 30 seconds
-YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", 30000);
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", 30000);
 ```
 
 ### Pushing action
@@ -173,9 +181,9 @@ Note that most methods below are just the wrapper of HTTP JSON request using `pu
 
 ### Create a new account
 ```java
-import io.yosemite.services.yxcontracts;
+import io.yosemite.services.yxcontracts.*;
 
-YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
 
 PushedTransaction pushedTransaction = yxj.createAccount("identity", "user1account",
@@ -188,9 +196,9 @@ PushedTransaction pushedTransaction = yxj.createAccount("identity", "user1accoun
 
 ### Issuing Native Token
 ```java
-import io.yosemite.services.yxcontracts;
+import io.yosemite.services.yxcontracts.*;
 
-YosemiteApiRestClient apiClient = new YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
 PushedTransaction pushedTransaction = yxj.issueNativeToken("servprovider", "1000000.0000 DKRW", "sysdepo", "memo", new String[]{"sysdepo@active"}).join();
 ```
@@ -285,7 +293,7 @@ for (Map<String, ?> row : tableRow.getRows()) {
 ## Digital Contract Actions
 * use YosemiteDigitalContractJ class to call action methods
 ```java
-import io.yosemite.services.yxcontracts;
+import io.yosemite.services.yxcontracts.*;
 
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
         "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
@@ -295,6 +303,8 @@ YosemiteDigitalContractJ yxj = new YosemiteDigitalContractJ(apiClient);
 * [yx.dcontract](https://github.com/YosemiteLabs/yosemite-public-blockchain/tree/yosemite-master/contracts/yx.dcontract) would help you to understand the chain-side.
 
 ### Creating Digital Contract
+import io.yosemite.services.yxcontracts.*;
+
 ```java
 List<String> signers = Arrays.asList("user1", "user2");
 // prepare expiration time based on UTC time-zone
@@ -303,7 +313,7 @@ calendar.add(Calendar.HOUR, 48); // contract will be expired after 2 days
 Date expirationTime = calendar.getTime();
 
 PushedTransaction pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
-        signers, expirationTime, (short)0, new String[]{"servprovider@active"}).join();
+        signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short)0, new String[]{"servprovider@active"}).join();
 ```
 * Even if createDigitalContract method returns successfully, the digital contract you have created is not actually created on the YosemiteChain.
 * The create action must be included in the block and finally confirmed by other block producers, which it is called the action is irreversible.
@@ -352,7 +362,7 @@ import io.yosemite.util.StringUtils;
 
 TableRow signerInfoTable = yxj.getSignerInfo("user3", "servprovider", 11).join();
 for (Map<String, ?> row : signerInfoTable.getRows()) {
-    logger.debug(StringUtils.convertHexToString((String) row.get("signerinfo")));
+    logger.debug((String) row.get("signerinfo"));
 
     // There must be only one row.
     break;
@@ -384,7 +394,7 @@ YosemiteEventNotificationClient yosemiteEventNotificationClient =
         YosemiteEventNotificationClientFactory.createYosemiteEventNotificationClient("ws://127.0.0.1:8888");
 ...
 PushedTransaction pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
-        signers, expirationTime, (short) 0, new String[]{"servprovider@active"}).join();
+        signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short) 0, new String[]{"servprovider@active"}).join();
 logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
 ...
 yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());

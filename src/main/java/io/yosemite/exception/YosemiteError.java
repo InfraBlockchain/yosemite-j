@@ -1,19 +1,24 @@
 package io.yosemite.exception;
 
+import com.google.gson.annotations.Expose;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-public class EosError {
+public class YosemiteError {
 
+    @Expose
     private Integer code;
 
+    @Expose
     private String name;
 
+    @Expose
     private String what;
 
-    private EosErrorDetails[] details;
+    @Expose
+    private YosemiteErrorDetails[] details;
 
-    private EosError(){
+    private YosemiteError(){
 
     }
 
@@ -41,11 +46,11 @@ public class EosError {
         this.what = what;
     }
 
-    public EosErrorDetails[] getDetails() {
+    public YosemiteErrorDetails[] getDetails() {
         return details;
     }
 
-    public void setDetails(EosErrorDetails[] details) {
+    public void setDetails(YosemiteErrorDetails[] details) {
         this.details = details;
     }
 

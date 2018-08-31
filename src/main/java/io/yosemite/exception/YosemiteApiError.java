@@ -1,16 +1,20 @@
 package io.yosemite.exception;
 
+import com.google.gson.annotations.Expose;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 
 public class YosemiteApiError {
 
-    private String message;
-
+    @Expose
     private int code;
 
-    private EosError error;
+    @Expose
+    private String message;
+
+    @Expose
+    private YosemiteError error;
 
     public String getMessage() {
         return message;
@@ -28,11 +32,11 @@ public class YosemiteApiError {
         this.code = code;
     }
 
-    public EosError getError() {
+    public YosemiteError getError() {
         return error;
     }
 
-    public void setError(EosError error) {
+    public void setError(YosemiteError error) {
         this.error = error;
     }
 
