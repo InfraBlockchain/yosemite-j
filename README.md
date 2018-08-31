@@ -34,9 +34,9 @@ build/libs/yosemitej-${version}-SNAPSHOT.jar
 ### Using dependency management tool
 Currently, we do not support public repository. Instead, you can publish to a maven local repository.
 
-#### 1. Publish to a local maven repository
+#### 1. Build & publish to a local maven repository
 ```
-./gradlew publishToMavenLocal
+./gradlew build publishToMavenLocal
 ```   
 
 #### 2. Specify the dependency from your project
