@@ -29,16 +29,6 @@ public class Transaction {
     @Expose
     private List<ActionTrace> traces;
 
-    @Expose
-    private String status;
-
-    @Expose
-    @SerializedName("cpu_usage_us")
-    private String cpuUsageUs;
-
-    @Expose
-    @SerializedName("net_usage_words")
-    private String netUsageWords;
 
     public String getId() {
         return id;
@@ -86,29 +76,5 @@ public class Transaction {
 
     public void setTraces(List<ActionTrace> traces) {
         this.traces = traces;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getCpuUsageUs() {
-        return cpuUsageUs;
-    }
-
-    public void setCpuUsageUs(String cpuUsageUs) {
-        this.cpuUsageUs = cpuUsageUs;
-    }
-
-    public String getNetUsageWords() {
-        return netUsageWords;
-    }
-
-    public void setNetUsageWords(String netUsageWords) {
-        this.netUsageWords = netUsageWords;
     }
 }
