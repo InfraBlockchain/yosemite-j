@@ -23,7 +23,6 @@ import io.yosemite.services.yxcontracts.YosemiteDigitalContractJ;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
 import io.yosemite.services.yxcontracts.YosemiteTokenJ;
 import io.yosemite.util.Consts;
-import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -230,7 +229,7 @@ public class LibraryTest {
         Thread.sleep(1000);
 
         EnumSet<KYCStatusType> kycStatusPhoneAuth = EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH);
-        pushedTransaction = yxj.setTokenKYCRule("XYZ", 4, "d2", YosemiteTokenJ.KYCRuleType.KYC_RULE_TRANSFER_RECEIVE, kycStatusPhoneAuth, new String[]{"d2@active"}).join();
+        pushedTransaction = yxj.setTokenKYCRule("XYZ", 4, "d2", YosemiteTokenJ.TokenRuleType.KYC_RULE_TRANSFER_RECEIVE, kycStatusPhoneAuth, new String[]{"d2@active"}).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 

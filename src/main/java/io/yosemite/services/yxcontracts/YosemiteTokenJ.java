@@ -121,7 +121,7 @@ public class YosemiteTokenJ extends YosemiteJ {
     }
 
     public CompletableFuture<PushedTransaction> setTokenKYCRule(
-            String symbol, int precision, String issuer, KYCRuleType kycRuleType, EnumSet<KYCStatusType> kycVectors, String[] permissions) {
+            String symbol, int precision, String issuer, TokenRuleType tokenRuleType, EnumSet<KYCStatusType> kycVectors, String[] permissions) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         checkPrecision(precision);
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
@@ -132,7 +132,7 @@ public class YosemiteTokenJ extends YosemiteJ {
         symbolObj.addProperty("symbol", eosSymbolStr);
         symbolObj.addProperty("issuer", issuer);
         arrayObj.add(symbolObj);
-        arrayObj.add(kycRuleType.getValue());
+        arrayObj.add(tokenRuleType.getValue());
         arrayObj.add(KYCStatusType.getAsBitFlags(kycVectors));
 
         return pushAction(YOSEMITE_TOKEN_CONTRACT, "setkycrule", new Gson().toJson(arrayObj),
@@ -140,7 +140,7 @@ public class YosemiteTokenJ extends YosemiteJ {
     }
 
     public CompletableFuture<PushedTransaction> setTokenOptions(
-            String symbol, int precision, String issuer, EnumSet<TokenOptionsType> options, boolean overwrite, String[] permissions) {
+            String symbol, int precision, String issuer, EnumSet<TokenOptionsType> options, boolean reset, String[] permissions) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         checkPrecision(precision);
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
@@ -152,7 +152,7 @@ public class YosemiteTokenJ extends YosemiteJ {
         symbolObj.addProperty("issuer", issuer);
         arrayObj.add(symbolObj);
         arrayObj.add(TokenOptionsType.getAsBitFlags(options));
-        arrayObj.add(overwrite ? 1 : 0);
+        arrayObj.add(reset ? 1 : 0);
 
         return pushAction(YOSEMITE_TOKEN_CONTRACT, "setoptions", new Gson().toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
@@ -224,9 +224,10 @@ public class YosemiteTokenJ extends YosemiteJ {
      */
     public enum CanSetOptionsType {
         NONE(), // == 0
-        FREEZE_TOKEN_TRANSFER((short)0),
+        FREEZE_TOKEN_TRANSFER((short)0), // == 1, hereby 0 means the number of bit-shifting
         FREEZE_ACCOUNT((short)1),
         SET_KYC_RULE((short)2),
+        SET_ACCOUNT_TYPE_RULE((short)3),
         ;
 
         private final short value;
@@ -254,16 +255,16 @@ public class YosemiteTokenJ extends YosemiteJ {
     }
 
     /**
-     * KYC Rule Type for Non-native Token
+     * Rules for Non-native Token
      */
-    public enum KYCRuleType {
+    public enum TokenRuleType {
         KYC_RULE_TRANSFER_SEND((short)0),
         KYC_RULE_TRANSFER_RECEIVE((short)1)
         ;
 
         private final short value;
 
-        KYCRuleType(short value) {
+        TokenRuleType(short value) {
             this.value = value;
         }
 
