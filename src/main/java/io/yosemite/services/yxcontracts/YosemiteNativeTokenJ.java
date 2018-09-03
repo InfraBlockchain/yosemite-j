@@ -50,7 +50,7 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
         JsonObject tokenObj = new JsonObject();
         tokenObj.addProperty("amount", new TypeAsset(amount).toString());
         tokenObj.addProperty("issuer", issuer);
-        object.add("amount", tokenObj);
+        object.add("token", tokenObj);
         object.addProperty("memo", memo == null? "" : memo);
 
         return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "nredeem", new Gson().toJson(object),
