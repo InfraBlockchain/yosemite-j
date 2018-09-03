@@ -11,11 +11,18 @@ public class TxIrreversibilityResponse extends EventBase {
     @SerializedName("tx_id")
     private String transactionId;
 
+    @Expose
+    private boolean dropped;
+
     public String getTransactionId() {
         return transactionId;
     }
 
     public void setTransactionId(String transactionId) {
         this.transactionId = transactionId;
+    }
+
+    public boolean isDropped() {
+        return dropped;
     }
 }
