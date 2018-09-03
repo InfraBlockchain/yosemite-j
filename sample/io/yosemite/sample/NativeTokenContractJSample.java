@@ -2,6 +2,7 @@ package io.yosemite.sample;
 
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
+import io.yosemite.data.remote.history.transaction.Transaction;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
@@ -14,8 +15,17 @@ public class NativeTokenContractJSample {
     private static final String SYSTEM_DEPOSITORY_ACCOUNT = "d1";
 
     public static void main(String[] args) {
+        boolean wait_for_irreversibility = false;
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900");
+
+        if (args.length > 0) {
+            for (String arg : args) {
+                if ("-wait-irr".equals(arg)) {
+                    wait_for_irreversibility = true;
+                }
+            }
+        }
 
         // create the user accounts
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
@@ -36,6 +46,9 @@ public class NativeTokenContractJSample {
         pushedTransaction = yxNativeTokenJ.transferNativeTokenWithPayer(
                 "user1", SYSTEM_DEPOSITORY_ACCOUNT, "100000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", null).join();
         log("TransferWithPayer Native Token Transaction:" + pushedTransaction.getTransactionId());
+        if (wait_for_irreversibility) {
+            waitForIrreversibility(apiClient, pushedTransaction);
+        }
 
         pushedTransaction = yxNativeTokenJ.redeemNativeToken("100000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", null).join();
         log("Redeem Native Token Transaction:" + pushedTransaction.getTransactionId());
@@ -56,6 +69,27 @@ public class NativeTokenContractJSample {
         for (Map<String, ?> row : tableRow.getRows()) {
             // There must be only one row.
             log(row.toString());
+        }
+    }
+
+    private static void waitForIrreversibility(YosemiteApiRestClient apiRestClient, PushedTransaction pushedTransaction) {
+        int waitTime = apiRestClient.getTxExpirationInMillis() + 10000; // + 10 seconds
+        do {
+            Transaction tx = apiRestClient.getTransaction(pushedTransaction.getTransactionId()).execute();
+            if (tx.getLastIrreversibleBlock() >= tx.getBlockNum()) {
+                log(pushedTransaction.getTransactionId() + " is irreversible.");
+                break;
+            } else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+                waitTime = waitTime - 1000;
+            }
+        } while (waitTime > 0);
+
+        if (waitTime <= 0) {
+            throw new RuntimeException("Transaction could be expired");
         }
     }
 
