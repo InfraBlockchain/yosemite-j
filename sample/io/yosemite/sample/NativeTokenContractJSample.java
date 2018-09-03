@@ -1,0 +1,72 @@
+package io.yosemite.sample;
+
+import io.yosemite.data.remote.chain.PushedTransaction;
+import io.yosemite.data.remote.chain.TableRow;
+import io.yosemite.services.YosemiteApiClientFactory;
+import io.yosemite.services.YosemiteApiRestClient;
+import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
+import io.yosemite.services.yxcontracts.YosemiteSystemJ;
+
+import java.util.Map;
+
+public class NativeTokenContractJSample {
+    // assume that the system depository is already registered
+    private static final String SYSTEM_DEPOSITORY_ACCOUNT = "d1";
+
+    public static void main(String[] args) {
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900");
+
+        // create the user accounts
+        YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
+        try {
+            createKeyPairAndAccount(apiClient, yxSystemJ, "user1");
+        } catch (Exception e) {
+            // log and ignore; usually the error is "already created"
+            log(e.toString());
+        }
+
+        YosemiteNativeTokenJ yxNativeTokenJ = new YosemiteNativeTokenJ(apiClient);
+
+        PushedTransaction pushedTransaction = yxNativeTokenJ.issueNativeToken(
+                "user1", "1000000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", null).join();
+        log("Issue Native Token Transaction:" + pushedTransaction.getTransactionId());
+
+        // transfer token with transacation fee payer as SYSTEM_DEPOSITORY_ACCOUNT
+        pushedTransaction = yxNativeTokenJ.transferNativeTokenWithPayer(
+                "user1", SYSTEM_DEPOSITORY_ACCOUNT, "100000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", null).join();
+        log("TransferWithPayer Native Token Transaction:" + pushedTransaction.getTransactionId());
+
+        pushedTransaction = yxNativeTokenJ.redeemNativeToken("100000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", null).join();
+        log("Redeem Native Token Transaction:" + pushedTransaction.getTransactionId());
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            //ignored
+        }
+
+        TableRow tableRow = yxNativeTokenJ.getNativeTokenAccountTotalBalance("user1").join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            log(row.toString());
+        }
+
+        tableRow = yxNativeTokenJ.getNativeTokenStats(SYSTEM_DEPOSITORY_ACCOUNT).join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            log(row.toString());
+        }
+    }
+
+    private static void createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ, String accountName) {
+        String publicKey = apiClient.createKey().execute();
+        PushedTransaction pushedTransaction = yxSystemJ.createAccount(
+                "yosemite", accountName, publicKey, publicKey, null).join();
+        log("Account Creation Transaction : " + pushedTransaction.getTransactionId());
+    }
+
+    private static void log(String s) {
+        System.out.println(s);
+    }
+}
