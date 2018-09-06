@@ -1,5 +1,3 @@
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import io.yosemite.crypto.ec.EcDsa;
 import io.yosemite.data.remote.chain.Block;
 import io.yosemite.data.remote.chain.Info;
@@ -10,22 +8,16 @@ import io.yosemite.data.remote.event.TxIrreversibilityResponse;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.action.OrderedActionResult;
 import io.yosemite.data.remote.history.transaction.Transaction;
-import io.yosemite.data.util.GsonYosemiteTypeAdapterFactory;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
 import io.yosemite.services.event.EventNotificationCallback;
 import io.yosemite.services.event.YosemiteEventNotificationClient;
 import io.yosemite.services.event.YosemiteEventNotificationClientFactory;
-import io.yosemite.services.yxcontracts.YosemiteSystemJ;
-import io.yosemite.services.yxcontracts.KYCStatusType;
-import io.yosemite.services.yxcontracts.YosemiteDigitalContractJ;
-import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
-import io.yosemite.services.yxcontracts.YosemiteTokenJ;
+import io.yosemite.services.yxcontracts.*;
 import io.yosemite.util.Consts;
 import io.yosemite.util.Utils;
 import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,9 +30,6 @@ import static org.junit.Assert.assertTrue;
 public class LibraryTest {
 
     final static Logger logger = LoggerFactory.getLogger(LibraryTest.class);
-
-    private Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GsonYosemiteTypeAdapterFactory())
-            .excludeFieldsWithoutExposeAnnotation().create();
 
     //@Test
     public void walletTest() {
