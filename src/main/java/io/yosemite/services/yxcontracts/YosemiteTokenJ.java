@@ -1,6 +1,5 @@
 package io.yosemite.services.yxcontracts;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.yosemite.data.remote.chain.PushedTransaction;
@@ -46,7 +45,7 @@ public class YosemiteTokenJ extends YosemiteJ {
         arrayObj.add(symbolObj);
         arrayObj.add(CanSetOptionsType.getAsBitFlags(canSetOptions));
 
-        return pushAction(YOSEMITE_TOKEN_CONTRACT, "create", new Gson().toJson(arrayObj),
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "create", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
@@ -62,9 +61,9 @@ public class YosemiteTokenJ extends YosemiteJ {
         tokenObj.addProperty("amount", new TypeAsset(amount).toString());
         tokenObj.addProperty("issuer", issuer);
         arrayObj.add(tokenObj);
-        arrayObj.add(memo == null? "" : memo);
+        arrayObj.add(memo);
 
-        return pushAction(YOSEMITE_TOKEN_CONTRACT, "issue", new Gson().toJson(arrayObj),
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "issue", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
@@ -78,9 +77,9 @@ public class YosemiteTokenJ extends YosemiteJ {
         tokenObj.addProperty("amount", new TypeAsset(amount).toString());
         tokenObj.addProperty("issuer", issuer);
         arrayObj.add(tokenObj);
-        arrayObj.add(memo == null? "" : memo);
+        arrayObj.add(memo);
 
-        return pushAction(YOSEMITE_TOKEN_CONTRACT, "redeem", new Gson().toJson(arrayObj),
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "redeem", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
@@ -88,7 +87,7 @@ public class YosemiteTokenJ extends YosemiteJ {
             String from, String to, String amount, String issuer, String memo, String[] permissions) {
         JsonObject object = getJsonObjectForTransfer(from, to, amount, issuer, memo);
 
-        return pushAction(YOSEMITE_TOKEN_CONTRACT, "transfer", new Gson().toJson(object),
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "transfer", gson.toJson(object),
                 isEmptyArray(permissions) ? new String[]{from + "@active"} : permissions);
     }
 
@@ -98,7 +97,7 @@ public class YosemiteTokenJ extends YosemiteJ {
         JsonObject object = getJsonObjectForTransfer(from, to, amount, issuer, memo);
         object.addProperty("payer", payer);
 
-        return pushAction(YOSEMITE_TOKEN_CONTRACT, "wptransfer", new Gson().toJson(object),
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "wptransfer", gson.toJson(object),
                 isEmptyArray(permissions) ? new String[]{from + "@active", payer + "@active"} : permissions);
     }
 
@@ -135,7 +134,7 @@ public class YosemiteTokenJ extends YosemiteJ {
         arrayObj.add(tokenRuleType.getValue());
         arrayObj.add(KYCStatusType.getAsBitFlags(kycVectors));
 
-        return pushAction(YOSEMITE_TOKEN_CONTRACT, "setkycrule", new Gson().toJson(arrayObj),
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "setkycrule", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
@@ -154,7 +153,7 @@ public class YosemiteTokenJ extends YosemiteJ {
         arrayObj.add(TokenOptionsType.getAsBitFlags(options));
         arrayObj.add(reset ? 1 : 0);
 
-        return pushAction(YOSEMITE_TOKEN_CONTRACT, "setoptions", new Gson().toJson(arrayObj),
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "setoptions", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
@@ -179,7 +178,7 @@ public class YosemiteTokenJ extends YosemiteJ {
         arrayObj.add(accountsObj);
         arrayObj.add(freeze ? 1 : 0);
 
-        return pushAction(YOSEMITE_TOKEN_CONTRACT, "freezeacc", new Gson().toJson(arrayObj),
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "freezeacc", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
