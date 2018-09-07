@@ -54,6 +54,10 @@ public class TransactionTrace {
     @Expose
     private JsonElement except;
 
+    public List<ActionTrace> getActionTraces() {
+        return actionTraces;
+    }
+
     @Override
     public String toString() {
         if (receipt == null) {
