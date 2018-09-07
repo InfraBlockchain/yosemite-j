@@ -26,6 +26,7 @@ package io.yosemite.util;
 import com.google.gson.GsonBuilder;
 import io.yosemite.data.util.GsonYosemiteTypeAdapterFactory;
 import io.yosemite.data.util.OptionalTypeAdapter;
+import io.yosemite.data.util.StringTypeAdapter;
 
 import java.io.Closeable;
 import java.math.BigInteger;
@@ -80,8 +81,10 @@ public class Utils {
 
     public static GsonBuilder createYosemiteJGsonBuilder() {
         return new GsonBuilder()
+                .registerTypeAdapter(String.class, new StringTypeAdapter())
                 .registerTypeAdapterFactory(new GsonYosemiteTypeAdapterFactory())
                 .registerTypeAdapterFactory(OptionalTypeAdapter.FACTORY)
+                .serializeNulls()
                 .excludeFieldsWithoutExposeAnnotation();
     }
 

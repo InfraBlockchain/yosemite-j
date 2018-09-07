@@ -37,7 +37,7 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
         arrayObj.add(tokenObj);
         arrayObj.add(memo == null? "" : memo);
 
-        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "nissue", new Gson().toJson(arrayObj),
+        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "nissue", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
@@ -53,7 +53,7 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
         object.add("token", tokenObj);
         object.addProperty("memo", memo == null? "" : memo);
 
-        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "nredeem", new Gson().toJson(object),
+        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "nredeem", gson.toJson(object),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
@@ -61,7 +61,7 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
             final String from, final String to, final String amount, final String memo, final String[] permissions) {
         JsonObject object = getJsonObjectForTransfer(from, to, amount, memo);
 
-        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "transfer", new Gson().toJson(object),
+        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "transfer", gson.toJson(object),
                 isEmptyArray(permissions) ? new String[]{from + "@active"} : permissions);
     }
 
@@ -71,7 +71,7 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
         JsonObject object = getJsonObjectForTransfer(from, to, amount, memo);
         object.addProperty("payer", payer);
 
-        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "wptransfer", new Gson().toJson(object),
+        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "wptransfer", gson.toJson(object),
                 isEmptyArray(permissions) ? new String[]{from + "@active", payer + "@active"} : permissions);
     }
 
@@ -93,7 +93,7 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
             final String memo, final String[] permissions) {
         JsonObject object = getJsonObjectForNTransfer(from, to, token, issuer, memo);
 
-        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "ntransfer", new Gson().toJson(object),
+        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "ntransfer", gson.toJson(object),
                 isEmptyArray(permissions) ? new String[]{from + "@active"} : permissions);
     }
 
@@ -103,7 +103,7 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
         JsonObject object = getJsonObjectForNTransfer(from, to, token, issuer, memo);
         object.addProperty("payer", payer);
 
-        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "wpntransfer", new Gson().toJson(object),
+        return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "wpntransfer", gson.toJson(object),
                 isEmptyArray(permissions) ? new String[]{from + "@active", payer + "@active"} : permissions);
     }
 

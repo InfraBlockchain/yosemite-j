@@ -35,7 +35,7 @@ import java.util.List;
 public class SignedTransaction extends Transaction {
 
     @Expose
-    private List<String> signatures = null;
+    private List<String> signatures = new ArrayList<>();
 
     @Expose
     private List<String> context_free_data = new ArrayList<>();

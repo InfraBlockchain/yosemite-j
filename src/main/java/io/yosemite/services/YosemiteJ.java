@@ -1,17 +1,13 @@
 package io.yosemite.services;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import io.yosemite.crypto.digest.Sha256;
 import io.yosemite.data.remote.api.AbiJsonToBinRequest;
 import io.yosemite.data.remote.api.GetRequiredKeysRequest;
 import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.history.action.GetTableOptions;
-import io.yosemite.data.util.GsonYosemiteTypeAdapterFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.yosemite.util.Utils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -19,9 +15,7 @@ public abstract class YosemiteJ {
 
     private final YosemiteApiRestClient mYosemiteApiRestClient;
 
-    protected static final Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(new GsonYosemiteTypeAdapterFactory())
-            .excludeFieldsWithoutExposeAnnotation().create();
+    protected static final Gson gson = Utils.createYosemiteJGsonBuilder().create();
 
     protected YosemiteJ(YosemiteApiRestClient yosemiteApiRestClient) {
         mYosemiteApiRestClient = yosemiteApiRestClient;
@@ -52,6 +46,7 @@ public abstract class YosemiteJ {
         GetRequiredKeysRequest getRequiredKeysRequest = new GetRequiredKeysRequest(txnBeforeSign, pubKeys);
 
         packedTxFuture = mYosemiteApiRestClient.getRequiredKeys(getRequiredKeysRequest).executeAsync().thenApply(getRequiredKeysRes -> {
+
             SignedTransaction signedTx =
                     mYosemiteApiRestClient.signTransaction(txnBeforeSign, getRequiredKeysRes.getRequiredKeys(), chainId).execute();
             return new PackedTransaction(signedTx);
