@@ -109,3 +109,16 @@ test {
         exceptionFormat 'full'
     }
 }
+
+task sample (type: JavaCompile) {
+    source = fileTree(dir: 'sample', include: '**/*.java')
+    classpath = files("$buildDir/classes/java/main")
+    destinationDir = file("$buildDir/classes/java/main")
+}
+
+task runSample (type: JavaExec) {
+    doFirst {
+        main = 'io.yosemite.sample.' + mainClass
+        classpath = sourceSets.main.runtimeClasspath
+    }
+}

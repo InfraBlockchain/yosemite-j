@@ -80,14 +80,12 @@ clyos push action yx.txfee settxfee '{"operation":"tf.tfreezeac", "fee":"5.0000 
 ```
 
 ## Build
-It assumes that yosemite-j library is prepared with `./gradlew shadowJar`.
-
-```shell
-javac -classpath ../build/libs/yosemitej-${latest-version}-all.jar io/yosemite/sample/DigitalContractJSample.java
-javac -classpath ../build/libs/yosemitej-${latest-version}-all.jar io/yosemite/sample/TokenContractJSample.java
 ```
+./gradlew sample
+```
+
 ## Execute
 ```shell
-java -classpath ../build/libs/yosemitej-${latest-version}-all.jar:. io.yosemite.sample.DigitalContractJSample
-java -classpath ../build/libs/yosemitej-${latest-version}-all.jar:. io.yosemite.sample.TokenContractJSample
+./gradlew -PmainClass=DigitalContractJSample runSample
+./gradlew -PmainClass=TokenContractJSample runSample
 ```
