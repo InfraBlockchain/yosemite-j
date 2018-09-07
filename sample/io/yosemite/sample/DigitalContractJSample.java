@@ -44,8 +44,9 @@ public class DigitalContractJSample {
         }
 
         // KYC process done by Identity Authority Service
-        processKYC(yxSystemJ, "user1");
-        processKYC(yxSystemJ, "user2");
+        // assume d1 is Identity Authority and the users did phone authentication(2=KYCStatusType.KYC_STATUS_PHONE_AUTH) successfully
+        processKYC(yxSystemJ, "user1", EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
+        processKYC(yxSystemJ, "user2", EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
 
         //----------------------------------------------
         // Let's start to use digital contract service!
@@ -135,15 +136,14 @@ public class DigitalContractJSample {
         }
     }
 
-    private static void processKYC(YosemiteSystemJ yxSystemJ, String accountName) {
+    private static void processKYC(YosemiteSystemJ yxSystemJ, String accountName, EnumSet<KYCStatusType> flags) {
         String contract = "yx.identity";
         String action = "setidinfo";
-        // assume d1 is Identity Authority and the 'accountName' did phone authentication(2=KYCStatusType.KYC_STATUS_PHONE_AUTH) successfully
-        String data = "{\"identity_authority\":\"d1\",\"account\":\"" + accountName + "\",\"type\":0,\"kyc\":2,\"state\":0,\"data\":\"\"}";
+        String data = "{\"identity_authority\":\"d1\",\"account\":\"" + accountName + "\",\"type\":0,\"kyc\":" + KYCStatusType.getAsBitFlags(flags) + ",\"state\":0,\"data\":\"\"}";
         String[] permissions = new String[]{"d1@active"};
 
         PushedTransaction pushedTransaction = yxSystemJ.pushAction(contract, action, data, permissions).join();
-        log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
+        log("\nsetidinfo Transaction:\n" + pushedTransaction.getTransactionId());
     }
 
     private static void prepareServiceProvider(YosemiteApiRestClient apiClient) {
@@ -156,6 +156,9 @@ public class DigitalContractJSample {
             // log and ignore; usually the error is "already created"
             log(e.toString());
         }
+
+        // KYC process done by Identity Authority Service for DKRW
+        processKYC(yxSystemJ, SERVICE_PROVIDER_ACCOUNT, EnumSet.allOf(KYCStatusType.class));
 
         // issue native token by system depository
         YosemiteNativeTokenJ nativeTokenJ = new YosemiteNativeTokenJ(apiClient);
