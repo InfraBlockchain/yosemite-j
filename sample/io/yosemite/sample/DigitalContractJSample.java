@@ -31,22 +31,22 @@ public class DigitalContractJSample {
         // create the user accounts
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT, "user1");
+            createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT, "servpuserxx1");
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
             log(e.toString());
         }
 
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT, "user2");
+            createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT, "servpuserxx2");
         } catch (Exception e) {
             log(e.toString());
         }
 
         // KYC process done by Identity Authority Service
         // assume d1 is Identity Authority and the users did phone authentication(2=KYCStatusType.KYC_STATUS_PHONE_AUTH) successfully
-        processKYC(yxSystemJ, "user1", EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
-        processKYC(yxSystemJ, "user2", EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
+        processKYC(yxSystemJ, "servpuserxx1", EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
+        processKYC(yxSystemJ, "servpuserxx2", EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
 
         //----------------------------------------------
         // Let's start to use digital contract service!
@@ -62,7 +62,7 @@ public class DigitalContractJSample {
         }
 
         // 1. create digital contract
-        List<String> signers = Arrays.asList("user1", "user2");
+        List<String> signers = Arrays.asList("servpuserxx1", "servpuserxx2");
         // prepare expiration time based on UTC time-zone
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.add(Calendar.HOUR, 48);
@@ -73,13 +73,13 @@ public class DigitalContractJSample {
         log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
 
         // 3. sign contract by signers
-        pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 11, "user2", "", new String[]{"user2@active", "servprovider@active"}).join();
+        pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 11, "servpuserxx2", "", new String[]{"user2@active", "servprovider@active"}).join();
         log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
         }
 
-        pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 11, "user1", "I am user1", null).join();
+        pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 11, "servpuserxx1", "I am user1", null).join();
         log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
@@ -108,7 +108,7 @@ public class DigitalContractJSample {
 
         log("");
         log("[Digital Contract Signer Info : user1]");
-        TableRow signerInfoTable = digitalContractJ.getSignerInfo("user1", SERVICE_PROVIDER_ACCOUNT, 11).join();
+        TableRow signerInfoTable = digitalContractJ.getSignerInfo("servpuserxx1", SERVICE_PROVIDER_ACCOUNT, 11).join();
         for (Map<String, ?> row : signerInfoTable.getRows()) {
             // There must be only one row.
             log((String) row.get("signerinfo"));
@@ -139,8 +139,8 @@ public class DigitalContractJSample {
     private static void processKYC(YosemiteSystemJ yxSystemJ, String accountName, EnumSet<KYCStatusType> flags) {
         String contract = "yx.identity";
         String action = "setidinfo";
-        String data = "{\"identity_authority\":\"d1\",\"account\":\"" + accountName + "\",\"type\":0,\"kyc\":" + KYCStatusType.getAsBitFlags(flags) + ",\"state\":0,\"data\":\"\"}";
-        String[] permissions = new String[]{"d1@active"};
+        String data = "{\"identity_authority\":\"" + SYSTEM_DEPOSITORY_ACCOUNT + "\",\"account\":\"" + accountName + "\",\"type\":0,\"kyc\":" + KYCStatusType.getAsBitFlags(flags) + ",\"state\":0,\"data\":\"\"}";
+        String[] permissions = new String[]{SYSTEM_DEPOSITORY_ACCOUNT + "@active"};
 
         PushedTransaction pushedTransaction = yxSystemJ.pushAction(contract, action, data, permissions).join();
         log("\nsetidinfo Transaction:\n" + pushedTransaction.getTransactionId());

@@ -5,6 +5,7 @@ import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.history.transaction.Transaction;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
+import io.yosemite.services.yxcontracts.KYCStatusType;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
 import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import io.yosemite.services.yxcontracts.YosemiteTokenJ;
@@ -35,7 +36,7 @@ public class TokenContractJSample {
         // create the user accounts
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, TOKEN_PROVIDER_ACCOUNT, "tkuser1");
+            createKeyPairAndAccount(apiClient, yxSystemJ, TOKEN_PROVIDER_ACCOUNT, "tkuserxxxxx1");
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
             log(e.toString());
@@ -52,11 +53,11 @@ public class TokenContractJSample {
             log(e.toString());
         }
 
-        pushedTransaction = yxTokenJ.issueToken("tkuser1", "1.23456789 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo", null).join();
+        pushedTransaction = yxTokenJ.issueToken("tkuserxxxxx1", "1.23456789 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo", null).join();
         log("Issue Transaction:" + pushedTransaction.getTransactionId());
 
         // transfer token with transacation fee payer as TOKEN_PROVIDER_ACCOUNT
-        pushedTransaction = yxTokenJ.transferTokenWithPayer("tkuser1", TOKEN_PROVIDER_ACCOUNT, "1.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT,
+        pushedTransaction = yxTokenJ.transferTokenWithPayer("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT, "1.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT,
                 TOKEN_PROVIDER_ACCOUNT, "my memo", null).join();
         log("TransferWithPayer Transaction:" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
@@ -80,7 +81,7 @@ public class TokenContractJSample {
             log(row.toString());
         }
 
-        tableRow = yxTokenJ.getTokenAccountBalance("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, "tkuser1").join();
+        tableRow = yxTokenJ.getTokenAccountBalance("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, "tkuserxxxxx1").join();
         for (Map<String, ?> row : tableRow.getRows()) {
             // There must be only one row.
             log(row.toString());
@@ -108,6 +109,16 @@ public class TokenContractJSample {
         }
     }
 
+    private static void processKYC(YosemiteSystemJ yxSystemJ, String accountName, EnumSet<KYCStatusType> flags) {
+        String contract = "yx.identity";
+        String action = "setidinfo";
+        String data = "{\"identity_authority\":\"" + SYSTEM_DEPOSITORY_ACCOUNT + "\",\"account\":\"" + accountName + "\",\"type\":0,\"kyc\":" + KYCStatusType.getAsBitFlags(flags) + ",\"state\":0,\"data\":\"\"}";
+        String[] permissions = new String[]{SYSTEM_DEPOSITORY_ACCOUNT + "@active"};
+
+        PushedTransaction pushedTransaction = yxSystemJ.pushAction(contract, action, data, permissions).join();
+        log("\nsetidinfo Transaction:\n" + pushedTransaction.getTransactionId());
+    }
+
     private static void prepareTokenProvider(YosemiteApiRestClient apiClient) {
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
 
@@ -118,6 +129,9 @@ public class TokenContractJSample {
             // log and ignore; usually the error is "already created"
             log(e.toString());
         }
+
+        // KYC process done by Identity Authority Service for DKRW
+        processKYC(yxSystemJ, TOKEN_PROVIDER_ACCOUNT, EnumSet.allOf(KYCStatusType.class));
 
         // issue native token by system depository
         YosemiteNativeTokenJ nativeTokenJ = new YosemiteNativeTokenJ(apiClient);
