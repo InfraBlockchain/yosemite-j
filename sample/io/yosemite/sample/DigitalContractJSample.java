@@ -31,14 +31,14 @@ public class DigitalContractJSample {
         // create the user accounts
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, "user1");
+            createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT, "user1");
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
             log(e.toString());
         }
 
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, "user2");
+            createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT, "user2");
         } catch (Exception e) {
             log(e.toString());
         }
@@ -151,7 +151,7 @@ public class DigitalContractJSample {
 
         // create the key pair of the service provider and create its account
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT);
+            createKeyPairAndAccount(apiClient, yxSystemJ, "yosemite", SERVICE_PROVIDER_ACCOUNT);
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
             log(e.toString());
@@ -163,10 +163,10 @@ public class DigitalContractJSample {
         log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
     }
 
-    private static void createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ, String accountName) {
+    private static void createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ, String creator, String accountName) {
         String publicKey = apiClient.createKey("default").execute();
         PushedTransaction pushedTransaction = yxSystemJ.createAccount(
-                "yosemite", accountName, publicKey, publicKey, null).join();
+                creator, accountName, publicKey, publicKey, null).join();
         log("Account Creation Transaction : " + pushedTransaction.getTransactionId());
     }
 

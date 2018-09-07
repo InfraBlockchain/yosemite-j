@@ -35,7 +35,7 @@ public class TokenContractJSample {
         // create the user accounts
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, "user1");
+            createKeyPairAndAccount(apiClient, yxSystemJ, TOKEN_PROVIDER_ACCOUNT, "tkuser1");
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
             log(e.toString());
@@ -52,11 +52,11 @@ public class TokenContractJSample {
             log(e.toString());
         }
 
-        pushedTransaction = yxTokenJ.issueToken("user1", "1.23456789 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo", null).join();
+        pushedTransaction = yxTokenJ.issueToken("tkuser1", "1.23456789 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo", null).join();
         log("Issue Transaction:" + pushedTransaction.getTransactionId());
 
         // transfer token with transacation fee payer as TOKEN_PROVIDER_ACCOUNT
-        pushedTransaction = yxTokenJ.transferTokenWithPayer("user1", TOKEN_PROVIDER_ACCOUNT, "1.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT,
+        pushedTransaction = yxTokenJ.transferTokenWithPayer("tkuser1", TOKEN_PROVIDER_ACCOUNT, "1.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT,
                 TOKEN_PROVIDER_ACCOUNT, "my memo", null).join();
         log("TransferWithPayer Transaction:" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
@@ -80,7 +80,7 @@ public class TokenContractJSample {
             log(row.toString());
         }
 
-        tableRow = yxTokenJ.getTokenAccountBalance("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, "user1").join();
+        tableRow = yxTokenJ.getTokenAccountBalance("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, "tkuser1").join();
         for (Map<String, ?> row : tableRow.getRows()) {
             // There must be only one row.
             log(row.toString());
@@ -113,7 +113,7 @@ public class TokenContractJSample {
 
         // create the key pair of the service provider and create its account
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, TOKEN_PROVIDER_ACCOUNT);
+            createKeyPairAndAccount(apiClient, yxSystemJ, "yosemite", TOKEN_PROVIDER_ACCOUNT);
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
             log(e.toString());
@@ -125,10 +125,10 @@ public class TokenContractJSample {
         log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
     }
 
-    private static void createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ, String accountName) {
+    private static void createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ, String creator, String accountName) {
         String publicKey = apiClient.createKey().execute();
         PushedTransaction pushedTransaction = yxSystemJ.createAccount(
-                "yosemite", accountName, publicKey, publicKey, null).join();
+                creator, accountName, publicKey, publicKey, null).join();
         log("Account Creation Transaction : " + pushedTransaction.getTransactionId());
     }
 
