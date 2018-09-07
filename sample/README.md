@@ -59,6 +59,9 @@ clyos push action yosemite authsysdepo '["d1"]' -p yosemite@active
 clyos push action yosemite regidauth '["d1","http://d1.org",1]' -p d1@active -p yosemite@active
 clyos push action yosemite authidauth '["d1"]' -p yosemite@active
 
+# set transaction fee to yx.system service (for newaccount)
+clyos push action yx.txfee settxfee '[ "tf.newacc", "1000.0000 DKRW" ]' -p yosemite@active
+
 # set transaction fee to yx.dcontract service (for DigitalContractJSample)
 clyos push action yx.txfee settxfee '{"operation":"tf.dccreate", "fee":"50.0000 DKRW"}}' -p yosemite
 clyos push action yx.txfee settxfee '{"operation":"tf.dcaddsign", "fee":"10.0000 DKRW"}}' -p yosemite
