@@ -20,7 +20,9 @@ import java.util.concurrent.CompletableFuture;
 import static io.yosemite.util.Consts.YOSEMITE_TOKEN_CONTRACT;
 
 /**
- * @author Eugene Chung
+ * Provides the APIs for the non-native or user token service.
+ * There are several important decision points before creating your token.
+ * For your information, please read <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.token/README.md">yx.token README</a>.
  */
 public class YosemiteTokenJ extends YosemiteJ {
     public YosemiteTokenJ(YosemiteApiRestClient yosemiteApiRestClient) {
@@ -31,6 +33,21 @@ public class YosemiteTokenJ extends YosemiteJ {
         if (precision < 4 || precision > 18) throw new IllegalArgumentException("wrong precision");
     }
 
+    /**
+     * Creates the token managed by the issuer.
+     * Transaction fee is charged to the issuer.
+     *
+     * There are several important <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.token/README.md">decision points</a> before creating your token.
+     * You must consider carefully because it cannot be changed once created.
+     * @param symbol the symbol name; <a href="https://developers.eos.io/eosio-cpp/docs/naming-conventions#section-symbols">Naming Convention of Symbols</a>
+     * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers; from 4 to 18
+     * @param issuer the account name of the issuer
+     * @param canSetOptions the EnumSet of {@link CanSetOptionsType} enum values
+     * @param permissions the permission of the issuer
+     * @return CompletableFuture instance to get PushedTransaction instance
+     * @see TypeSymbol
+     * @see io.yosemite.data.types.TypeYxSymbol
+     */
     public CompletableFuture<PushedTransaction> createToken(
             String symbol, int precision, String issuer, EnumSet<CanSetOptionsType> canSetOptions, String[] permissions) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
@@ -49,11 +66,22 @@ public class YosemiteTokenJ extends YosemiteJ {
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
+    /**
+     * Issues the amount of the token to the <code>to</code> account by the token depository(<code>issuer</code>).
+     * Transaction fee is charged to the issuer.
+     * @param to the account who is transferred the amount of the token
+     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param issuer the account name of the issuer
+     * @param memo data which the caller wants to save to
+     * @param permissions the permission of the issuer
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
     public CompletableFuture<PushedTransaction> issueToken(
             String to, String amount, String issuer, String memo, String[] permissions) {
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+        if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
 
         JsonArray arrayObj = new JsonArray();
         arrayObj.add(to);
@@ -67,10 +95,20 @@ public class YosemiteTokenJ extends YosemiteJ {
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
+    /**
+     * Redeem(burn) the amount of the token by the token depository(<code>issuer</code>).
+     * Transaction fee is charged to the issuer.
+     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param issuer the account name of the issuer
+     * @param memo data which the caller wants to save to
+     * @param permissions the permission of the issuer
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
     public CompletableFuture<PushedTransaction> redeemToken(
             String amount, String issuer, String memo, String[] permissions) {
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+        if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
 
         JsonArray arrayObj = new JsonArray();
         JsonObject tokenObj = new JsonObject();
@@ -83,6 +121,17 @@ public class YosemiteTokenJ extends YosemiteJ {
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
+    /**
+     * Transfer the amount of the token from the <code>from</code> account to the <code>to</code> account.
+     * Transaction fee is charged to the <code>from</code> account.
+     * @param from the account name of from
+     * @param to the account name of to
+     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param issuer the account name of the issuer
+     * @param memo data which the caller wants to save to
+     * @param permissions the permission of the the <code>from</code> account
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
     public CompletableFuture<PushedTransaction> transferToken(
             String from, String to, String amount, String issuer, String memo, String[] permissions) {
         JsonObject object = getJsonObjectForTransfer(from, to, amount, issuer, memo);
@@ -91,6 +140,18 @@ public class YosemiteTokenJ extends YosemiteJ {
                 isEmptyArray(permissions) ? new String[]{from + "@active"} : permissions);
     }
 
+    /**
+     * Transfer the amount of the token from the <code>from</code> account to the <code>to</code> account.
+     * Transaction fee is charged to the <code>payer</code> account.
+     * @param from the account name of from
+     * @param to the account name of to
+     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param issuer the account name of the issuer
+     * @param payer the account name of the transaction fee payer
+     * @param memo data which the caller wants to save to
+     * @param permissions the permission of the the <code>from</code> account and the <code>payer</code> account
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
     public CompletableFuture<PushedTransaction> transferTokenWithPayer(
             String from, String to, String amount, String issuer, String payer,
             String memo, String[] permissions) {
@@ -105,6 +166,7 @@ public class YosemiteTokenJ extends YosemiteJ {
         if (StringUtils.isEmpty(from)) throw new IllegalArgumentException("wrong from");
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
+        if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
 
         JsonObject object = new JsonObject();
         object.addProperty("from", from);
@@ -119,6 +181,19 @@ public class YosemiteTokenJ extends YosemiteJ {
         return object;
     }
 
+    /**
+     * Set the KYC rule for token send or receipt.
+     * Transaction fee is charged to the issuer.
+     * This action is possible only if {@link CanSetOptionsType#SET_KYC_RULE} was set while creating the token.
+     * @param symbol the symbol name
+     * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers
+     * @param issuer the account name of the issuer
+     * @param tokenRuleType the rule type which indicates token send or receipt
+     * @param kycVectors the EnumSet of {@link KYCStatusType} enum values
+     * @param permissions the permission of the issuer
+     * @see TokenRuleType
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
     public CompletableFuture<PushedTransaction> setTokenKYCRule(
             String symbol, int precision, String issuer, TokenRuleType tokenRuleType, EnumSet<KYCStatusType> kycVectors, String[] permissions) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
@@ -138,6 +213,19 @@ public class YosemiteTokenJ extends YosemiteJ {
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
+    /**
+     * Set the various options of the token defined by {@link TokenOptionsType}.
+     * Transaction fee is charged to the issuer.
+     * This action is possible only if the matching types of {@link CanSetOptionsType} were set while creating the token.
+     * For example, if {@link CanSetOptionsType#FREEZE_TOKEN_TRANSFER } was set, {@link TokenOptionsType#FREEZE_TOKEN_TRANSFER} is possible to use.
+     * @param symbol the symbol name
+     * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers
+     * @param issuer the account name of the issuer
+     * @param options the EnumSet of {@link TokenOptionsType} enum values
+     * @param reset the flag which indicates whether the previous options are cleared or not
+     * @param permissions the permission of the issuer
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
     public CompletableFuture<PushedTransaction> setTokenOptions(
             String symbol, int precision, String issuer, EnumSet<TokenOptionsType> options, boolean reset, String[] permissions) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
@@ -157,6 +245,18 @@ public class YosemiteTokenJ extends YosemiteJ {
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
+    /**
+     * Freeze or unfreeze the accounts.
+     * Transaction fee is charged to the issuer.
+     * This action is possible only if {@link CanSetOptionsType#FREEZE_ACCOUNT} was set while creating the token.
+     * @param symbol the symbol name
+     * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers
+     * @param issuer the account name of the issuer
+     * @param accounts the list of account names to be frozen or unfrozen
+     * @param freeze the flag which indicates whether to freeze or unfreeze
+     * @param permissions the permission of the issuer
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
     public CompletableFuture<PushedTransaction> freezeAccounts(
             String symbol, int precision, String issuer, final List<String> accounts, boolean freeze, final String[] permissions) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
@@ -181,7 +281,6 @@ public class YosemiteTokenJ extends YosemiteJ {
         return pushAction(YOSEMITE_TOKEN_CONTRACT, "freezeacc", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
-
 
     public CompletableFuture<TableRow> getTokenStats(String symbol, int precision, String issuer) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
@@ -217,9 +316,8 @@ public class YosemiteTokenJ extends YosemiteJ {
     }
 
     /**
-     * Set<CanSetOptionsType> statusFlags = EnumSet.of(
-     *             CanSetOptionsType.FREEZE_TOKEN_TRANSFER,
-     *             CanSetOptionsType.FREEZE_ACCOUNT);
+     * Represents the big flags of each can-set-options value.
+     * You can use the enum values with {@link java.util.EnumSet}.
      */
     public enum CanSetOptionsType {
         NONE(), // == 0
@@ -254,7 +352,7 @@ public class YosemiteTokenJ extends YosemiteJ {
     }
 
     /**
-     * Rules for Non-native Token
+     * Rules for non-native token
      */
     public enum TokenRuleType {
         KYC_RULE_TRANSFER_SEND((short)0),
@@ -272,15 +370,24 @@ public class YosemiteTokenJ extends YosemiteJ {
         }
     }
 
+    /**
+     * Represents the big flags of each token option.
+     * You can use the enum values with {@link java.util.EnumSet}.
+     */
     public enum TokenOptionsType {
-        NONE((short)0),
-        FREEZE_TOKEN_TRANSFER((short)1)
+        NONE(),
+        FREEZE_TOKEN_TRANSFER((short)0) // == 1, hereby 0 means the number of bit-shifting
         ;
 
         private final short value;
 
-        TokenOptionsType(short value) {
-            this.value = value;
+        // Must be only used by NONE
+        TokenOptionsType() {
+            this.value = 0;
+        }
+
+        TokenOptionsType(short shift) {
+            this.value = (short) (1 << shift);
         }
 
         public short getValue() {

@@ -27,6 +27,9 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import io.yosemite.util.StringUtils;
 
+/**
+ * Represents the transaction instance which is accepted successfully by one of the Yosemite node.
+ */
 public class PushedTransaction {
 
     @Expose
@@ -36,6 +39,9 @@ public class PushedTransaction {
     @Expose
     private TransactionTrace processed;
 
+    /**
+     * @return the string representation of SHA-256 hash of transaction bytes; you can use this value for retrieving transaction information from the Yosemite network.
+     */
     public String getTransactionId() {
         return transactionId;
     }

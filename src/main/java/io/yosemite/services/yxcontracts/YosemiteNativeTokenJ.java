@@ -1,6 +1,5 @@
 package io.yosemite.services.yxcontracts;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.yosemite.data.remote.chain.PushedTransaction;
@@ -16,18 +15,30 @@ import java.util.concurrent.CompletableFuture;
 import static io.yosemite.util.Consts.YOSEMITE_NATIVE_TOKEN_CONTRACT;
 
 /**
- * @author Eugene Chung
+ * Provides the APIs for the native token service.
+ * For your information, please read <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md">yx.ntoken README</a>.
  */
 public class YosemiteNativeTokenJ extends YosemiteJ {
     public YosemiteNativeTokenJ(YosemiteApiRestClient yosemiteApiRestClient) {
         super(yosemiteApiRestClient);
     }
 
+    /**
+     * Issues the amount of the native token to the <code>to</code> account by the system depository(<code>issuer</code>).
+     * Transaction fee is charged to the issuer.
+     * @param to the account who is transferred the amount of the native token
+     * @param amount the amount of the native token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param issuer the account name of the issuer
+     * @param memo data which the caller wants to save to
+     * @param permissions the permission of the issuer
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
     public CompletableFuture<PushedTransaction> issueNativeToken(
             final String to, final String amount, final String issuer, final String memo, final String[] permissions) {
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+        if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
 
         JsonArray arrayObj = new JsonArray();
         arrayObj.add(to);
@@ -41,10 +52,20 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
+    /**
+     * Redeem(burn) the amount of the native token by the system depository(<code>issuer</code>).
+     * Transaction fee is charged to the issuer.
+     * @param amount the amount of the native token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param issuer the account name of the issuer
+     * @param memo data which the caller wants to save to
+     * @param permissions the permission of the issuer
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
     public CompletableFuture<PushedTransaction> redeemNativeToken(
             final String amount, final String issuer, final String memo, final String[] permissions) {
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+        if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
 
         JsonObject object = new JsonObject();
         JsonObject tokenObj = new JsonObject();
@@ -57,6 +78,16 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
     }
 
+    /**
+     * Transfer the amount of the native token from the <code>from</code> account to the <code>to</code> account.
+     * Transaction fee is charged to the <code>from</code> account.
+     * @param from the account name of from
+     * @param to the account name of to
+     * @param amount the amount of the native token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param memo data which the caller wants to save to
+     * @param permissions the permission of the the <code>from</code> account
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
     public CompletableFuture<PushedTransaction> transferNativeToken(
             final String from, final String to, final String amount, final String memo, final String[] permissions) {
         JsonObject object = getJsonObjectForTransfer(from, to, amount, memo);
@@ -65,6 +96,17 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
                 isEmptyArray(permissions) ? new String[]{from + "@active"} : permissions);
     }
 
+    /**
+     * Transfer the amount of the native token from the <code>from</code> account to the <code>to</code> account.
+     * Transaction fee is charged to the <code>payer</code> account.
+     * @param from the account name of from
+     * @param to the account name of to
+     * @param amount the amount of the native token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param payer the account name of the transaction fee payer
+     * @param memo data which the caller wants to save to
+     * @param permissions the permission of the the <code>from</code> account and the <code>payer</code> account
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
     public CompletableFuture<PushedTransaction> transferNativeTokenWithPayer(
             final String from, final String to, final String amount, final String payer,
             final String memo, final String[] permissions) {
@@ -79,6 +121,7 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
         if (StringUtils.isEmpty(from)) throw new IllegalArgumentException("wrong from");
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
+        if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
 
         JsonObject object = new JsonObject();
         object.addProperty("from", from);
@@ -88,19 +131,42 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
         return object;
     }
 
+    /**
+     * Transfer the amount of the native token with the designated issuer from the <code>from</code> account to the <code>to</code> account.
+     * Transaction fee is charged to the <code>from</code> account.
+     * @param from the account name of from
+     * @param to the account name of to
+     * @param amount the amount of the native token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param issuer the account name of the native token issuer
+     * @param memo data which the caller wants to save to
+     * @param permissions the permission of the the <code>from</code> account
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
     public CompletableFuture<PushedTransaction> ntransferNativeToken(
-            final String from, final String to, final String token, final String issuer,
+            final String from, final String to, final String amount, final String issuer,
             final String memo, final String[] permissions) {
-        JsonObject object = getJsonObjectForNTransfer(from, to, token, issuer, memo);
+        JsonObject object = getJsonObjectForNTransfer(from, to, amount, issuer, memo);
 
         return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "ntransfer", gson.toJson(object),
                 isEmptyArray(permissions) ? new String[]{from + "@active"} : permissions);
     }
 
+    /**
+     * Transfer the amount of the native token with the designated issuer from the <code>from</code> account to the <code>to</code> account.
+     * Transaction fee is charged to the <code>payer</code> account.
+     * @param from the account name of from
+     * @param to the account name of to
+     * @param amount the amount of the native token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param issuer the account name of the native token issuer
+     * @param payer the account name of the transaction fee payer
+     * @param memo data which the caller wants to save to
+     * @param permissions the permission of the the <code>from</code> account and the <code>payer</code> account
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
     public CompletableFuture<PushedTransaction> ntransferNativeTokenWithPayer(
-            final String from, final String to, final String token, final String issuer, final String payer,
+            final String from, final String to, final String amount, final String issuer, final String payer,
             final String memo, final String[] permissions) {
-        JsonObject object = getJsonObjectForNTransfer(from, to, token, issuer, memo);
+        JsonObject object = getJsonObjectForNTransfer(from, to, amount, issuer, memo);
         object.addProperty("payer", payer);
 
         return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "wpntransfer", gson.toJson(object),
@@ -112,6 +178,7 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+        if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
 
         JsonObject object = new JsonObject();
 

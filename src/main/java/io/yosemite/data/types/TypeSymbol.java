@@ -28,6 +28,12 @@ import io.yosemite.util.Consts;
 import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
 
+/**
+ * Represents the token symbol, the precision and the name.
+ * For your information, please read <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md">yx.ntoken README</a>.
+ * The convenion of the symbol name follows
+ * <a href="https://developers.eos.io/eosio-cpp/docs/naming-conventions#section-symbols">Naming Conventions of Symbols</a>
+ */
 public class TypeSymbol implements EosType.Packer {
     private static final int MAX_PRECISION = 18;
 
