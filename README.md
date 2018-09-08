@@ -371,56 +371,8 @@ for (Map<String, ?> row : signerInfoTable.getRows()) {
 
 
 ## References 
+```
+./gradlew javadoc
+```
+Please open `build/docs/javadoc/index.html` with the web browser.
 
-### Supported HTTP APIs
-
-#### Chain
- - [x] get_info
- - [x] get_block
- - [ ] get_block_header_state
- - [x] get_account
- - [ ] get_abi
- - [ ] get_code
- - [ ] get_raw_code_and_abi
- - [x] get_table_rows
- - [ ] get_currency_balance
- - [x] abi_json_to_bin
- - [ ] abi_bin_to_json
- - [x] get_required_keys
- - [ ] get_currency_stats
- - [ ] get_producers
- - [ ] push_block
- - [x] push_transaction
- - [ ] push_transactions
-
-#### Wallet
- - [ ] create
- - [ ] open
- - [ ] lock
- - [ ] lock_all
- - [ ] unlock
- - [ ] import_key
- - [ ] list_wallets
- - [ ] list_keys
- - [x] get_public_keys
- - [ ] set_timeout
- - [x] sign_transaction
- - [ ] set_dir
- - [ ] set_eosio_key
- - [x] sign_digest
- - [ ] create_key
-
-#### History
- - [x] get_actions
- - [x] get_transaction
- - [x] get_key_accounts
- - [x] get_controlled_accounts
-
-#### Producer
- - [ ] pause
- - [ ] resume
- - [ ] paused
- - [ ] get_greylist
- - [ ] add_greylist_accounts
- - [ ] remove_grelist_accounts
- 
