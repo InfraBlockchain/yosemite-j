@@ -29,7 +29,11 @@ import io.yosemite.util.Utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
+/**
+ * Represents the token amount and its symbol.
+ * For your information, please read <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md">yx.ntoken README</a>.
+ * @see TypeSymbol
+ */
 public class TypeAsset implements EosType.Packer {
 
     public static final long MAX_AMOUNT = (1L << 62) - 1;

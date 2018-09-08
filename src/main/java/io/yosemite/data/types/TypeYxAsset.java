@@ -2,6 +2,11 @@ package io.yosemite.data.types;
 
 import static io.yosemite.data.types.TypeYxSymbol.symbolIssuerDenominator;
 
+/**
+ * Represents the token amount, its symbol and the issuer.
+ * For your information, please read <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md">yx.ntoken README</a>.
+ * @see TypeYxSymbol
+ */
 public class TypeYxAsset extends TypeAsset implements EosType.Packer {
     private final TypeAccountName issuer;
     private volatile String form;

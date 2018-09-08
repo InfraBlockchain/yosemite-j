@@ -1,5 +1,9 @@
 package io.yosemite.data.types;
 
+/**
+ * Represents the token symbol, the precision, name and the issuer.
+ * For your information, please read <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md">yx.ntoken README</a>.
+ */
 public class TypeYxSymbol extends TypeSymbol implements EosType.Packer {
     public static char symbolIssuerDenominator = '@';
 
