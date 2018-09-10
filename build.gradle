@@ -117,6 +117,9 @@ task sample (type: JavaCompile) {
 }
 
 task runSample (type: JavaExec) {
+    if (project.hasProperty('pargs')) {
+        args(pargs.split(','))
+    }
     doFirst {
         main = 'io.yosemite.sample.' + mainClass
         classpath = sourceSets.main.runtimeClasspath

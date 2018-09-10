@@ -85,6 +85,13 @@ clyos push action yx.txfee settxfee '{"operation":"tf.tfreezeac", "fee":"5.0000 
 ```
 
 ## Execute
+* prepare logic
+```shell
+./gradlew -PmainClass=DigitalContractJSample runSample -Ppargs='-prepare'
+./gradlew -PmainClass=TokenContractJSample runSample -Ppargs='-prepare'
+```
+
+* main logic
 ```shell
 ./gradlew -PmainClass=DigitalContractJSample runSample
 ./gradlew -PmainClass=TokenContractJSample runSample
