@@ -18,6 +18,7 @@ import io.yosemite.services.yxcontracts.*;
 import io.yosemite.util.Consts;
 import io.yosemite.util.Utils;
 import org.junit.Assert;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,13 +135,14 @@ public class LibraryTest {
     public void testYosemiteNativeTokenJ() {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+        apiClient.setTransactionVoteTarget("d1");
 
         YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
 
         String contract = "yx.ntoken";
         String action = "transfer";
-        String data = "{\"from\":\"user\",\"to\":\"tester\",\"amount\":\"2.0000 DKRW\",\"memo\":\"test\"}";
-        String[] permissions = new String[]{"user@active"};
+        String data = "{\"from\":\"user1\",\"to\":\"user2\",\"amount\":\"2.0000 DKRW\",\"memo\":\"test\"}";
+        String[] permissions = new String[]{"user1@active"};
 
         PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, permissions).join();
 

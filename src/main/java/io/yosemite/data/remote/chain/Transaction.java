@@ -1,7 +1,10 @@
 package io.yosemite.data.remote.chain;
 
 import com.google.gson.annotations.Expose;
+import io.yosemite.data.types.EosByteWriter;
 import io.yosemite.data.types.EosType;
+import io.yosemite.data.types.TypeName;
+import io.yosemite.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,14 +18,11 @@ public class Transaction extends TransactionHeader {
     @Expose
     private List<Action> actions;
 
-    // Extentions are prefixed with type and are a buffer that can be interpreted by code that is aware and ignored by unaware code.
     @Expose
-    private List<String> transaction_extensions = Collections.emptyList();
+    private List<TransactionExtension> transaction_extensions;
 
     public Transaction() {
-        super();
     }
-
 
     public Transaction(Transaction other) {
         super(other);
@@ -39,7 +39,6 @@ public class Transaction extends TransactionHeader {
         actions.add(msg);
     }
 
-
     public List<Action> getActions() {
         return actions;
     }
@@ -51,7 +50,6 @@ public class Transaction extends TransactionHeader {
     public int getContextFreeActionCount() {
         return (actions == null ? 0 : actions.size());
     }
-
 
     <T> List<T> deepCopyOnlyContainer(List<T> srcList) {
         if (null == srcList) {
@@ -70,10 +68,18 @@ public class Transaction extends TransactionHeader {
 
         writer.putCollection(context_free_actions);
         writer.putCollection(actions);
-        //writer.putCollection(transaction_extensions);
-        writer.putVariableUInt(transaction_extensions.size());
-        if (transaction_extensions.size() > 0) {
-            // TODO 구체적 코드가 나오면 확인후 구현할 것.
+        writer.putCollection(transaction_extensions);
+    }
+
+    public void setTransactionVoteTarget(String txVoteTarget) {
+        if (StringUtils.isEmpty(txVoteTarget)) return;
+
+        if (transaction_extensions == null) {
+            transaction_extensions = new ArrayList<>();
         }
+        long nameValue = TypeName.string_to_name(txVoteTarget);
+        EosByteWriter eosByteWriter = new EosByteWriter(8);
+        eosByteWriter.putLongLE(nameValue);
+        transaction_extensions.add(new TransactionExtension(TransactionExtensionField.TRANSACTION_VOTE_ACCOUNT, eosByteWriter.toBytes()));
     }
 }

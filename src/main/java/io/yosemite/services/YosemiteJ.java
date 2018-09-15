@@ -72,6 +72,7 @@ public abstract class YosemiteJ {
                     txnBeforeSign.addAction(actionReq);
                     txnBeforeSign.setReferenceBlock(info.getHeadBlockId());
                     txnBeforeSign.setExpiration(info.getTimeAfterHeadBlockTime(mYosemiteApiRestClient.getTxExpirationInMillis()));
+                    txnBeforeSign.setTransactionVoteTarget(mYosemiteApiRestClient.getTransactionVoteTarget());
 
                     return signAndPackTransaction(txnBeforeSign, info.getChainId()).thenCompose(packedTx -> mYosemiteApiRestClient.pushTransaction(packedTx).executeAsync());
                 })

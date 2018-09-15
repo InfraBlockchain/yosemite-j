@@ -55,4 +55,18 @@ public interface YosemiteApiRestClient {
     Request<ControlledAccounts> getControlledAccounts(String controllingAccountName);
 
     int getTxExpirationInMillis();
+
+    /**
+     * Set the transaction expiration time
+     * @param txExpirationInMillis expiration time in milliseconds
+     */
+    void setTxExpirationInMillis(int txExpirationInMillis);
+
+    String getTransactionVoteTarget();
+
+    /**
+     * Set the transaction vote target account for PoT
+     * @param transactionVoteTarget The account name to vote to
+     */
+    void setTransactionVoteTarget(String transactionVoteTarget);
 }

@@ -23,13 +23,16 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     private final ApiServiceExecutor<YosemiteHistoryApiService> yxHistoryApiService;
     private final ApiServiceExecutor<YosemiteWalletApiService> yxWalletApiService;
 
-    private final int txExpirationInMillis;
+    private int txExpirationInMillis;
+    private String transactionVoteTarget;
 
-    YosemiteApiRestClientImpl(String chainBaseUrl, String walletBaseUrl, String historyBaseUrl, int txExpirationInMillis) {
+    YosemiteApiRestClientImpl(String chainBaseUrl, String walletBaseUrl, String historyBaseUrl, int txExpirationInMillis,
+                              String transactionVoteTarget) {
         yxChainApiService = ApiServiceExecutor.create(YosemiteChainApiService.class, chainBaseUrl);
         yxWalletApiService = ApiServiceExecutor.create(YosemiteWalletApiService.class, walletBaseUrl);
         yxHistoryApiService = ApiServiceExecutor.create(YosemiteHistoryApiService.class, historyBaseUrl);
         this.txExpirationInMillis = txExpirationInMillis;
+        this.transactionVoteTarget = transactionVoteTarget;
     }
 
     @Override
@@ -195,5 +198,20 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     @Override
     public int getTxExpirationInMillis() {
         return txExpirationInMillis;
+    }
+
+    @Override
+    public void setTxExpirationInMillis(int txExpirationInMillis) {
+        this.txExpirationInMillis = txExpirationInMillis;
+    }
+
+    @Override
+    public String getTransactionVoteTarget() {
+        return transactionVoteTarget;
+    }
+
+    @Override
+    public void setTransactionVoteTarget(String transactionVoteTarget) {
+        this.transactionVoteTarget = transactionVoteTarget;
     }
 }
