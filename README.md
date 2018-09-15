@@ -115,7 +115,7 @@ Even if a transaction is successfully accepted by the YosemiteChain, it's not th
 TaaV is the most important feature of the YosemiteChain, which is required to elect the PoT block producers. The accounts which get more transaction votes than others become PoT block producers.
 
 <b>
-It's highly recommended for the service providers or DApps implementors to determine carefully which account to vote to for making the YosemiteChain even healthier. We think the first candidate for the TaaV account is the system depository selected as their native token issuer.
+It's highly recommended for the service providers or DApps implementors to determine carefully which account to vote to for making the YosemiteChain even healthier. We think the first candidate for the TaaV account is the block producer account advertised by their native token issuer.
 </b>
 
 ```java
