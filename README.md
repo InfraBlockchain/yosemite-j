@@ -112,9 +112,10 @@ In YosemiteChain, a transaction includes one or more actions. As the same as gen
 Even if a transaction is successfully accepted by the YosemiteChain, it's not that the transaction becomes irreversible immediately, which means it is the part of a block. The DApps should wait for or poll the transaction becomes irreversible.
 
 ### Setting Transaction-as-a-Vote(TaaV) Account for Proof-of-Transaction(PoT)
-<b>
 TaaV is the most important feature of the YosemiteChain, which is required to elect the PoT block producers. The accounts which get more transaction votes than others become PoT block producers.
-The service providers or DApps implementors have to consider which account to vote to for making the YosemiteChain even healthier.
+
+<b>
+It's highly recommended for the service providers or DApps implementors to determine carefully which account to vote to for making the YosemiteChain even healthier. We think the first candidate for the TaaV account is the system depository selected as their DRKW issuer.
 </b>
 
 ```java
