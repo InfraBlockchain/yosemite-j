@@ -4,7 +4,6 @@ import com.google.gson.annotations.Expose;
 import io.yosemite.data.types.EosByteWriter;
 import io.yosemite.data.types.EosType;
 import io.yosemite.data.types.TypeName;
-import io.yosemite.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,7 +18,7 @@ public class Transaction extends TransactionHeader {
     private List<Action> actions;
 
     @Expose
-    private List<TransactionExtension> transaction_extensions;
+    private List<TransactionExtension> transaction_extensions = new ArrayList<>();
 
     public Transaction() {
     }
@@ -72,14 +71,11 @@ public class Transaction extends TransactionHeader {
     }
 
     public void setTransactionVoteTarget(String txVoteTarget) {
-        if (StringUtils.isEmpty(txVoteTarget)) return;
-
-        if (transaction_extensions == null) {
-            transaction_extensions = new ArrayList<>();
-        }
-        long nameValue = TypeName.string_to_name(txVoteTarget);
+        TypeName voteTarget = new TypeName(txVoteTarget);
         EosByteWriter eosByteWriter = new EosByteWriter(8);
-        eosByteWriter.putLongLE(nameValue);
+        voteTarget.pack(eosByteWriter);
         transaction_extensions.add(new TransactionExtension(TransactionExtensionField.TRANSACTION_VOTE_ACCOUNT, eosByteWriter.toBytes()));
+
     }
 }
+
