@@ -111,6 +111,18 @@ In YosemiteChain, a transaction includes one or more actions. As the same as gen
 ### Synching or Polling the Result of Transaction
 Even if a transaction is successfully accepted by the YosemiteChain, it's not that the transaction becomes irreversible immediately, which means it is the part of a block. The DApps should wait for or poll the transaction becomes irreversible.
 
+### Setting Transaction-as-a-Vote(TaaV) Account for Proof-of-Transaction(PoT)
+TaaV is the most important feature of the YosemiteChain, which is required to elect the PoT block producers. The accounts which get more transaction votes than others become PoT block producers.
+
+<b>
+It's highly recommended for the service providers or DApps implementors to determine carefully which account to vote to for making the YosemiteChain even healthier. We think the first candidate for the TaaV account is the block producer account advertised by their native token issuer.
+</b>
+
+```java
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+apiClient.setTransactionVoteTarget("<account-name>");
+```
+
 ### Setting transaction expiration time
 Even if a transaction is successfully accepted by the YosemiteChain, there is a possiblility that the transaction is failed to be in the irreversible block.
 For such pending transaction, it can be expired. The DApps can set the expiration time of transaction in milliseconds.

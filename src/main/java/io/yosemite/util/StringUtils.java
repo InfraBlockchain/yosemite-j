@@ -24,29 +24,51 @@
 package io.yosemite.util;
 
 
+import io.yosemite.crypto.util.HexUtils;
+
+import java.io.ByteArrayOutputStream;
+
 public class StringUtils {
     public static boolean isEmpty( CharSequence data ) {
       return ( null == data ) || ( data.length() <= 0);
    }
 
     /**
-     * Converts bytesString to java String.
-     * @param hexString hex-value concanated string e.g. 4962061d207573657233
+     * Converts hex-string to java String.
+     * @param hexString hex-value concatenated string e.g. 4962061d207573657233
      * @return the result of conversion e.g. I am user3
      */
-    public static String convertHexToString(String hexString) {
+    public static String convertHexStringToString(String hexString) {
         StringBuilder sb = new StringBuilder();
-        StringBuilder temp = new StringBuilder();
 
         //4962061d207573657233 split into two characters 49, 62, 06, ...
         for (int i = 0; i < hexString.length() - 1; i += 2) {
             String output = hexString.substring(i, (i + 2));
             int decimal = Integer.parseInt(output, 16);
             sb.append((char) decimal);
-
-            temp.append(decimal);
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Converts byte array to hex-string.
+     * @param bytes byte array
+     * @return hex-value concatenated string e.g. 4962061d207573657233
+     */
+    public static String convertByteArrayToHexString(byte[] bytes) {
+        if (bytes == null) return null;
+
+        return HexUtils.toHex(bytes);
+    }
+
+    /**
+     * Converts hex-string to byte array.
+     * @param hexString hex-value concatenated string e.g. 4962061d207573657233
+     * @return byte array
+     */
+    public static byte[] convertHexStringToByteArray(String hexString) {
+        if (hexString == null) return null;
+        return HexUtils.toBytes(hexString);
     }
 }

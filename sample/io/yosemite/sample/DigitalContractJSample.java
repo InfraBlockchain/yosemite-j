@@ -14,8 +14,10 @@ public class DigitalContractJSample {
 
     public static void main(String[] args) {
         boolean wait_for_irreversibility = false;
+        // Create Yosemite Client with servers of the same machine; transaction vote target for PoT is set to "d1"
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900");
+        apiClient.setTransactionVoteTarget(SYSTEM_DEPOSITORY_ACCOUNT);
 
         if (args.length > 0) {
             for (String arg : args) {
