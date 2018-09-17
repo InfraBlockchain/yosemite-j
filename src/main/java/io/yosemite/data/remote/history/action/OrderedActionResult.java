@@ -1,70 +1,50 @@
-
 package io.yosemite.data.remote.history.action;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import io.yosemite.data.remote.chain.ActionTrace;
+import io.yosemite.data.remote.chain.Action;
+import io.yosemite.data.remote.chain.ActionReceipt;
+import io.yosemite.data.remote.history.transaction.Timestamp;
 
 public class OrderedActionResult {
 
     @Expose
-    @SerializedName("account_action_seq")
-    private Integer accountActionSeq;
+    @SerializedName("receipt")
+    private ActionReceipt receipt;
 
     @Expose
-    @SerializedName("action_trace")
-    private ActionTrace actionTrace;
+    @SerializedName("act")
+    private Action action;
 
     @Expose
-    @SerializedName("block_num")
+    @SerializedName("bNum")
     private Integer blockNum;
 
     @Expose
-    @SerializedName("block_time")
-    private String blockTime;
+    @SerializedName("bTime")
+    private Timestamp blockTime;
 
     @Expose
-    @SerializedName("global_action_seq")
-    private Integer globalActionSeq;
+    @SerializedName("trx_id")
+    private String transactionId;
 
-    public Integer getAccountActionSeq() {
-        return accountActionSeq;
+    public ActionReceipt getReceipt() {
+        return receipt;
     }
 
-    public void setAccountActionSeq(Integer accountActionSeq) {
-        this.accountActionSeq = accountActionSeq;
-    }
-
-    public ActionTrace getActionTrace() {
-        return actionTrace;
-    }
-
-    public void setActionTrace(ActionTrace actionTrace) {
-        this.actionTrace = actionTrace;
+    public Action getAction() {
+        return action;
     }
 
     public Integer getBlockNum() {
         return blockNum;
     }
 
-    public void setBlockNum(Integer blockNum) {
-        this.blockNum = blockNum;
-    }
-
-    public String getBlockTime() {
+    public Timestamp getBlockTime() {
         return blockTime;
     }
 
-    public void setBlockTime(String blockTime) {
-        this.blockTime = blockTime;
+    public String getTransactionId() {
+        return transactionId;
     }
-
-    public Integer getGlobalActionSeq() {
-        return globalActionSeq;
-    }
-
-    public void setGlobalActionSeq(Integer globalActionSeq) {
-        this.globalActionSeq = globalActionSeq;
-    }
-
 }

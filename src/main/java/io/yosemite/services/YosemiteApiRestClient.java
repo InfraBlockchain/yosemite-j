@@ -6,6 +6,7 @@ import io.yosemite.data.remote.api.GetRequiredKeysRequest;
 import io.yosemite.data.remote.api.GetRequiredKeysResponse;
 import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.account.Account;
+import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.action.GetTableOptions;
 
 import java.util.List;
@@ -42,6 +43,8 @@ public interface YosemiteApiRestClient {
 
     /* History */
     Request<io.yosemite.data.remote.history.transaction.Transaction> getTransaction(String id);
+
+    Request<Actions> getActions(String accountName);
 
     int getTxExpirationInMillis();
 

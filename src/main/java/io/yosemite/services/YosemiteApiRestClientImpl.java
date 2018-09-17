@@ -8,8 +8,6 @@ import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.action.GetTableOptions;
-import io.yosemite.data.remote.history.controlledaccounts.ControlledAccounts;
-import io.yosemite.data.remote.history.keyaccounts.KeyAccounts;
 import io.yosemite.util.StringUtils;
 
 import java.util.ArrayList;
@@ -150,6 +148,11 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     @Override
     public Request<io.yosemite.data.remote.history.transaction.Transaction> getTransaction(String txId) {
         return new Request<>(yxHistoryApiService.getService().getTransaction(txId), yxHistoryApiService);
+    }
+
+    @Override
+    public Request<Actions> getActions(String accountName) {
+        return new Request<>(yxHistoryApiService.getService().getActions(accountName), yxHistoryApiService);
     }
 
     @Override
