@@ -113,6 +113,16 @@ public class LibraryTest {
     }
 
     //@Test
+    public void testGetActions() throws IOException {
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
+
+        Actions actions = apiClient.getActions("rentservice1").execute();
+        logger.debug("Last irreversible block: " + actions.getLastIrreversibleBlock());
+        logger.debug(Utils.prettyPrintJson(actions));
+    }
+
+    //@Test
     public void testYosemiteNativeTokenJ() {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
