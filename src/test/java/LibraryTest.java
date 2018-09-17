@@ -117,7 +117,7 @@ public class LibraryTest {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
 
-        Actions actions = apiClient.getActions("rentservice1").execute();
+        Actions actions = apiClient.getActions("rentservice1", -1, -50).execute();
         logger.debug("Last irreversible block: " + actions.getLastIrreversibleBlock());
         logger.debug(Utils.prettyPrintJson(actions));
     }

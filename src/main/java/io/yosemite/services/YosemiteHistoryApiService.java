@@ -5,6 +5,7 @@ import io.yosemite.data.remote.history.transaction.Transaction;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface YosemiteHistoryApiService {
 
@@ -12,5 +13,5 @@ public interface YosemiteHistoryApiService {
     Call<Transaction> getTransaction(@Path("txId") String txId);
 
     @GET("/account/{accountName}/actions/received")
-    Call<Actions> getActions(@Path("accountName") String accountName);
+    Call<Actions> getActions(@Path("accountName") String accountName, @Query("start") Integer start, @Query("offset") Integer offset);
 }

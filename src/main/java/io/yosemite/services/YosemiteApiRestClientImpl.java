@@ -151,8 +151,8 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
-    public Request<Actions> getActions(String accountName) {
-        return new Request<>(yxHistoryApiService.getService().getActions(accountName), yxHistoryApiService);
+    public Request<Actions> getActions(String accountName, Integer startPosition, Integer offset) {
+        return new Request<>(yxHistoryApiService.getService().getActions(accountName, startPosition, offset), yxHistoryApiService);
     }
 
     @Override
