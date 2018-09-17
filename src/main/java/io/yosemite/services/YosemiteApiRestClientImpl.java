@@ -148,51 +148,8 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
-    public Request<Actions> getActions(String accountName, Integer pos, Integer offset) {
-        LinkedHashMap<String, Object> requestParameters = new LinkedHashMap<>(3);
-
-        requestParameters.put("account_name", accountName);
-        requestParameters.put("pos", pos);
-        requestParameters.put("offset", offset);
-
-        return new Request<>(yxHistoryApiService.getService().getActions(requestParameters), yxHistoryApiService);
-    }
-
-    @Override
-    public Request<io.yosemite.data.remote.history.transaction.Transaction> getTransaction(String id) {
-        LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(1);
-
-        requestParameters.put("id", id);
-
-        return new Request<>(yxHistoryApiService.getService().getTransaction(requestParameters), yxHistoryApiService);
-    }
-
-    @Override
-    public Request<io.yosemite.data.remote.history.transaction.Transaction> getTransactionSimplified(String id) {
-        LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(1);
-
-        requestParameters.put("id", id);
-        requestParameters.put("simplified", Boolean.TRUE.toString());
-
-        return new Request<>(yxHistoryApiService.getService().getTransaction(requestParameters), yxHistoryApiService);
-    }
-
-    @Override
-    public Request<KeyAccounts> getKeyAccounts(String publicKey) {
-        LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(1);
-
-        requestParameters.put("public_key", publicKey);
-
-        return new Request<>(yxHistoryApiService.getService().getKeyAccounts(requestParameters), yxHistoryApiService);
-    }
-
-    @Override
-    public Request<ControlledAccounts> getControlledAccounts(String controllingAccountName) {
-        LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(1);
-
-        requestParameters.put("controlling_account", controllingAccountName);
-
-        return new Request<>(yxHistoryApiService.getService().getControlledAccounts(requestParameters), yxHistoryApiService);
+    public Request<io.yosemite.data.remote.history.transaction.Transaction> getTransaction(String txId) {
+        return new Request<>(yxHistoryApiService.getService().getTransaction(txId), yxHistoryApiService);
     }
 
     @Override

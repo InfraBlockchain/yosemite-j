@@ -1,3 +1,4 @@
+import com.google.gson.Gson;
 import io.yosemite.crypto.ec.EcDsa;
 import io.yosemite.data.remote.chain.Block;
 import io.yosemite.data.remote.chain.Info;
@@ -7,6 +8,7 @@ import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.event.TxIrreversibilityResponse;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.action.OrderedActionResult;
+import io.yosemite.data.remote.history.transaction.Timestamp;
 import io.yosemite.data.remote.history.transaction.Transaction;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
@@ -101,33 +103,12 @@ public class LibraryTest {
     }
 
     //@Test
-    public void testGetActions() throws IOException {
-        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
-        Actions result = apiClient.getActions(Consts.YOSEMITE_DIGITAL_CONTRACT_CONTRACT, -1, -20).execute();
-        System.out.println("LastIrreversibleBlock : " + result.getLastIrreversibleBlock());
-        for (OrderedActionResult action : result.getActions()) {
-            System.out.println(action.getAccountActionSeq() + " " + action.getBlockNum());
-        }
-    }
-
-    //@Test
     public void testGetTransaction() throws IOException {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
-        Transaction result = apiClient.getTransaction("a4f2bfe30205cf8805aa17014759152414bc6db6879b9de465fefe91cd118db5").execute();
-        System.out.println("LastIrreversibleBlock : " + result.getLastIrreversibleBlock());
-        System.out.println("Block : " + result.getBlockNum());
-        System.out.println(Utils.prettyPrintJson(result));
-    }
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
 
-    //@Test
-    public void testGetTransactionSimplified() throws IOException {
-        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
-        Transaction result = apiClient.getTransactionSimplified("fe92c7cbdc536d180cc7e2aeae0a4e2c543be48f868e80fd335576ee0a903a7d").execute();
-        System.out.println("LastIrreversibleBlock : " + result.getLastIrreversibleBlock());
-        System.out.println("Block : " + result.getBlockNum());
+        Transaction result = apiClient.getTransaction("e7f263407f5ce38d21d75da777a30ad19d33a28f47d73cbdd4f05701a68bebc3").execute();
+        System.out.println("Irreversible block timestamp at : " + result.getIrreversibleAt().getTimestamp());
         System.out.println(Utils.prettyPrintJson(result));
     }
 
