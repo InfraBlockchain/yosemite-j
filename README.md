@@ -154,9 +154,12 @@ import io.yosemite.data.remote.history.transaction.Transaction;
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
         "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
 Transaction tx = apiClient.getTransaction("312ad1eb7e6c797ed5a19e09da0c0f8bc3c67b3b8ee4ef93a49a76c3cb0c394b").execute();
-if (tx.getBlockNum() <= tx.getLastIrreversibleBlock()) {
-    //transaction is irreversible now
-    //
+
+if (tx.getIrreversibleAt() != null) {
+    // transaction is irreversible now
+    long timestamp = tx.getIrreversibleAt().getTimestamp(); // getting the timestamp when this transaction became irreversible
+} else {
+    // transaction is not yet irreverisble
 }
 ```
 
@@ -167,7 +170,7 @@ YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClie
 Actions result = apiClient.getActions(Consts.YOSEMITE_DIGITAL_CONTRACT_CONTRACT, -1, -20).execute();
 System.out.println("LastIrreversibleBlock : " + result.getLastIrreversibleBlock());
 for (Action action : result.getActions()) {
-    System.out.println(action.getAccountActionSeq() + " " + action.getBlockNum());
+    System.out.println(action.getBlockNum());
 }
 ```
 * https://developers.eos.io/eosio-cpp/docs/exchange-deposit-withdraw#section-polling-account-history

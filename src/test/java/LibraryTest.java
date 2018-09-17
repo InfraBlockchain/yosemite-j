@@ -107,9 +107,14 @@ public class LibraryTest {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
 
-        Transaction result = apiClient.getTransaction("e7f263407f5ce38d21d75da777a30ad19d33a28f47d73cbdd4f05701a68bebc3").execute();
-        System.out.println("Irreversible block timestamp at : " + result.getIrreversibleAt().getTimestamp());
-        System.out.println(Utils.prettyPrintJson(result));
+        Transaction result = apiClient.getTransaction("cdffcda7958c8d1084ca16b6dafabc9b38fec19b407207aa1302afeaebf1c113").execute();
+        logger.debug(Utils.prettyPrintJson(result));
+
+        if (result.getIrreversibleAt() != null) {
+            logger.debug("Irreversible block timestamp at : " + result.getIrreversibleAt().getTimestamp());
+        } else {
+            logger.debug("Not irreversible yet");
+        }
     }
 
     //@Test
