@@ -4,41 +4,25 @@ public class YosemiteApiException extends RuntimeException {
 
     private YosemiteApiError error;
 
-    private ErrorCode yosemiteErrorCode;
-
-    public YosemiteApiException(ErrorCode yosemiteErrorCode) {
-        this.yosemiteErrorCode = yosemiteErrorCode;
-    }
-
     public YosemiteApiException(YosemiteApiError apiError) {
+        super(apiError.getDetailedMessage());
         this.error = apiError;
     }
 
-    public YosemiteApiException(String message, ErrorCode yosemiteErrorCode) {
-        super(message);
-        this.yosemiteErrorCode = yosemiteErrorCode;
-    }
-
-    public YosemiteApiException(Throwable cause, ErrorCode yosemiteErrorCode) {
-        super(cause);
-        this.yosemiteErrorCode = yosemiteErrorCode;
+    public YosemiteApiException(YosemiteApiError apiError, Throwable cause) {
+        super(apiError.getDetailedMessage(), cause);
+        this.error = apiError;
     }
 
     public YosemiteApiException(Throwable cause) {
         super(cause);
     }
 
-    public YosemiteApiException(String message, Throwable cause, ErrorCode yosemiteErrorCode) {
-        super(message, cause);
-        this.yosemiteErrorCode = yosemiteErrorCode;
+    public YosemiteApiError getError() {
+        return error;
     }
 
-    public ErrorCode getYosemiteErrorCode() {
-        return yosemiteErrorCode;
+    public void setError(YosemiteApiError error) {
+        this.error = error;
     }
-
-    public void setYosemiteErrorCode(ErrorCode yosemiteErrorCode) {
-        this.yosemiteErrorCode = yosemiteErrorCode;
-    }
-
 }
