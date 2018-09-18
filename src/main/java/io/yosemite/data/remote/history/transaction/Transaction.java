@@ -49,4 +49,8 @@ public class Transaction {
     public List<ActionTrace> getTraces() {
         return traces;
     }
+
+    public String getExpiration() {
+        return expiration;
+    }
 }
