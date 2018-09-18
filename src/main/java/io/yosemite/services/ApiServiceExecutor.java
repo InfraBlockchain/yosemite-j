@@ -1,6 +1,5 @@
 package io.yosemite.services;
 
-import io.yosemite.exception.YosemiteApiErrorCode;
 import io.yosemite.exception.YosemiteApiError;
 import io.yosemite.exception.YosemiteApiException;
 import io.yosemite.util.Async;
@@ -29,17 +28,17 @@ public final class ApiServiceExecutor<Service> {
 
     public static <S> ApiServiceExecutor<S> create(Class<S> serviceClass, String baseUrl) {
         ApiServiceComponent apiServiceComponent = DaggerApiServiceComponent.builder().baseUrl(baseUrl).build();
-        return new ApiServiceExecutor(serviceClass, apiServiceComponent.retrofit());
+        return new ApiServiceExecutor<>(serviceClass, apiServiceComponent.retrofit());
     }
 
-    public Service getService() {
+    Service getService() {
         return service;
     }
 
     /**
      * Execute a REST call and block until the response is received.
      */
-    public <T> T executeSync(Call<T> call) {
+    <T> T executeSync(Call<T> call) {
 
         try {
             Response<T> response = call.execute();
@@ -48,15 +47,14 @@ public final class ApiServiceExecutor<Service> {
             } else {
                 logger.error(call.request().toString());
                 logger.error(response.toString());
-                YosemiteApiError apiError = getEosApiError(response);
-                throw new YosemiteApiException(apiError.getDetailedMessage(), YosemiteApiErrorCode.get(apiError.getEosErrorCode()));
+                throw new YosemiteApiException(getEosApiError(response));
             }
         } catch (IOException e) {
             throw new YosemiteApiException(e);
         }
     }
 
-    public <T> CompletableFuture<T> executeAsync(Call<T> call) {
+    <T> CompletableFuture<T> executeAsync(Call<T> call) {
         return Async.run(() -> executeSync(call));
     }
 

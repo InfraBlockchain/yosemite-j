@@ -107,7 +107,7 @@ public class LibraryTest {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
 
-        Transaction result = apiClient.getTransaction("cdffcda7958c8d1084ca16b6dafabc9b38fec19b407207aa1302afeaebf1c113").execute();
+        Transaction result = apiClient.getTransaction("19970219477b72edcc86f55985b46763a39648b369317b4c9c461a102ef4c86c").execute();
         logger.debug(Utils.prettyPrintJson(result));
 
         if (result.getIrreversibleAt() != null) {
