@@ -24,7 +24,8 @@ public class Transaction {
     private Timestamp irreversibleAt;
 
     @Expose
-    private String expiration;
+    @SerializedName("expiration")
+    private String expirationAt;
 
     @Expose
     @SerializedName("action_traces")
@@ -50,7 +51,7 @@ public class Transaction {
         return traces;
     }
 
-    public String getExpiration() {
-        return expiration;
+    public String getExpirationAt() {
+        return expirationAt;
     }
 }
