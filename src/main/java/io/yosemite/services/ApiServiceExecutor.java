@@ -1,6 +1,5 @@
 package io.yosemite.services;
 
-import io.yosemite.exception.YosemiteApiErrorCode;
 import io.yosemite.exception.YosemiteApiError;
 import io.yosemite.exception.YosemiteApiException;
 import io.yosemite.util.Async;
