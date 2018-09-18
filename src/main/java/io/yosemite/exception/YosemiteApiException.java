@@ -3,15 +3,16 @@ package io.yosemite.exception;
 public class YosemiteApiException extends RuntimeException {
 
     private YosemiteApiError error;
+    private ErrorCode errorCode;
 
     public YosemiteApiException(YosemiteApiError apiError) {
-        super(apiError.getDetailedMessage());
-        this.error = apiError;
+        this(apiError, null);
     }
 
     public YosemiteApiException(YosemiteApiError apiError, Throwable cause) {
         super(apiError.getDetailedMessage(), cause);
         this.error = apiError;
+        this.errorCode = YosemiteApiErrorCode.get(apiError.getCode());
     }
 
     public YosemiteApiException(Throwable cause) {
@@ -24,5 +25,9 @@ public class YosemiteApiException extends RuntimeException {
 
     public void setError(YosemiteApiError error) {
         this.error = error;
+    }
+
+    public ErrorCode getErrorCode() {
+        return errorCode;
     }
 }
