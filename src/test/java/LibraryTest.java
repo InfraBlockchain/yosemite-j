@@ -1,3 +1,4 @@
+import com.google.gson.Gson;
 import io.yosemite.crypto.ec.EcDsa;
 import io.yosemite.data.remote.chain.Block;
 import io.yosemite.data.remote.chain.Info;
@@ -7,6 +8,7 @@ import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.event.TxIrreversibilityResponse;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.action.OrderedActionResult;
+import io.yosemite.data.remote.history.transaction.Timestamp;
 import io.yosemite.data.remote.history.transaction.Transaction;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
@@ -101,34 +103,28 @@ public class LibraryTest {
     }
 
     //@Test
-    public void testGetActions() throws IOException {
+    public void testGetTransaction() throws IOException {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
-        Actions result = apiClient.getActions(Consts.YOSEMITE_DIGITAL_CONTRACT_CONTRACT, -1, -20).execute();
-        System.out.println("LastIrreversibleBlock : " + result.getLastIrreversibleBlock());
-        for (OrderedActionResult action : result.getActions()) {
-            System.out.println(action.getAccountActionSeq() + " " + action.getBlockNum());
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
+
+        Transaction result = apiClient.getTransaction("cdffcda7958c8d1084ca16b6dafabc9b38fec19b407207aa1302afeaebf1c113").execute();
+        logger.debug(Utils.prettyPrintJson(result));
+
+        if (result.getIrreversibleAt() != null) {
+            logger.debug("Irreversible block timestamp at : " + result.getIrreversibleAt().getTimestamp());
+        } else {
+            logger.debug("Not irreversible yet");
         }
     }
 
     //@Test
-    public void testGetTransaction() throws IOException {
+    public void testGetActions() throws IOException {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
-        Transaction result = apiClient.getTransaction("a4f2bfe30205cf8805aa17014759152414bc6db6879b9de465fefe91cd118db5").execute();
-        System.out.println("LastIrreversibleBlock : " + result.getLastIrreversibleBlock());
-        System.out.println("Block : " + result.getBlockNum());
-        System.out.println(Utils.prettyPrintJson(result));
-    }
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
 
-    //@Test
-    public void testGetTransactionSimplified() throws IOException {
-        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
-        Transaction result = apiClient.getTransactionSimplified("fe92c7cbdc536d180cc7e2aeae0a4e2c543be48f868e80fd335576ee0a903a7d").execute();
-        System.out.println("LastIrreversibleBlock : " + result.getLastIrreversibleBlock());
-        System.out.println("Block : " + result.getBlockNum());
-        System.out.println(Utils.prettyPrintJson(result));
+        Actions actions = apiClient.getActions("rentservice1", -1, -50).execute();
+        logger.debug("Last irreversible block: " + actions.getLastIrreversibleBlock());
+        logger.debug(Utils.prettyPrintJson(actions));
     }
 
     //@Test

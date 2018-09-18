@@ -56,14 +56,19 @@ public class YosemiteTokenJ extends YosemiteJ {
 
         String eosSymbolStr = precision + "," + symbol;
         JsonArray arrayObj = new JsonArray();
-        JsonObject symbolObj = new JsonObject();
-        symbolObj.addProperty("symbol", eosSymbolStr);
-        symbolObj.addProperty("issuer", issuer);
+        JsonObject symbolObj = getTokenJsonObject(eosSymbolStr, issuer);
         arrayObj.add(symbolObj);
         arrayObj.add(CanSetOptionsType.getAsBitFlags(canSetOptions));
 
         return pushAction(YOSEMITE_TOKEN_CONTRACT, "create", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions);
+    }
+
+    private JsonObject getTokenJsonObject(String eosSymbolStr, String issuer) {
+        JsonObject symbolObj = new JsonObject();
+        symbolObj.addProperty("tsymbol", eosSymbolStr);
+        symbolObj.addProperty("issuer", issuer);
+        return symbolObj;
     }
 
     /**
@@ -202,9 +207,7 @@ public class YosemiteTokenJ extends YosemiteJ {
 
         String eosSymbolStr = precision + "," + symbol;
         JsonArray arrayObj = new JsonArray();
-        JsonObject symbolObj = new JsonObject();
-        symbolObj.addProperty("symbol", eosSymbolStr);
-        symbolObj.addProperty("issuer", issuer);
+        JsonObject symbolObj = getTokenJsonObject(eosSymbolStr, issuer);
         arrayObj.add(symbolObj);
         arrayObj.add(tokenRuleType.getValue());
         arrayObj.add(KYCStatusType.getAsBitFlags(kycVectors));
@@ -234,9 +237,7 @@ public class YosemiteTokenJ extends YosemiteJ {
 
         String eosSymbolStr = precision + "," + symbol;
         JsonArray arrayObj = new JsonArray();
-        JsonObject symbolObj = new JsonObject();
-        symbolObj.addProperty("symbol", eosSymbolStr);
-        symbolObj.addProperty("issuer", issuer);
+        JsonObject symbolObj = getTokenJsonObject(eosSymbolStr, issuer);
         arrayObj.add(symbolObj);
         arrayObj.add(TokenOptionsType.getAsBitFlags(options));
         arrayObj.add(reset ? 1 : 0);
@@ -266,9 +267,7 @@ public class YosemiteTokenJ extends YosemiteJ {
 
         String eosSymbolStr = precision + "," + symbol;
         JsonArray arrayObj = new JsonArray();
-        JsonObject symbolObj = new JsonObject();
-        symbolObj.addProperty("symbol", eosSymbolStr);
-        symbolObj.addProperty("issuer", issuer);
+        JsonObject symbolObj = getTokenJsonObject(eosSymbolStr, issuer);
         arrayObj.add(symbolObj);
 
         JsonArray accountsObj = new JsonArray();

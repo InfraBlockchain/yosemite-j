@@ -12,69 +12,38 @@ public class Transaction {
     private String id;
 
     @Expose
-    private Object trx;
+    @SerializedName("bTime")
+    private Timestamp blockTime;
 
     @Expose
-    @SerializedName("block_time")
-    private String blockTime;
-
-    @Expose
-    @SerializedName("block_num")
+    @SerializedName("bNum")
     private Integer blockNum;
 
     @Expose
-    @SerializedName("last_irreversible_block")
-    private Integer lastIrreversibleBlock;
+    @SerializedName("irrAt")
+    private Timestamp irreversibleAt;
 
     @Expose
+    @SerializedName("action_traces")
     private List<ActionTrace> traces;
-
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Object getTrx() {
-        return trx;
-    }
-
-    public void setTrx(Object trx) {
-        this.trx = trx;
-    }
-
-    public String getBlockTime() {
+    public Timestamp getBlockTime() {
         return blockTime;
-    }
-
-    public void setBlockTime(String blockTime) {
-        this.blockTime = blockTime;
     }
 
     public Integer getBlockNum() {
         return blockNum;
     }
 
-    public void setBlockNum(Integer blockNum) {
-        this.blockNum = blockNum;
-    }
-
-    public Integer getLastIrreversibleBlock() {
-        return lastIrreversibleBlock;
-    }
-
-    public void setLastIrreversibleBlock(Integer lastIrreversibleBlock) {
-        this.lastIrreversibleBlock = lastIrreversibleBlock;
+    public Timestamp getIrreversibleAt() {
+        return irreversibleAt;
     }
 
     public List<ActionTrace> getTraces() {
         return traces;
-    }
-
-    public void setTraces(List<ActionTrace> traces) {
-        this.traces = traces;
     }
 }

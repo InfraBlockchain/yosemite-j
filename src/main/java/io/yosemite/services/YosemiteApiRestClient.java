@@ -8,8 +8,6 @@ import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.action.GetTableOptions;
-import io.yosemite.data.remote.history.controlledaccounts.ControlledAccounts;
-import io.yosemite.data.remote.history.keyaccounts.KeyAccounts;
 
 import java.util.List;
 
@@ -44,20 +42,15 @@ public interface YosemiteApiRestClient {
     Request<String> signDigest(String hexData, String pubKey);
 
     /* History */
-    Request<Actions> getActions(String accountName, Integer pos, Integer offset);
-
     Request<io.yosemite.data.remote.history.transaction.Transaction> getTransaction(String id);
 
-    Request<io.yosemite.data.remote.history.transaction.Transaction> getTransactionSimplified(String id);
-
-    Request<KeyAccounts> getKeyAccounts(String publicKey);
-
-    Request<ControlledAccounts> getControlledAccounts(String controllingAccountName);
+    Request<Actions> getActions(String accountName, Integer startPosition, Integer offset);
 
     int getTxExpirationInMillis();
 
     /**
      * Set the transaction expiration time
+     *
      * @param txExpirationInMillis expiration time in milliseconds
      */
     void setTxExpirationInMillis(int txExpirationInMillis);
@@ -66,6 +59,7 @@ public interface YosemiteApiRestClient {
 
     /**
      * Set the transaction vote target account for PoT
+     *
      * @param transactionVoteTarget The account name to vote to
      */
     void setTransactionVoteTarget(String transactionVoteTarget);
