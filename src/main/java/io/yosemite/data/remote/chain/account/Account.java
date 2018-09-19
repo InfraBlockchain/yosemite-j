@@ -181,4 +181,16 @@ public class Account {
     public String toString() {
         return Utils.prettyPrintJson(this);
     }
+
+    public String getActivePublicKey() {
+        if (permissions == null || permissions.isEmpty()) return null;
+        for (Permission permission : permissions) {
+            if ("active".equals(permission.getPermName())) {
+                List<KeyWeight> keys = permission.getRequiredAuth().getKeys();
+                if (keys.isEmpty()) return null;
+                return keys.get(0).getKey();
+            }
+        }
+        return null;
+    }
 }

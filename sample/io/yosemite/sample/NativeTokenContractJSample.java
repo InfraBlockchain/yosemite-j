@@ -2,6 +2,7 @@ package io.yosemite.sample;
 
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
+import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.transaction.Transaction;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
@@ -41,13 +42,23 @@ public class NativeTokenContractJSample {
             }
         }
 
+        // [IMPORTANT NOTE ON PUBLIC KEY]
+        // In most cases, the public keys of the accounts are already known to the service provider.
+        // Before creating an account, you must create the key pair and must save the public key somewhere like RDB for the account creation.
+        // For this sample, we get the public keys from the chain, but in real case, you should get them from the RDB.
+        Account account = apiClient.getAccount(SYSTEM_DEPOSITORY_ACCOUNT).execute();
+        String sysDepoPublicKey = account.getActivePublicKey();
+
         // create the user accounts
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
+
+        String user1PublicKey;
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, "ntuser1");
+            user1PublicKey = createKeyPairAndAccount(apiClient, yxSystemJ, "ntuser1");
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
             log(e.toString());
+            user1PublicKey = apiClient.getAccount("ntuser1").execute().getActivePublicKey();
         }
 
         // KYC process done by Identity Authority Service for DKRW
@@ -56,18 +67,20 @@ public class NativeTokenContractJSample {
         YosemiteNativeTokenJ yxNativeTokenJ = new YosemiteNativeTokenJ(apiClient);
 
         PushedTransaction pushedTransaction = yxNativeTokenJ.issueNativeToken(
-                "ntuser1", "1000000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", null).join();
+                "ntuser1", "1000000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", null, new String[]{sysDepoPublicKey}).join();
         log("Issue Native Token Transaction:" + pushedTransaction.getTransactionId());
 
         // transfer token with transacation fee payer as SYSTEM_DEPOSITORY_ACCOUNT
         pushedTransaction = yxNativeTokenJ.transferNativeTokenWithPayer(
-                "ntuser1", SYSTEM_DEPOSITORY_ACCOUNT, "100000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", null).join();
+                "ntuser1", SYSTEM_DEPOSITORY_ACCOUNT, "100000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo",
+                null, new String[]{user1PublicKey, sysDepoPublicKey}).join();
         log("TransferWithPayer Native Token Transaction:" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
         }
 
-        pushedTransaction = yxNativeTokenJ.redeemNativeToken("100000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", null).join();
+        pushedTransaction = yxNativeTokenJ.redeemNativeToken("100000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo",
+                null, new String[]{sysDepoPublicKey}).join();
         log("Redeem Native Token Transaction:" + pushedTransaction.getTransactionId());
 
         try {
@@ -93,7 +106,7 @@ public class NativeTokenContractJSample {
         int waitTime = apiRestClient.getTxExpirationInMillis() + 10000; // + 10 seconds
         do {
             Transaction tx = apiRestClient.getTransaction(pushedTransaction.getTransactionId()).execute();
-            if (tx.getLastIrreversibleBlock() >= tx.getBlockNum()) {
+            if (tx.getIrreversibleAt() != null) {
                 log(pushedTransaction.getTransactionId() + " is irreversible.");
                 break;
             } else {
@@ -110,11 +123,12 @@ public class NativeTokenContractJSample {
         }
     }
 
-    private static void createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ, String accountName) {
+    private static String createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ, String accountName) {
         String publicKey = apiClient.createKey().execute();
         PushedTransaction pushedTransaction = yxSystemJ.createAccount(
                 "yosemite", accountName, publicKey, publicKey, null).join();
         log("Account Creation Transaction : " + pushedTransaction.getTransactionId());
+        return publicKey;
     }
 
     private static void log(String s) {

@@ -1,18 +1,18 @@
 package io.yosemite.data.remote.chain;
 
 import com.google.gson.annotations.Expose;
+import io.yosemite.crypto.digest.Sha256;
 import io.yosemite.data.types.EosByteWriter;
 import io.yosemite.data.types.EosType;
 import io.yosemite.data.types.TypeName;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Transaction extends TransactionHeader {
 
     @Expose
-    private List<Action> context_free_actions = Collections.emptyList();
+    private List<Action> context_free_actions = new ArrayList<>();
 
     @Expose
     private List<Action> actions;
@@ -36,18 +36,6 @@ public class Transaction extends TransactionHeader {
         }
 
         actions.add(msg);
-    }
-
-    public List<Action> getActions() {
-        return actions;
-    }
-
-    public void setActions(List<Action> actions) {
-        this.actions = actions;
-    }
-
-    public int getContextFreeActionCount() {
-        return (actions == null ? 0 : actions.size());
     }
 
     <T> List<T> deepCopyOnlyContainer(List<T> srcList) {
@@ -75,7 +63,12 @@ public class Transaction extends TransactionHeader {
         EosByteWriter eosByteWriter = new EosByteWriter(8);
         voteTarget.pack(eosByteWriter);
         transaction_extensions.add(new TransactionExtension(TransactionExtensionField.TRANSACTION_VOTE_ACCOUNT, eosByteWriter.toBytes()));
+    }
 
+    public String getId() {
+        EosByteWriter eosByteWriter = new EosByteWriter(512);
+        this.pack(eosByteWriter);
+        return Sha256.from(eosByteWriter.toBytes()).toString();
     }
 }
 

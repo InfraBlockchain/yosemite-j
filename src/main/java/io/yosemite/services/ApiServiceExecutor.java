@@ -1,5 +1,6 @@
 package io.yosemite.services;
 
+import io.yosemite.data.remote.chain.SignedTransaction;
 import io.yosemite.exception.YosemiteApiError;
 import io.yosemite.exception.YosemiteApiException;
 import io.yosemite.util.Async;
@@ -39,23 +40,31 @@ public final class ApiServiceExecutor<Service> {
      * Execute a REST call and block until the response is received.
      */
     <T> T executeSync(Call<T> call) {
+        return executeSync(call, null);
+    }
 
+    <T> T executeSync(Call<T> call, Object attachment) {
         try {
             Response<T> response = call.execute();
             if (response.isSuccessful()) {
                 return response.body();
             } else {
-                logger.error(call.request().toString());
-                logger.error(response.toString());
-                throw new YosemiteApiException(getEosApiError(response));
+                logger.debug(call.request().toString());
+                logger.debug(response.toString());
+                YosemiteApiException yosemiteApiException = new YosemiteApiException(getEosApiError(response));
+                if (attachment instanceof SignedTransaction) {
+                    SignedTransaction signedTransaction = (SignedTransaction)attachment;
+                    yosemiteApiException.setTransactionId(signedTransaction.getId());
+                }
+                throw yosemiteApiException;
             }
         } catch (IOException e) {
             throw new YosemiteApiException(e);
         }
     }
 
-    <T> CompletableFuture<T> executeAsync(Call<T> call) {
-        return Async.run(() -> executeSync(call));
+    <T> CompletableFuture<T> executeAsync(Call<T> call, Object attachment) {
+        return Async.run(() -> executeSync(call, attachment));
     }
 
     private YosemiteApiError getEosApiError(Response<?> response) throws IOException {

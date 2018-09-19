@@ -1,4 +1,3 @@
-import com.google.gson.Gson;
 import io.yosemite.crypto.ec.EcDsa;
 import io.yosemite.data.remote.chain.Block;
 import io.yosemite.data.remote.chain.Info;
@@ -7,9 +6,8 @@ import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.event.TxIrreversibilityResponse;
 import io.yosemite.data.remote.history.action.Actions;
-import io.yosemite.data.remote.history.action.OrderedActionResult;
-import io.yosemite.data.remote.history.transaction.Timestamp;
 import io.yosemite.data.remote.history.transaction.Transaction;
+import io.yosemite.exception.YosemiteApiException;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
@@ -17,7 +15,6 @@ import io.yosemite.services.event.EventNotificationCallback;
 import io.yosemite.services.event.YosemiteEventNotificationClient;
 import io.yosemite.services.event.YosemiteEventNotificationClientFactory;
 import io.yosemite.services.yxcontracts.*;
-import io.yosemite.util.Consts;
 import io.yosemite.util.Utils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.CompletionException;
 
 import static org.junit.Assert.assertTrue;
 
@@ -133,6 +131,9 @@ public class LibraryTest {
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
         apiClient.setTransactionVoteTarget("d1");
 
+        Account user1 = apiClient.getAccount("user1").execute();
+        String user1PublicKey = user1.getActivePublicKey();
+
         YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
 
         String contract = "yx.ntoken";
@@ -140,7 +141,7 @@ public class LibraryTest {
         String data = "{\"from\":\"user1\",\"to\":\"user2\",\"amount\":\"2.0000 DKRW\",\"memo\":\"test\"}";
         String[] permissions = new String[]{"user1@active"};
 
-        PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, permissions).join();
+        PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, permissions, new String[]{user1PublicKey}).join();
 
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
 
@@ -156,7 +157,16 @@ public class LibraryTest {
         YosemiteTokenJ yxj = new YosemiteTokenJ(apiClient);
 
         EnumSet<YosemiteTokenJ.CanSetOptionsType> emptyOptions = EnumSet.noneOf(YosemiteTokenJ.CanSetOptionsType.class);
-        PushedTransaction pushedTransaction = yxj.createToken("TEST", 5, "d2", emptyOptions, new String[]{"d2@active"}).join();
+        PushedTransaction pushedTransaction = null;
+        try {
+            pushedTransaction = yxj.createToken("TEST", 5, "d2", emptyOptions, new String[]{"d2@active"}).join();
+        } catch (CompletionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof YosemiteApiException) {
+                logger.debug("Pushed Error Transaction: " + ((YosemiteApiException)cause).getTransactionId());
+            }
+            throw e;
+        }
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 

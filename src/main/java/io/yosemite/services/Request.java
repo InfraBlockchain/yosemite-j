@@ -20,6 +20,10 @@ public class Request<ResponseType> {
     }
 
     public CompletableFuture<ResponseType> executeAsync() {
-        return this.apiServiceExecutor.executeAsync(call);
+        return this.apiServiceExecutor.executeAsync(call, null);
+    }
+
+    public CompletableFuture<ResponseType> executeAsync(Object attachment) {
+        return this.apiServiceExecutor.executeAsync(call, attachment);
     }
 }

@@ -192,6 +192,23 @@ boolean isVerified = EcDsa.verifySignature(data, signature, pubKey);
 
 Note that most methods below are just the wrapper of HTTP JSON request using `pushAction` method.
 
+## Passing Permissions and its Public Keys To Yosemite API
+For transaction integrity, authentication and transaction fee, all transactions are signed by proper accounts before pushing them.
+For generating transaction signature by the wallet daemon, keyos, the account permission and its matching public key are required.
+
+In most cases, a permission is denoted by the account name following its permistion name with the denominator '@'. e.g. "serviceuser1@active"
+
+With the permission, the matching public keys are required to sign the transaction by the wallet daemon.
+In most cases, there is one public key to match its active permission.
+
+We assume that the public keys of the accounts are already known to the service provider.
+Before creating an account, the service provider must create the key pair and must save the public key somewhere like RDB for the account creation.
+It can continuously use the saved public key to push the transaction to the Yosemite chain.
+
+If the permission is not provided, the API use the default ones.
+But the public key is not provided, DApps would undergo performance problem to search the requied public keys.
+FYI : https://github.com/YosemiteLabs/yosemite-j/issues/27
+
 ## System Actions
 
 ### Create a new account
@@ -201,10 +218,13 @@ import io.yosemite.services.yxcontracts.*;
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
 
+String identityPublicKey = "YOS8fCYDtA6FRYtnDpJ4qkoHq3riQUDyTebdsTAR5SDYUkaefNHMR"; // get it from your service location
+
 PushedTransaction pushedTransaction = yxj.createAccount("identity", "user1account",
                 "YOS8Ledj...vr9gj",
                 "YOS8Ledj...vr9gj",
-                new String[]{"identity@active"}).join();
+                new String[]{"identity@active"},
+                new String[]{identityPublicKey}).join();
 ``` 
 
 ## Native Token Actions
