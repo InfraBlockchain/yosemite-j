@@ -2,6 +2,7 @@ package io.yosemite.sample;
 
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
+import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.transaction.Transaction;
 import io.yosemite.services.*;
 import io.yosemite.services.yxcontracts.*;
@@ -30,19 +31,31 @@ public class DigitalContractJSample {
             }
         }
 
-        // create the user accounts
+        // [IMPORTANT NOTE ON PUBLIC KEY]
+        // In most cases, the public keys of the accounts are already known to the service provider.
+        // Before creating an account, you must create the key pair and must save the public key somewhere like RDB for the account creation.
+        // For this sample, we get the public keys from the chain, but in real case, you should get them from the RDB.
+        Account account = apiClient.getAccount(SERVICE_PROVIDER_ACCOUNT).execute();
+        String serviceProviderPublicKey = account.getActivePublicKey();
+
+        // create the user accounts or get the public key from the chain
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
+
+        String user1PublicKey;
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT, "servpuserxx1");
+            user1PublicKey = createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT, "servpuserxx1");
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
             log(e.toString());
+            user1PublicKey = apiClient.getAccount("servpuserxx1").execute().getActivePublicKey();
         }
 
+        String user2PublicKey;
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT, "servpuserxx2");
+            user2PublicKey = createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT, "servpuserxx2");
         } catch (Exception e) {
             log(e.toString());
+            user2PublicKey = apiClient.getAccount("servpuserxx2").execute().getActivePublicKey();
         }
 
         // KYC process done by Identity Authority Service
@@ -58,8 +71,8 @@ public class DigitalContractJSample {
         // 0. remove digital contract first
         PushedTransaction pushedTransaction;
         try {
-            pushedTransaction = digitalContractJ.removeDigitalContract(SERVICE_PROVIDER_ACCOUNT, 11, null).join();
-            log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
+            pushedTransaction = digitalContractJ.removeDigitalContract(SERVICE_PROVIDER_ACCOUNT, 20, null, new String[]{serviceProviderPublicKey}).join();
+            log("\nPushed Remove Transaction:\n" + pushedTransaction.getTransactionId());
         } catch (Exception ignored) {
         }
 
@@ -70,25 +83,29 @@ public class DigitalContractJSample {
         calendar.add(Calendar.HOUR, 48);
         Date expirationTime = calendar.getTime();
 
-        pushedTransaction = digitalContractJ.createDigitalContract(SERVICE_PROVIDER_ACCOUNT, 11, "test1234", "",
-                signers, expirationTime, 0, EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH), (short) 0, null).join();
-        log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
+        pushedTransaction = digitalContractJ.createDigitalContract(SERVICE_PROVIDER_ACCOUNT, 20, "test1234", "",
+                signers, expirationTime, 0, EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH), (short) 0, null, new String[]{serviceProviderPublicKey}).join();
+        log("\nPushed Create Transaction:\n" + pushedTransaction.getTransactionId());
 
         // 3. sign contract by signers
-        pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 11, "servpuserxx2", "", new String[]{"user2@active", "servprovider@active"}).join();
-        log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
+        pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 20, "servpuserxx2", "",
+                new String[]{"servpuserxx2@active", SERVICE_PROVIDER_ACCOUNT + "@active"},
+                new String[]{user2PublicKey, serviceProviderPublicKey}).join();
+        log("\nPushed Sign Transaction:\n" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
         }
 
-        pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 11, "servpuserxx1", "I am user1", null).join();
-        log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
+        pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 20, "servpuserxx1", "I am user1",
+                null, new String[]{user1PublicKey, serviceProviderPublicKey}).join();
+        log("\nPushed Sign Transaction:\n" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
         }
 
         // update additional info
-        pushedTransaction = digitalContractJ.updateAdditionalDocumentHash(SERVICE_PROVIDER_ACCOUNT, 11, "added after signing", null).join();
+        pushedTransaction = digitalContractJ.updateAdditionalDocumentHash(SERVICE_PROVIDER_ACCOUNT, 20, "added after signing",
+                null, new String[]{serviceProviderPublicKey}).join();
         log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
 
         if (!wait_for_irreversibility) {
@@ -102,15 +119,15 @@ public class DigitalContractJSample {
 
         log("");
         log("[Digital Contract]");
-        TableRow tableRow = digitalContractJ.getCreatedDigitalContract(SERVICE_PROVIDER_ACCOUNT, 11).join();
+        TableRow tableRow = digitalContractJ.getCreatedDigitalContract(SERVICE_PROVIDER_ACCOUNT, 20).join();
         for (Map<String, ?> row : tableRow.getRows()) {
             // There must be only one row.
             log(row.toString());
         }
 
         log("");
-        log("[Digital Contract Signer Info : user1]");
-        TableRow signerInfoTable = digitalContractJ.getSignerInfo("servpuserxx1", SERVICE_PROVIDER_ACCOUNT, 11).join();
+        log("[Digital Contract Signer Info : servpuserxx1]");
+        TableRow signerInfoTable = digitalContractJ.getSignerInfo("servpuserxx1", SERVICE_PROVIDER_ACCOUNT, 20).join();
         for (Map<String, ?> row : signerInfoTable.getRows()) {
             // There must be only one row.
             log((String) row.get("signerinfo"));
@@ -121,7 +138,7 @@ public class DigitalContractJSample {
         int waitTime = apiRestClient.getTxExpirationInMillis() + 10000; // + 10 seconds
         do {
             Transaction tx = apiRestClient.getTransaction(pushedTransaction.getTransactionId()).execute();
-            if (tx.getLastIrreversibleBlock() >= tx.getBlockNum()) {
+            if (tx.getIrreversibleAt() != null) {
                 log(pushedTransaction.getTransactionId() + " is irreversible.");
                 break;
             } else {
@@ -164,15 +181,18 @@ public class DigitalContractJSample {
 
         // issue native token by system depository
         YosemiteNativeTokenJ nativeTokenJ = new YosemiteNativeTokenJ(apiClient);
-        PushedTransaction pushedTransaction = nativeTokenJ.issueNativeToken(SERVICE_PROVIDER_ACCOUNT, "1000000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "", null).join();
+        PushedTransaction pushedTransaction = nativeTokenJ.issueNativeToken(
+                SERVICE_PROVIDER_ACCOUNT, "1000000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "", null).join();
         log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
     }
 
-    private static void createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ, String creator, String accountName) {
+    private static String createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ,
+                                                  String creator, String accountName) {
         String publicKey = apiClient.createKey("default").execute();
         PushedTransaction pushedTransaction = yxSystemJ.createAccount(
                 creator, accountName, publicKey, publicKey, null).join();
         log("Account Creation Transaction : " + pushedTransaction.getTransactionId());
+        return publicKey;
     }
 
     private static void log(String s) {

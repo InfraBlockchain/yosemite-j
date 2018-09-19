@@ -2,6 +2,7 @@ package io.yosemite.sample;
 
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
+import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.transaction.Transaction;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
@@ -35,13 +36,22 @@ public class TokenContractJSample {
             }
         }
 
+        // [IMPORTANT NOTE ON PUBLIC KEY]
+        // In most cases, the public keys of the accounts are already known to the service provider.
+        // Before creating an account, you must create the key pair and must save the public key somewhere like RDB for the account creation.
+        // For this sample, we get the public keys from the chain, but in real case, you should get them from the RDB.
+        Account account = apiClient.getAccount(TOKEN_PROVIDER_ACCOUNT).execute();
+        String tokenProviderPublicKey = account.getActivePublicKey();
+
         // create the user accounts
+        String tokenUser1PublicKey;
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, TOKEN_PROVIDER_ACCOUNT, "tkuserxxxxx1");
+            tokenUser1PublicKey = createKeyPairAndAccount(apiClient, yxSystemJ, TOKEN_PROVIDER_ACCOUNT, "tkuserxxxxx1");
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
             log(e.toString());
+            tokenUser1PublicKey = apiClient.getAccount("tkuserxxxxx1").execute().getActivePublicKey();
         }
 
         YosemiteTokenJ yxTokenJ = new YosemiteTokenJ(apiClient);
@@ -49,24 +59,26 @@ public class TokenContractJSample {
         PushedTransaction pushedTransaction = null;
         try {
             EnumSet<YosemiteTokenJ.CanSetOptionsType> emptyOptions = EnumSet.noneOf(YosemiteTokenJ.CanSetOptionsType.class);
-            pushedTransaction = yxTokenJ.createToken("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, emptyOptions, null).join();
+            pushedTransaction = yxTokenJ.createToken("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, emptyOptions,
+                    null, new String[]{tokenProviderPublicKey}).join();
             log("Create Transaction:" + pushedTransaction.getTransactionId());
         } catch (Exception e) {
-            log(e.toString());
+            log(e.toString()); // already created
         }
 
-        pushedTransaction = yxTokenJ.issueToken("tkuserxxxxx1", "1.23456789 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo", null).join();
+        pushedTransaction = yxTokenJ.issueToken("tkuserxxxxx1", "1.23456789 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
+                null, new String[]{tokenProviderPublicKey}).join();
         log("Issue Transaction:" + pushedTransaction.getTransactionId());
 
         // transfer token with transacation fee payer as TOKEN_PROVIDER_ACCOUNT
         pushedTransaction = yxTokenJ.transferTokenWithPayer("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT, "1.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT,
-                TOKEN_PROVIDER_ACCOUNT, "my memo", null).join();
+                TOKEN_PROVIDER_ACCOUNT, "my memo", null, new String[]{tokenUser1PublicKey, tokenProviderPublicKey}).join();
         log("TransferWithPayer Transaction:" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
         }
 
-        pushedTransaction = yxTokenJ.redeemToken("1.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo", null).join();
+        pushedTransaction = yxTokenJ.redeemToken("1.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo", null, new String[]{tokenProviderPublicKey}).join();
         log("Redeem Transaction:" + pushedTransaction.getTransactionId());
 
         if (!wait_for_irreversibility) {
@@ -94,7 +106,7 @@ public class TokenContractJSample {
         int waitTime = apiRestClient.getTxExpirationInMillis() + 10000; // + 10 seconds
         do {
             Transaction tx = apiRestClient.getTransaction(pushedTransaction.getTransactionId()).execute();
-            if (tx.getLastIrreversibleBlock() >= tx.getBlockNum()) {
+            if (tx.getIrreversibleAt() != null) {
                 log(pushedTransaction.getTransactionId() + " is irreversible.");
                 break;
             } else {
@@ -141,11 +153,12 @@ public class TokenContractJSample {
         log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
     }
 
-    private static void createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ, String creator, String accountName) {
+    private static String createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ, String creator, String accountName) {
         String publicKey = apiClient.createKey().execute();
         PushedTransaction pushedTransaction = yxSystemJ.createAccount(
                 creator, accountName, publicKey, publicKey, null).join();
         log("Account Creation Transaction : " + pushedTransaction.getTransactionId());
+        return publicKey;
     }
 
     private static void log(String s) {

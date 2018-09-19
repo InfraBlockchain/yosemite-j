@@ -110,13 +110,13 @@ test {
     }
 }
 
-task sample (type: JavaCompile) {
+task sample (type: JavaCompile, dependsOn: build) {
     source = fileTree(dir: 'sample', include: '**/*.java')
     classpath = files("$buildDir/classes/java/main")
     destinationDir = file("$buildDir/classes/java/main")
 }
 
-task runSample (type: JavaExec) {
+task runSample (type: JavaExec, dependsOn: sample) {
     if (project.hasProperty('pargs')) {
         args(pargs.split(','))
     }

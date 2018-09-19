@@ -133,6 +133,9 @@ public class LibraryTest {
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
         apiClient.setTransactionVoteTarget("d1");
 
+        Account user1 = apiClient.getAccount("user1").execute();
+        String user1PublicKey = user1.getActivePublicKey();
+
         YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
 
         String contract = "yx.ntoken";
@@ -140,7 +143,7 @@ public class LibraryTest {
         String data = "{\"from\":\"user1\",\"to\":\"user2\",\"amount\":\"2.0000 DKRW\",\"memo\":\"test\"}";
         String[] permissions = new String[]{"user1@active"};
 
-        PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, permissions).join();
+        PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, permissions, new String[]{user1PublicKey}).join();
 
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
 

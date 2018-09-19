@@ -8,6 +8,7 @@ import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.history.action.GetTableOptions;
 import io.yosemite.util.Utils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,22 +38,23 @@ public abstract class YosemiteJ {
         });
     }
 
-    private CompletableFuture<PackedTransaction> signAndPackTransaction(final SignedTransaction txnBeforeSign, final String chainId) {
+    private CompletableFuture<PackedTransaction> signAndPackTransaction(final SignedTransaction txnBeforeSign,
+                                                                        final String chainId,
+                                                                        String[] requiredPublicKeys) {
+        if (requiredPublicKeys == null || requiredPublicKeys.length == 0) {
+            List<String> pubKeys = mYosemiteApiRestClient.getPublicKeys().execute();
+            GetRequiredKeysRequest getRequiredKeysRequest = new GetRequiredKeysRequest(txnBeforeSign, pubKeys);
 
-        CompletableFuture<PackedTransaction> packedTxFuture;
+            return mYosemiteApiRestClient.getRequiredKeys(getRequiredKeysRequest).executeAsync().thenApply(getRequiredKeysRes -> {
+                SignedTransaction signedTx =
+                        mYosemiteApiRestClient.signTransaction(txnBeforeSign, getRequiredKeysRes.getRequiredKeys(), chainId).execute();
+                return new PackedTransaction(signedTx);
+            });
+        }
 
-        List<String> pubKeys = mYosemiteApiRestClient.getPublicKeys().execute();
-
-        GetRequiredKeysRequest getRequiredKeysRequest = new GetRequiredKeysRequest(txnBeforeSign, pubKeys);
-
-        packedTxFuture = mYosemiteApiRestClient.getRequiredKeys(getRequiredKeysRequest).executeAsync().thenApply(getRequiredKeysRes -> {
-
-            SignedTransaction signedTx =
-                    mYosemiteApiRestClient.signTransaction(txnBeforeSign, getRequiredKeysRes.getRequiredKeys(), chainId).execute();
-            return new PackedTransaction(signedTx);
-        });
-
-        return packedTxFuture;
+        return mYosemiteApiRestClient.signTransaction(txnBeforeSign, Arrays.asList(requiredPublicKeys), chainId).executeAsync().thenApply(
+                PackedTransaction::new
+        );
     }
 
     public final CompletableFuture<String> sign(byte[] dataTosign, String pubKey) {
@@ -63,6 +65,11 @@ public abstract class YosemiteJ {
 
     public final CompletableFuture<PushedTransaction> pushAction(
             final String contract, final String action, final String data, final String[] permissions) {
+        return pushAction(contract, action, data, permissions, null);
+    }
+
+    public final CompletableFuture<PushedTransaction> pushAction(
+            final String contract, final String action, final String data, final String[] permissions, final String[] requiredPublicKeys) {
 
         return getActionWithBinaryData(contract, action, data, permissions).thenCompose(actionReq ->
                 mYosemiteApiRestClient.getInfo().executeAsync().thenCompose(info -> {
@@ -74,7 +81,7 @@ public abstract class YosemiteJ {
                     txnBeforeSign.setExpiration(info.getTimeAfterHeadBlockTime(mYosemiteApiRestClient.getTxExpirationInMillis()));
                     txnBeforeSign.setTransactionVoteTarget(mYosemiteApiRestClient.getTransactionVoteTarget());
 
-                    return signAndPackTransaction(txnBeforeSign, info.getChainId()).thenCompose(packedTx -> mYosemiteApiRestClient.pushTransaction(packedTx).executeAsync());
+                    return signAndPackTransaction(txnBeforeSign, info.getChainId(), requiredPublicKeys).thenCompose(packedTx -> mYosemiteApiRestClient.pushTransaction(packedTx).executeAsync());
                 })
         );
     }
