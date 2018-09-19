@@ -3,7 +3,9 @@ package io.yosemite.data.remote.history.transaction;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import io.yosemite.data.remote.chain.ActionTrace;
+import io.yosemite.util.Utils;
 
+import java.text.ParseException;
 import java.util.List;
 
 public class Transaction {
@@ -51,7 +53,14 @@ public class Transaction {
         return traces;
     }
 
-    public String getExpirationAt() {
-        return expirationAt;
+    public Timestamp getExpirationAt() {
+        Timestamp timestamp = new Timestamp();
+        try {
+            timestamp.setTimestamp(Utils.SIMPLE_DATE_FORMAT_FOR_EOS.get().parse(this.expirationAt).getTime());
+            return timestamp;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("invalid time format '"+this.expirationAt+"'", e);
+        }
     }
 }
