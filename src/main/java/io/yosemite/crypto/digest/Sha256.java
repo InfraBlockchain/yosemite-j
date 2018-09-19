@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class Sha256 {
-    public static final int HASH_LENGTH = 32;
+    private static final int HASH_LENGTH = 32;
     public static final Sha256 ZERO_HASH = new Sha256(new byte[HASH_LENGTH]);
 
     final private byte[] mHashBytes;
@@ -61,7 +61,6 @@ public class Sha256 {
         return new Sha256(digest.digest(digest.digest()));
     }
 
-
     @Override
     public boolean equals(Object other) {
         if (other == this) {
@@ -71,7 +70,6 @@ public class Sha256 {
             return false;
         return Arrays.equals(mHashBytes, ((Sha256) other).mHashBytes);
     }
-
 
     @Override
     public String toString() {

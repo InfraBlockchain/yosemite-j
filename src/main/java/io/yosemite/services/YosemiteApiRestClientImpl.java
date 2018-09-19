@@ -92,8 +92,8 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
-    public Request<PushedTransaction> pushTransaction(PackedTransaction req) {
-        return new Request<>(yxChainApiService.getService().pushTransaction(req), yxChainApiService);
+    public Request<PushedTransaction> pushTransaction(PackedTransaction packedTransaction) {
+        return new Request<>(yxChainApiService.getService().pushTransaction(packedTransaction), yxChainApiService);
     }
 
     @Override
@@ -125,11 +125,11 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
-    public Request<SignedTransaction> signTransaction(SignedTransaction transactionToSign, List<String> pubKeys, String chainid) {
+    public Request<SignedTransaction> signTransaction(SignedTransaction transactionToSign, List<String> publicKeys, String chainId) {
         Collection collectionReq = new ArrayList();
         collectionReq.add(transactionToSign);
-        collectionReq.add(pubKeys);
-        collectionReq.add(chainid);
+        collectionReq.add(publicKeys);
+        collectionReq.add(chainId);
 
         return new Request<>(yxWalletApiService.getService().signTransaction(collectionReq), yxWalletApiService);
     }

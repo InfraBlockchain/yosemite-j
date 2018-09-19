@@ -5,6 +5,10 @@ import com.google.gson.annotations.Expose;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents the list of rows in the table of the smart contract.
+ * Each row is mapped to the json format.
+ */
 public class TableRow {
 
     @Expose
@@ -14,22 +18,13 @@ public class TableRow {
     private Boolean more;
 
     public TableRow() {
-
     }
 
     public List<Map<String, ?>> getRows() {
         return rows;
     }
 
-    public void setRows(List<Map<String, ?>> rows) {
-        this.rows = rows;
-    }
-
     public Boolean getMore() {
         return more;
-    }
-
-    public void setMore(Boolean more) {
-        this.more = more;
     }
 }

@@ -12,22 +12,26 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 public class PackedTransaction {
-
-    public enum CompressType {none, zlib}
-
-    @Expose
-    final List<String> signatures;
+    private final SignedTransaction signedTransaction;
 
     @Expose
-    final String compression;
+    private final List<String> signatures;
 
     @Expose
-    private String packed_context_free_data;
+    private final String compression;
 
     @Expose
-    private String packed_trx;
+    private final String packed_context_free_data;
+
+    @Expose
+    private final String packed_trx;
+
+    public PackedTransaction(SignedTransaction stxn) {
+        this(stxn, CompressType.none);
+    }
 
     public PackedTransaction(SignedTransaction stxn, CompressType compressType) {
+        signedTransaction = stxn;
         compression = compressType.name();
         signatures = stxn.getSignatures();
 
@@ -37,6 +41,10 @@ public class PackedTransaction {
         packed_context_free_data = (packed_ctx_free_bytes.length == 0) ? "" : HexUtils.toHex(packed_ctx_free_bytes);
     }
 
+    public String getId() {
+        return signedTransaction.getId();
+    }
+
     private byte[] packTransaction(Transaction transaction, CompressType compressType) {
         EosByteWriter byteWriter = new EosByteWriter(512);
         transaction.pack(byteWriter);
@@ -44,7 +52,6 @@ public class PackedTransaction {
         // pack -> compress
         return compress(byteWriter.toBytes(), compressType);
     }
-
 
     private byte[] packContextFreeData(List<String> ctxFreeData, CompressType compressType) {
         EosByteWriter byteWriter = new EosByteWriter(64);
@@ -63,17 +70,8 @@ public class PackedTransaction {
         return compress(byteWriter.toBytes(), compressType);
     }
 
-
-    public PackedTransaction(SignedTransaction stxn) {
-        this(stxn, CompressType.none);
-    }
-
-//    public long getDataSize() {
-//        return data.length() / 2; // hex -> raw bytes
-//    }
-
     private byte[] compress(byte[] uncompressedBytes, CompressType compressType) {
-        if (compressType == null || !CompressType.zlib.equals(compressType)) {
+        if (!CompressType.zlib.equals(compressType)) {
             return uncompressedBytes;
         }
 
@@ -117,7 +115,8 @@ public class PackedTransaction {
             return compressedBytes;
         }
 
-
         return outputStream.toByteArray();
     }
+
+    public enum CompressType {none, zlib}
 }
