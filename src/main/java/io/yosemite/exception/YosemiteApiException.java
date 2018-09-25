@@ -5,6 +5,7 @@ public class YosemiteApiException extends RuntimeException {
     private YosemiteApiError error;
     private ErrorCode errorCode;
     private String transactionId;
+    private volatile String message;
 
     public YosemiteApiException(YosemiteApiError apiError) {
         this(apiError, null);
@@ -45,5 +46,16 @@ public class YosemiteApiException extends RuntimeException {
      */
     public String getTransactionId() {
         return transactionId;
+    }
+
+    @Override
+    public String getMessage() {
+        if (transactionId == null) return super.getMessage();
+        String message = this.message;
+        if (message == null) {
+            message = "\ntransaction id = " + transactionId + "\nmessage = " + super.getMessage();
+            this.message = message;
+        }
+        return message;
     }
 }

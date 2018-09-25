@@ -49,7 +49,18 @@ public class YosemiteApiError {
     }
 
     public String getDetailedMessage() {
-        return error == null ? message : message + ": " + error.getWhat();
+        return error == null ? message : message + "\n\n" + generateDetailedMessage();
+    }
+
+    public String generateDetailedMessage() {
+        StringBuffer sb = new StringBuffer("<< ERROR INFO >>\n");
+
+        sb.append("code : ").append(error.getCode()).append("\nwhat : ").append(error.getWhat()).append("\ndetails :\n");
+        for (YosemiteErrorDetails detail : error.getDetails()) {
+            sb.append("- ").append(detail.toString()).append("\n");
+        }
+
+        return sb.toString();
     }
 
     public Integer getEosErrorCode() {
