@@ -1,6 +1,7 @@
 package io.yosemite.exception;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -12,6 +13,7 @@ public class YosemiteErrorDetails {
     private String file;
 
     @Expose
+    @SerializedName("line_number")
     private Integer lineNumber;
 
     @Expose
@@ -58,7 +60,8 @@ public class YosemiteErrorDetails {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                 .append("message", message)
                 .append("file", file)
-                .append("lineNumber", lineNumber.toString())
+                .append("method", method)
+                .append("lineNumber", lineNumber)
                 .toString();
     }
 }

@@ -53,7 +53,7 @@ public class YosemiteApiException extends RuntimeException {
         if (transactionId == null) return super.getMessage();
         String message = this.message;
         if (message == null) {
-            message = "transaction id = " + transactionId + ", message = " + super.getMessage();
+            message = "\ntransaction id = " + transactionId + "\nmessage = " + super.getMessage();
             this.message = message;
         }
         return message;
