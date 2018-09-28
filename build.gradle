@@ -78,7 +78,7 @@ repositories {
     }
     maven {
         name "YosemiteLabs Snapshot"
-        url "http://backoffice.yosemitelabs.org:8081/repository/yosemitelabs-snapshots/"
+        url "http://backoffice.yosemitelabs.org:8081/repository/maven-snapshots/"
     }
 }
 
