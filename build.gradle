@@ -24,10 +24,10 @@ plugins {
 
 ext {
 
-    rxJavaVer =  ' 2.1.2 '
+    rxJavaVer = ' 2.1.2 '
 
     retrofitVer = '2.3.0'
-    okHttpVer   = '3.9.0'
+    okHttpVer = '3.9.0'
 
     gsonVer = '2.8.1'
 }
@@ -59,8 +59,8 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:${okHttpVer}"
 
     implementation group: 'commons-collections', name: 'commons-collections', version: '3.2'
-    implementation group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
-    implementation group: 'org.slf4j', name:'slf4j-log4j12', version: '1.7.2'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.2'
+    implementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.2'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
@@ -72,15 +72,38 @@ repositories {
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
     mavenLocal()
+    maven {
+        name "YosemiteLabs Release"
+        url "http://backoffice.yosemitelabs.org:8081/repository/maven-releases/"
+    }
+    maven {
+        name "YosemiteLabs Snapshot"
+        url "http://backoffice.yosemitelabs.org:8081/repository/yosemitelabs-snapshots/"
+    }
 }
 
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'maven-publish'
 
 version = '0.5.1-SNAPSHOT'
-group = 'io.yosemite'
+group = 'org.yosemitelabs'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: 'http://backoffice.yosemitelabs.org:8081/repository/maven-releases/') {
+                authentication(userName: 'deploy', password: '1qazxsw2')
+            }
+            snapshotRepository(url: 'http://backoffice.yosemitelabs.org:8081/repository/maven-snapshots/') {
+                authentication(userName: 'deploy', password: '1qazxsw2')
+            }
+        }
+    }
+}
+
 
 publishing {
     publications {
@@ -110,13 +133,13 @@ test {
     }
 }
 
-task sample (type: JavaCompile, dependsOn: build) {
+task sample(type: JavaCompile, dependsOn: build) {
     source = fileTree(dir: 'sample', include: '**/*.java')
     classpath = files("$buildDir/classes/java/main")
     destinationDir = file("$buildDir/classes/java/main")
 }
 
-task runSample (type: JavaExec, dependsOn: sample) {
+task runSample(type: JavaExec, dependsOn: sample) {
     if (project.hasProperty('pargs')) {
         args(pargs.split(','))
     }
