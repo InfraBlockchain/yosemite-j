@@ -67,19 +67,19 @@ public class NativeTokenContractJSample {
         YosemiteNativeTokenJ yxNativeTokenJ = new YosemiteNativeTokenJ(apiClient);
 
         PushedTransaction pushedTransaction = yxNativeTokenJ.issueNativeToken(
-                "ntuser1", "1000000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", null, new String[]{sysDepoPublicKey}).join();
+                "ntuser1", "1000000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", null, new String[]{sysDepoPublicKey}).join();
         log("Issue Native Token Transaction:" + pushedTransaction.getTransactionId());
 
         // transfer token with transacation fee payer as SYSTEM_DEPOSITORY_ACCOUNT
         pushedTransaction = yxNativeTokenJ.transferNativeTokenWithPayer(
-                "ntuser1", SYSTEM_DEPOSITORY_ACCOUNT, "100000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo",
+                "ntuser1", SYSTEM_DEPOSITORY_ACCOUNT, "100000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo",
                 null, new String[]{user1PublicKey, sysDepoPublicKey}).join();
         log("TransferWithPayer Native Token Transaction:" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
         }
 
-        pushedTransaction = yxNativeTokenJ.redeemNativeToken("100000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo",
+        pushedTransaction = yxNativeTokenJ.redeemNativeToken("100000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo",
                 null, new String[]{sysDepoPublicKey}).join();
         log("Redeem Native Token Transaction:" + pushedTransaction.getTransactionId());
 
