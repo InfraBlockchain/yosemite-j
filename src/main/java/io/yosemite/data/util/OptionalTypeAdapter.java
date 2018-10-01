@@ -37,7 +37,7 @@ public class OptionalTypeAdapter<E> extends TypeAdapter<Optional<E>> {
 
     @Override
     public void write(JsonWriter out, Optional<E> value) throws IOException {
-        if (value != null && value.isPresent()) {
+        if (value.isPresent()) {
             adapter.write(out, value.get());
         } else {
             out.nullValue();
