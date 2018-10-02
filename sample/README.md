@@ -58,6 +58,7 @@ clyos push action yosemite regsysdepo '["d1","http://d1.org",1]' -p d1@active -p
 clyos push action yosemite authsysdepo '["d1"]' -p yosemite@active
 clyos push action yosemite regidauth '["d1","http://d1.org",1]' -p d1@active -p yosemite@active
 clyos push action yosemite authidauth '["d1"]' -p yosemite@active
+clyos push action yx.identity setidinfo "{\"account\":\"d1\", \"identity_authority\":\"d1\", \"type\":$(echo 'ibase=2; 0' | bc), \"kyc\":$(echo 'ibase=2; 1111' | bc), \"state\":$(echo 'ibase=2; 0' | bc), \"data\":\"sysdepo1\"}" -p idauth1
 
 # set transaction fee to yx.system service (for newaccount)
 clyos push action yx.txfee settxfee '[ "tf.newacc", "1000.0000 DKRW" ]' -p yosemite@active
