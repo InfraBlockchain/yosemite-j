@@ -38,7 +38,7 @@ public final class Consts {
     public static final int TX_EXPIRATION_IN_MILLIS = 1000 * 60 * 2; // 2 minutes (from cleos)
 
     public static final String DEFAULT_SYMBOL_STRING = "DKRW";
-    public static final int DEFAULT_SYMBOL_PRECISION = 4;
+    public static final int DEFAULT_SYMBOL_PRECISION = 2;
 
     // constants from /libraries/include/eosio/chain/config.hpp
     public static final int DEFAULT_BASE_PER_TRANSACTION_NET_USAGE = 100;

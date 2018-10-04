@@ -61,23 +61,23 @@ clyos push action yosemite authidauth '["d1"]' -p yosemite@active
 clyos push action yx.identity setidinfo "{\"account\":\"d1\", \"identity_authority\":\"d1\", \"type\":$(echo 'ibase=2; 0' | bc), \"kyc\":$(echo 'ibase=2; 1111' | bc), \"state\":$(echo 'ibase=2; 0' | bc), \"data\":\"sysdepo1\"}" -p idauth1
 
 # set transaction fee to yx.system service (for newaccount)
-clyos push action yx.txfee settxfee '[ "tf.newacc", "1000.0000 DKRW" ]' -p yosemite@active
+clyos push action yx.txfee settxfee '[ "tf.newacc", "1000.00 DKRW" ]' -p yosemite@active
 
 # set transaction fee to yx.dcontract service (for DigitalContractJSample)
-clyos push action yx.txfee settxfee '{"operation":"tf.dccreate", "fee":"50.0000 DKRW"}}' -p yosemite
-clyos push action yx.txfee settxfee '{"operation":"tf.dcaddsign", "fee":"10.0000 DKRW"}}' -p yosemite
-clyos push action yx.txfee settxfee '{"operation":"tf.dcsign", "fee":"30.0000 DKRW"}}' -p yosemite
-clyos push action yx.txfee settxfee '{"operation":"tf.dcupadd", "fee":"5.0000 DKRW"}}' -p yosemite
-clyos push action yx.txfee settxfee '{"operation":"tf.dcremove", "fee":"0.0000 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.dccreate", "fee":"50.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.dcaddsign", "fee":"10.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.dcsign", "fee":"30.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.dcupadd", "fee":"5.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.dcremove", "fee":"0.00 DKRW"}}' -p yosemite
 
 # set transaction fee to yx.token service (for TokenContractJSample)
-clyos push action yx.txfee settxfee '{"operation":"tf.tcreate", "fee":"10000.0000 DKRW"}}' -p yosemite
-clyos push action yx.txfee settxfee '{"operation":"tf.tissue", "fee":"100.0000 DKRW"}}' -p yosemite
-clyos push action yx.txfee settxfee '{"operation":"tf.tredeem", "fee":"100.0000 DKRW"}}' -p yosemite
-clyos push action yx.txfee settxfee '{"operation":"tf.ttransfer", "fee":"10.0000 DKRW"}}' -p yosemite
-clyos push action yx.txfee settxfee '{"operation":"tf.tsetkyc", "fee":"5.0000 DKRW"}}' -p yosemite
-clyos push action yx.txfee settxfee '{"operation":"tf.tsetopts", "fee":"5.0000 DKRW"}}' -p yosemite
-clyos push action yx.txfee settxfee '{"operation":"tf.tfreezeac", "fee":"5.0000 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tcreate", "fee":"10000.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tissue", "fee":"100.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tredeem", "fee":"100.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.ttransfer", "fee":"10.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tsetkyc", "fee":"5.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tsetopts", "fee":"5.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tfreezeac", "fee":"5.00 DKRW"}}' -p yosemite
 ```
 
 ## Build

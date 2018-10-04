@@ -138,7 +138,7 @@ public class LibraryTest {
 
         String contract = "yx.ntoken";
         String action = "transfer";
-        String data = "{\"from\":\"user1\",\"to\":\"user2\",\"amount\":\"2.0000 DKRW\",\"memo\":\"test\"}";
+        String data = "{\"from\":\"user1\",\"to\":\"user2\",\"amount\":\"2.00 DKRW\",\"memo\":\"test\"}";
         String[] permissions = new String[]{"user1@active"};
 
         PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, permissions, new String[]{user1PublicKey}).join();

@@ -182,7 +182,7 @@ public class DigitalContractJSample {
         // issue native token by system depository
         YosemiteNativeTokenJ nativeTokenJ = new YosemiteNativeTokenJ(apiClient);
         PushedTransaction pushedTransaction = nativeTokenJ.issueNativeToken(
-                SERVICE_PROVIDER_ACCOUNT, "1000000.0000 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "", null).join();
+                SERVICE_PROVIDER_ACCOUNT, "1000000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "", null).join();
         log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
     }
 
