@@ -31,7 +31,7 @@ public class YosemiteTokenJ extends YosemiteJ {
     }
 
     private void checkPrecision(int precision) {
-        if (precision < 4 || precision > 18) throw new IllegalArgumentException("wrong precision");
+        if (precision < 2 || precision > 18) throw new IllegalArgumentException("wrong precision");
     }
 
     /**
