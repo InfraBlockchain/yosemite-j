@@ -117,7 +117,7 @@ public class NativeTokenContractJSample {
     private static String createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ, String accountName) {
         String publicKey = apiClient.createKey().execute();
         PushedTransaction pushedTransaction = yxSystemJ.createAccount(
-                "yosemite", accountName, publicKey, publicKey, null).join();
+                "yosemite", accountName, publicKey, publicKey, null, null).join();
         log("Account Creation Transaction : " + pushedTransaction.getTransactionId());
         return publicKey;
     }

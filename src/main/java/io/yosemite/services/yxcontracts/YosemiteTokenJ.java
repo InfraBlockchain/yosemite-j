@@ -45,27 +45,6 @@ public class YosemiteTokenJ extends YosemiteJ {
      * @param issuer the account name of the issuer
      * @param canSetOptions the EnumSet of {@link CanSetOptionsType} enum values
      * @param permissions the permission of the issuer
-     * @return CompletableFuture instance to get PushedTransaction instance
-     * @see TypeSymbol
-     * @see io.yosemite.data.types.TypeYxSymbol
-     */
-    public CompletableFuture<PushedTransaction> createToken(
-            String symbol, int precision, String issuer, EnumSet<CanSetOptionsType> canSetOptions,
-            @Nullable String[] permissions) {
-        return createToken(symbol, precision, issuer, canSetOptions, permissions, null);
-    }
-
-    /**
-     * Creates the token managed by the issuer.
-     * Transaction fee is charged to the issuer.
-     *
-     * There are several important <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.token/README.md">decision points</a> before creating your token.
-     * You must consider carefully because it cannot be changed once created.
-     * @param symbol the symbol name; <a href="https://developers.eos.io/eosio-cpp/docs/naming-conventions#section-symbols">Naming Convention of Symbols</a>
-     * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers; from 4 to 18
-     * @param issuer the account name of the issuer
-     * @param canSetOptions the EnumSet of {@link CanSetOptionsType} enum values
-     * @param permissions the permission of the issuer
      * @param publicKeys the required public keys to sign the transaction
      * @return CompletableFuture instance to get PushedTransaction instance
      * @see TypeSymbol
@@ -93,21 +72,6 @@ public class YosemiteTokenJ extends YosemiteJ {
         symbolObj.addProperty("tsymbol", eosSymbolStr);
         symbolObj.addProperty("issuer", issuer);
         return symbolObj;
-    }
-
-    /**
-     * Issues the amount of the token to the <code>to</code> account by the token depository(<code>issuer</code>).
-     * Transaction fee is charged to the issuer.
-     * @param to the account who is transferred the amount of the token
-     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
-     * @param issuer the account name of the issuer
-     * @param memo data which the caller wants to save to
-     * @param permissions the permission of the issuer
-     * @return CompletableFuture instance to get PushedTransaction instance
-     */
-    public CompletableFuture<PushedTransaction> issueToken(
-            String to, String amount, String issuer, String memo, String[] permissions) {
-        return issueToken(to, amount, issuer, memo, permissions, null);
     }
 
     /**
@@ -147,25 +111,12 @@ public class YosemiteTokenJ extends YosemiteJ {
      * @param issuer the account name of the issuer
      * @param memo data which the caller wants to save to
      * @param permissions the permission of the issuer
-     * @return CompletableFuture instance to get PushedTransaction instance
-     */
-    public CompletableFuture<PushedTransaction> redeemToken(
-            String amount, String issuer, String memo, @Nullable String[] permissions) {
-        return redeemToken(amount, issuer, memo, permissions, null);
-    }
-
-    /**
-     * Redeem(burn) the amount of the token by the token depository(<code>issuer</code>).
-     * Transaction fee is charged to the issuer.
-     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
-     * @param issuer the account name of the issuer
-     * @param memo data which the caller wants to save to
-     * @param permissions the permission of the issuer
      * @param publicKeys the required public keys to sign the transaction
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> redeemToken(
-            String amount, String issuer, String memo, @Nullable String[] permissions, @Nullable final String[] publicKeys) {
+            String amount, String issuer, String memo,
+            @Nullable String[] permissions, @Nullable final String[] publicKeys) {
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
         if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
@@ -179,22 +130,6 @@ public class YosemiteTokenJ extends YosemiteJ {
 
         return pushAction(YOSEMITE_TOKEN_CONTRACT, "redeem", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions, publicKeys);
-    }
-
-    /**
-     * Transfer the amount of the token from the <code>from</code> account to the <code>to</code> account.
-     * Transaction fee is charged to the <code>from</code> account.
-     * @param from the account name of from
-     * @param to the account name of to
-     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
-     * @param issuer the account name of the issuer
-     * @param memo data which the caller wants to save to
-     * @param permissions the permission of the the <code>from</code> account
-     * @return CompletableFuture instance to get PushedTransaction instance
-     */
-    public CompletableFuture<PushedTransaction> transferToken(
-            String from, String to, String amount, String issuer, String memo, @Nullable String[] permissions) {
-        return transferToken(from, to, amount, issuer, memo, permissions, null);
     }
 
     /**
@@ -247,24 +182,6 @@ public class YosemiteTokenJ extends YosemiteJ {
      * @param tokenRuleType the rule type which indicates token send or receipt
      * @param kycVectors the EnumSet of {@link KYCStatusType} enum values
      * @param permissions the permission of the issuer
-     * @see TokenRuleType
-     * @return CompletableFuture instance to get PushedTransaction instance
-     */
-    public CompletableFuture<PushedTransaction> setTokenKYCRule(
-            String symbol, int precision, String issuer, TokenRuleType tokenRuleType, EnumSet<KYCStatusType> kycVectors, @Nullable String[] permissions) {
-        return setTokenKYCRule(symbol, precision, issuer, tokenRuleType, kycVectors, permissions, null);
-    }
-
-    /**
-     * Set the KYC rule for token send or receipt.
-     * Transaction fee is charged to the issuer.
-     * This action is possible only if {@link CanSetOptionsType#SET_KYC_RULE} was set while creating the token.
-     * @param symbol the symbol name
-     * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers
-     * @param issuer the account name of the issuer
-     * @param tokenRuleType the rule type which indicates token send or receipt
-     * @param kycVectors the EnumSet of {@link KYCStatusType} enum values
-     * @param permissions the permission of the issuer
      * @param publicKeys the required public keys to sign the transaction
      * @see TokenRuleType
      * @return CompletableFuture instance to get PushedTransaction instance
@@ -298,25 +215,6 @@ public class YosemiteTokenJ extends YosemiteJ {
      * @param options the EnumSet of {@link TokenOptionsType} enum values
      * @param reset the flag which indicates whether the previous options are cleared or not
      * @param permissions the permission of the issuer
-     * @return CompletableFuture instance to get PushedTransaction instance
-     */
-    public CompletableFuture<PushedTransaction> setTokenOptions(
-            String symbol, int precision, String issuer, EnumSet<TokenOptionsType> options, boolean reset,
-            @Nullable String[] permissions) {
-        return setTokenOptions(symbol, precision, issuer, options, reset, permissions, null);
-    }
-
-    /**
-     * Set the various options of the token defined by {@link TokenOptionsType}.
-     * Transaction fee is charged to the issuer.
-     * This action is possible only if the matching types of {@link CanSetOptionsType} were set while creating the token.
-     * For example, if {@link CanSetOptionsType#FREEZE_TOKEN_TRANSFER } was set, {@link TokenOptionsType#FREEZE_TOKEN_TRANSFER} is possible to use.
-     * @param symbol the symbol name
-     * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers
-     * @param issuer the account name of the issuer
-     * @param options the EnumSet of {@link TokenOptionsType} enum values
-     * @param reset the flag which indicates whether the previous options are cleared or not
-     * @param permissions the permission of the issuer
      * @param publicKeys the required public keys to sign the transaction
      * @return CompletableFuture instance to get PushedTransaction instance
      */
@@ -336,23 +234,6 @@ public class YosemiteTokenJ extends YosemiteJ {
 
         return pushAction(YOSEMITE_TOKEN_CONTRACT, "setoptions", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions, publicKeys);
-    }
-
-    /**
-     * Freeze or unfreeze the accounts.
-     * Transaction fee is charged to the issuer.
-     * This action is possible only if {@link CanSetOptionsType#FREEZE_ACCOUNT} was set while creating the token.
-     * @param symbol the symbol name
-     * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers
-     * @param issuer the account name of the issuer
-     * @param accounts the list of account names to be frozen or unfrozen
-     * @param freeze the flag which indicates whether to freeze or unfreeze
-     * @param permissions the permission of the issuer
-     * @return CompletableFuture instance to get PushedTransaction instance
-     */
-    public CompletableFuture<PushedTransaction> freezeAccounts(
-            String symbol, int precision, String issuer, final List<String> accounts, boolean freeze, @Nullable String[] permissions) {
-        return freezeAccounts(symbol, precision, issuer, accounts, freeze, permissions, null);
     }
 
     /**
