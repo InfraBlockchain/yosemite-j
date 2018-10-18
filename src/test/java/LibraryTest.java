@@ -184,13 +184,6 @@ public class LibraryTest {
 
         Thread.sleep(1000);
 
-        pushedTransaction = yxj.transferTokenWithPayer("user1", "d2", "10000.00000 TEST", "d2", "servprovider", "my memo",
-                new String[]{"user1@active", "servprovider@active"}).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        Thread.sleep(1000);
-
         pushedTransaction = yxj.redeemToken("20000.00000 TEST", "d2", "my memo", new String[]{"d2@active"}).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
@@ -280,11 +273,11 @@ public class LibraryTest {
         Thread.sleep(1000);
 
         // 3. sign contract by signers
-        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", new String[]{"user2@active", "servprovider@active"}).join();
+        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", new String[]{"user2@active"}).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
-        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user3", "I am user3", new String[]{"user3@active", "servprovider@active"}).join();
+        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user3", "I am user3", new String[]{"user3@active"}).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 

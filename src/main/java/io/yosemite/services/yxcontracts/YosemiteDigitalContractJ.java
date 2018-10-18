@@ -218,7 +218,7 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
         arrayObj.add(signerInfo == null ? "" : signerInfo);
 
         return pushAction(YOSEMITE_DIGITAL_CONTRACT_CONTRACT, "sign", new Gson().toJson(arrayObj),
-                isEmptyArray(permissions) ? new String[]{signer + "@active", creator + "@active"} : permissions, publicKeys);
+                isEmptyArray(permissions) ? new String[]{signer + "@active"} : permissions, publicKeys);
     }
 
     /**

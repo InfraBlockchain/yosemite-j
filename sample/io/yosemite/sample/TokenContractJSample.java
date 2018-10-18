@@ -70,14 +70,6 @@ public class TokenContractJSample {
                 null, new String[]{tokenProviderPublicKey}).join();
         log("Issue Transaction:" + pushedTransaction.getTransactionId());
 
-        // transfer token with transacation fee payer as TOKEN_PROVIDER_ACCOUNT
-        pushedTransaction = yxTokenJ.transferTokenWithPayer("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT, "1.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT,
-                TOKEN_PROVIDER_ACCOUNT, "my memo", null, new String[]{tokenUser1PublicKey, tokenProviderPublicKey}).join();
-        log("TransferWithPayer Transaction:" + pushedTransaction.getTransactionId());
-        if (wait_for_irreversibility) {
-            waitForIrreversibility(apiClient, pushedTransaction);
-        }
-
         pushedTransaction = yxTokenJ.redeemToken("1.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo", null, new String[]{tokenProviderPublicKey}).join();
         log("Redeem Transaction:" + pushedTransaction.getTransactionId());
 

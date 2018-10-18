@@ -218,47 +218,6 @@ public class YosemiteTokenJ extends YosemiteJ {
                 isEmptyArray(permissions) ? new String[]{from + "@active"} : permissions, publicKeys);
     }
 
-    /**
-     * Transfer the amount of the token from the <code>from</code> account to the <code>to</code> account.
-     * Transaction fee is charged to the <code>payer</code> account.
-     * @param from the account name of from
-     * @param to the account name of to
-     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
-     * @param issuer the account name of the issuer
-     * @param payer the account name of the transaction fee payer
-     * @param memo data which the caller wants to save to
-     * @param permissions the permission of the the <code>from</code> account and the <code>payer</code> account
-     * @return CompletableFuture instance to get PushedTransaction instance
-     */
-    public CompletableFuture<PushedTransaction> transferTokenWithPayer(
-            String from, String to, String amount, String issuer, String payer,
-            String memo, @Nullable String[] permissions) {
-        return transferTokenWithPayer(from, to, amount, issuer, payer, memo, permissions, null);
-    }
-
-    /**
-     * Transfer the amount of the token from the <code>from</code> account to the <code>to</code> account.
-     * Transaction fee is charged to the <code>payer</code> account.
-     * @param from the account name of from
-     * @param to the account name of to
-     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
-     * @param issuer the account name of the issuer
-     * @param payer the account name of the transaction fee payer
-     * @param memo data which the caller wants to save to
-     * @param permissions the permission of the the <code>from</code> account and the <code>payer</code> account
-     * @param publicKeys the required public keys to sign the transaction
-     * @return CompletableFuture instance to get PushedTransaction instance
-     */
-    public CompletableFuture<PushedTransaction> transferTokenWithPayer(
-            String from, String to, String amount, String issuer, String payer,
-            String memo, @Nullable String[] permissions, @Nullable final String[] publicKeys) {
-        JsonObject object = getJsonObjectForTransfer(from, to, amount, issuer, memo);
-        object.addProperty("payer", payer);
-
-        return pushAction(YOSEMITE_TOKEN_CONTRACT, "wptransfer", gson.toJson(object),
-                isEmptyArray(permissions) ? new String[]{from + "@active", payer + "@active"} : permissions, publicKeys);
-    }
-
     private JsonObject getJsonObjectForTransfer(String from, String to, String amount, String issuer, String memo) {
         if (StringUtils.isEmpty(from)) throw new IllegalArgumentException("wrong from");
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
