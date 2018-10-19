@@ -82,7 +82,7 @@ clyos push action yx.txfee settxfee '{"operation":"tf.tfreezeac", "fee":"5.00 DK
 
 ## Build
 ```
-./gradlew sample
+./gradlew buildSample
 ```
 
 ## Execute
