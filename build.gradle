@@ -148,3 +148,5 @@ task runSample(type: JavaExec, dependsOn: sample) {
         classpath = sourceSets.main.runtimeClasspath
     }
 }
+
+build.finalizedBy sample
