@@ -41,9 +41,4 @@ public final class Consts {
 
     public static final String DEFAULT_SYMBOL_STRING = "DKRW";
     public static final int DEFAULT_SYMBOL_PRECISION = 2;
-
-    // constants from /libraries/include/eosio/chain/config.hpp
-    public static final int DEFAULT_BASE_PER_TRANSACTION_NET_USAGE = 100;
-    public static final int DEFAULT_BASE_PER_TRANSACTION_CPU_USAGE = 500;
-    public static final int DEFAULT_BASE_PER_ACTION_CPU_USAGE = 1000;
 }
