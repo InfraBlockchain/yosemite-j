@@ -108,15 +108,6 @@ public class DigitalContractJSample {
                 null, new String[]{serviceProviderPublicKey}).join();
         log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
 
-        if (!wait_for_irreversibility) {
-            try {
-                // sleep 1 sec just for single node irreversibility
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                log(e.toString());
-            }
-        }
-
         log("");
         log("[Digital Contract]");
         TableRow tableRow = digitalContractJ.getCreatedDigitalContract(SERVICE_PROVIDER_ACCOUNT, 20).join();

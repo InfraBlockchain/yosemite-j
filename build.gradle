@@ -108,6 +108,21 @@ publishing {
     }
 }
 
+sourceSets {
+    sample {
+        java {
+            srcDir "src/sample/java"
+        }
+        compileClasspath += main.output
+        runtimeClasspath += main.output
+    }
+}
+
+configurations {
+    sampleCompile.extendsFrom testCompile
+    sampleRuntime.extendsFrom testRuntime
+}
+
 jar {
     manifest {
         attributes('Implementation-Title': project.name,

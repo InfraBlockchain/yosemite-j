@@ -9,28 +9,27 @@ import io.yosemite.data.types.TypeAsset;
 import io.yosemite.data.types.TypeName;
 import io.yosemite.data.types.TypeSymbol;
 import io.yosemite.services.YosemiteApiRestClient;
+import io.yosemite.services.YosemiteJ;
 import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static io.yosemite.util.Consts.YOSEMITE_NFT_CONTRACT;
 import static io.yosemite.util.Consts.YOSEMITE_TOKEN_CONTRACT;
 
 /**
- * Provides the APIs for the non-native or user token service.
+ * Provides the APIs for the non-fungible token service.
  * There are several important decision points before creating your token.
- * For your information, please read <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.token/README.md">yx.token README</a>.
+ * For your information, please read <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.nft/README.md">yx.nft README</a>.
  */
-public class YosemiteTokenJ extends AbstractToken {
-    public YosemiteTokenJ(YosemiteApiRestClient yosemiteApiRestClient) {
+public class YosemiteNonFungibleTokenJ extends AbstractToken {
+    public YosemiteNonFungibleTokenJ(YosemiteApiRestClient yosemiteApiRestClient) {
         super(yosemiteApiRestClient);
-    }
-
-    private void checkPrecision(int precision) {
-        if (precision < 2 || precision > 18) throw new IllegalArgumentException("wrong precision");
     }
 
     /**
@@ -40,7 +39,6 @@ public class YosemiteTokenJ extends AbstractToken {
      * There are several important <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.token/README.md">decision points</a> before creating your token.
      * You must consider carefully because it cannot be changed once created.
      * @param symbol the symbol name; <a href="https://developers.eos.io/eosio-cpp/docs/naming-conventions#section-symbols">Naming Convention of Symbols</a>
-     * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers; from 4 to 18
      * @param issuer the account name of the issuer
      * @param canSetOptions the EnumSet of {@link CanSetOptionsType} enum values
      * @param permissions the permission of the issuer
@@ -50,82 +48,136 @@ public class YosemiteTokenJ extends AbstractToken {
      * @see io.yosemite.data.types.TypeYxSymbol
      */
     public CompletableFuture<PushedTransaction> createToken(
-            String symbol, int precision, String issuer, EnumSet<CanSetOptionsType> canSetOptions,
+            String symbol, String issuer, EnumSet<CanSetOptionsType> canSetOptions,
             @Nullable String[] permissions, @Nullable final String[] publicKeys) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
-        checkPrecision(precision);
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
 
-        String eosSymbolStr = precision + "," + symbol;
+        String eosSymbolStr = "0," + symbol;
         JsonArray arrayObj = new JsonArray();
         JsonObject symbolObj = getTokenJsonObject(eosSymbolStr, issuer);
         arrayObj.add(symbolObj);
-        arrayObj.add(CanSetOptionsType.getAsBitFlags(canSetOptions));
+        arrayObj.add(AbstractToken.CanSetOptionsType.getAsBitFlags(canSetOptions));
 
-        return pushAction(YOSEMITE_TOKEN_CONTRACT, "create", gson.toJson(arrayObj),
+        return pushAction(YOSEMITE_NFT_CONTRACT, "create", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions, publicKeys);
     }
 
     /**
-     * Issues the amount of the token to the <code>to</code> account by the token depository(<code>issuer</code>).
+     * Issues multiple non-fungible tokens to the <code>to</code> account by the token issuer.
      * Transaction fee is charged to the issuer.
      * @param to the account who is transferred the amount of the token
-     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param symbol the symbol name; <a href="https://developers.eos.io/eosio-cpp/docs/naming-conventions#section-symbols">Naming Convention of Symbols</a>
      * @param issuer the account name of the issuer
+     * @param ids the list of identifiers assigned by the issuer for each NFT; they are used as primary key of `nftokens` table
+     * @param uris the list of item information URIs for each NFT; the number of uris must match with the number of ids
+     * @param name the name of NFT; less than or equal to 32 bytes
      * @param memo data which the caller wants to save to
      * @param permissions the permission of the issuer
      * @param publicKeys the required public keys to sign the transaction
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> issueToken(
-            String to, String amount, String issuer, String memo, @Nullable String[] permissions, @Nullable final String[] publicKeys) {
+            String to, String symbol, String issuer, Collection<Long> ids, Collection<String> uris, String name, String memo,
+            @Nullable String[] permissions, @Nullable final String[] publicKeys) {
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
-        if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
+        if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+        if (ids.isEmpty()) throw new IllegalArgumentException("wrong ids");
+        if (uris.isEmpty()) throw new IllegalArgumentException("wrong uris");
+        if (ids.size() != uris.size()) throw new IllegalArgumentException("the number of ids and uris is not matched");
+        if (StringUtils.isEmpty(name)) throw new IllegalArgumentException("wrong name");
+        if (name.length() > 32) throw new IllegalArgumentException("too long name");
         if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
 
         JsonArray arrayObj = new JsonArray();
         arrayObj.add(to);
-        JsonObject tokenObj = new JsonObject();
-        tokenObj.addProperty("amount", new TypeAsset(amount).toString());
-        tokenObj.addProperty("issuer", issuer);
-        arrayObj.add(tokenObj);
+        String eosSymbolStr = "0," + symbol;
+        JsonObject symbolObj = getTokenJsonObject(eosSymbolStr, issuer);
+        arrayObj.add(symbolObj);
+
+        arrayObj.add(convertCollectionToJsonArray(ids));
+        arrayObj.add(convertCollectionToJsonArray(uris));
+        arrayObj.add(name);
         arrayObj.add(memo);
 
-        return pushAction(YOSEMITE_TOKEN_CONTRACT, "issue", gson.toJson(arrayObj),
+        return pushAction(YOSEMITE_NFT_CONTRACT, "issue", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions, publicKeys);
     }
 
+    private JsonArray convertCollectionToJsonArray(Collection ids) {
+        JsonArray idsArray = new JsonArray();
+        for (Object id : ids) {
+            if (id instanceof Long) {
+                idsArray.add((Long)id);
+            } else if (id instanceof String) {
+                idsArray.add((String)id);
+            }
+        }
+        return idsArray;
+    }
+
     /**
-     * Redeem(burn) the amount of the token by the token depository(<code>issuer</code>).
+     * Redeem(burn) multiple non-fungible tokens by the token issuer.
      * Transaction fee is charged to the issuer.
-     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
      * @param issuer the account name of the issuer
+     * @param ids the list of identifiers assigned by the issuer for each NFT
      * @param memo data which the caller wants to save to
      * @param permissions the permission of the issuer
      * @param publicKeys the required public keys to sign the transaction
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> redeemToken(
-            String amount, String issuer, String memo,
+            String issuer, Collection<Long> ids, String memo,
             @Nullable String[] permissions, @Nullable final String[] publicKeys) {
-        if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+        if (ids.isEmpty()) throw new IllegalArgumentException("wrong ids");
         if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
 
         JsonArray arrayObj = new JsonArray();
-        JsonObject tokenObj = new JsonObject();
-        tokenObj.addProperty("amount", new TypeAsset(amount).toString());
-        tokenObj.addProperty("issuer", issuer);
-        arrayObj.add(tokenObj);
+        arrayObj.add(issuer);
+        arrayObj.add(convertCollectionToJsonArray(ids));
         arrayObj.add(memo);
 
-        return pushAction(YOSEMITE_TOKEN_CONTRACT, "redeem", gson.toJson(arrayObj),
+        return pushAction(YOSEMITE_NFT_CONTRACT, "redeem", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions, publicKeys);
     }
 
     /**
-     * Transfer the amount of the token from the <code>from</code> account to the <code>to</code> account.
+     * Transfer the arbitrary NFT from the <code>from</code> account to the <code>to</code> account.
+     * It is not recommended to use if <code>from</code> account owns multiple NFTs with the same symbol.
+     * Transaction fee is charged to the <code>from</code> account.
+     * @param from the account name of from
+     * @param to the account name of to
+     * @param issuer the account name of the issuer
+     * @param ids the list of identifiers assigned by the issuer for each NFT
+     * @param memo data which the caller wants to save to
+     * @param permissions the permission of the the <code>from</code> account
+     * @param publicKeys the required public keys to sign the transaction
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
+    public CompletableFuture<PushedTransaction> transferByTokenId(
+            String from, String to, String issuer, Collection<Long> ids, String memo,
+            @Nullable String[] permissions, @Nullable final String[] publicKeys) {
+        if (StringUtils.isEmpty(from)) throw new IllegalArgumentException("wrong from");
+        if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+        if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
+
+        JsonObject object = new JsonObject();
+        object.addProperty("from", from);
+        object.addProperty("to", to);
+        object.addProperty("issuer", issuer);
+        object.add("ids", convertCollectionToJsonArray(ids));
+        object.addProperty("memo", memo);
+
+        return pushAction(YOSEMITE_NFT_CONTRACT, "transferid", gson.toJson(object),
+                isEmptyArray(permissions) ? new String[]{from + "@active"} : permissions, publicKeys);
+    }
+
+    /**
+     * Transfer the arbitrary NFT from the <code>from</code> account to the <code>to</code> account.
+     * It is not recommended to use if <code>from</code> account owns multiple NFTs with the same symbol.
      * Transaction fee is charged to the <code>from</code> account.
      * @param from the account name of from
      * @param to the account name of to
@@ -139,7 +191,7 @@ public class YosemiteTokenJ extends AbstractToken {
     public CompletableFuture<PushedTransaction> transferToken(
             String from, String to, String amount, String issuer, String memo,
             @Nullable String[] permissions, @Nullable final String[] publicKeys) {
-        return transferToken(YOSEMITE_TOKEN_CONTRACT, from, to, amount, issuer, memo, permissions, publicKeys);
+        return transferToken(YOSEMITE_NFT_CONTRACT, from, to, amount, issuer, memo, permissions, publicKeys);
     }
 
     /**
@@ -147,7 +199,6 @@ public class YosemiteTokenJ extends AbstractToken {
      * Transaction fee is charged to the issuer.
      * This action is possible only if {@link CanSetOptionsType#SET_KYC_RULE} was set while creating the token.
      * @param symbol the symbol name
-     * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers
      * @param issuer the account name of the issuer
      * @param tokenRuleType the rule type which indicates token send or receipt
      * @param kycVectors the EnumSet of {@link KYCStatusType} enum values
@@ -157,10 +208,9 @@ public class YosemiteTokenJ extends AbstractToken {
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> setTokenKYCRule(
-            String symbol, int precision, String issuer, TokenRuleType tokenRuleType, EnumSet<KYCStatusType> kycVectors,
+            String symbol, String issuer, TokenRuleType tokenRuleType, EnumSet<KYCStatusType> kycVectors,
             @Nullable String[] permissions, @Nullable final String[] publicKeys) {
-        checkPrecision(precision);
-        return setTokenKYCRule(YOSEMITE_TOKEN_CONTRACT, symbol, precision, issuer, tokenRuleType, kycVectors, permissions, publicKeys);
+        return setTokenKYCRule(YOSEMITE_NFT_CONTRACT, symbol, 0, issuer, tokenRuleType, kycVectors, permissions, publicKeys);
     }
 
     /**
@@ -169,7 +219,6 @@ public class YosemiteTokenJ extends AbstractToken {
      * This action is possible only if the matching types of {@link CanSetOptionsType} were set while creating the token.
      * For example, if {@link CanSetOptionsType#FREEZE_TOKEN_TRANSFER } was set, {@link TokenOptionsType#FREEZE_TOKEN_TRANSFER} is possible to use.
      * @param symbol the symbol name
-     * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers
      * @param issuer the account name of the issuer
      * @param options the EnumSet of {@link TokenOptionsType} enum values
      * @param reset the flag which indicates whether the previous options are cleared or not
@@ -178,10 +227,9 @@ public class YosemiteTokenJ extends AbstractToken {
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> setTokenOptions(
-            String symbol, int precision, String issuer, EnumSet<TokenOptionsType> options, boolean reset,
+            String symbol, String issuer, EnumSet<TokenOptionsType> options, boolean reset,
             @Nullable String[] permissions, @Nullable final String[] publicKeys) {
-        checkPrecision(precision);
-        return setTokenOptions(YOSEMITE_TOKEN_CONTRACT, symbol, precision, issuer, options, reset, permissions, publicKeys);
+        return setTokenOptions(YOSEMITE_NFT_CONTRACT, symbol, 0, issuer, options, reset, permissions, publicKeys);
     }
 
     /**
@@ -189,7 +237,6 @@ public class YosemiteTokenJ extends AbstractToken {
      * Transaction fee is charged to the issuer.
      * This action is possible only if {@link CanSetOptionsType#FREEZE_ACCOUNT} was set while creating the token.
      * @param symbol the symbol name
-     * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers
      * @param issuer the account name of the issuer
      * @param accounts the list of account names to be frozen or unfrozen
      * @param freeze the flag which indicates whether to freeze or unfreeze
@@ -198,18 +245,30 @@ public class YosemiteTokenJ extends AbstractToken {
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> freezeAccounts(
-            String symbol, int precision, String issuer, final List<String> accounts, boolean freeze,
+            String symbol, String issuer, final List<String> accounts, boolean freeze,
             @Nullable String[] permissions, @Nullable final String[] publicKeys) {
-        checkPrecision(precision);
-        return freezeAccounts(YOSEMITE_TOKEN_CONTRACT, symbol, precision, issuer, accounts, freeze, permissions, publicKeys);
+        return freezeAccounts(YOSEMITE_NFT_CONTRACT, symbol, 0, issuer, accounts, freeze, permissions, publicKeys);
     }
 
-    public CompletableFuture<TableRow> getTokenStats(String symbol, int precision, String issuer) {
-        return getTokenStats(YOSEMITE_TOKEN_CONTRACT, symbol, precision, issuer);
+    public CompletableFuture<TableRow> getTokenStats(String symbol, String issuer) {
+        return getTokenStats(YOSEMITE_NFT_CONTRACT, symbol, 0, issuer);
     }
 
-    public CompletableFuture<TableRow> getTokenAccountBalance(String symbol, int precision, String issuer, String account) {
-        return getTokenAccountBalance(YOSEMITE_TOKEN_CONTRACT, symbol, precision, issuer, account);
+    public CompletableFuture<TableRow> getTokenAccountBalance(String symbol, String issuer, String account) {
+        return getTokenAccountBalance(YOSEMITE_NFT_CONTRACT, symbol, 0, issuer, account);
     }
 
+    public CompletableFuture<TableRow> getTokenById(String issuer, long id) {
+        if (id < 0) throw new IllegalArgumentException("wrong id");
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+
+        GetTableOptions options = new GetTableOptions();
+        options.setIndexPosition("1"); // indicates primary key
+        // defined by contracts/yx.nft/yx.nft.hpp of YosemiteChain
+        options.setKeyType("i64");
+        options.setLowerBound(String.valueOf(id));
+        options.setLimit(1);
+
+        return getTableRows(YOSEMITE_NFT_CONTRACT, issuer, "nftokens", options);
+    }
 }

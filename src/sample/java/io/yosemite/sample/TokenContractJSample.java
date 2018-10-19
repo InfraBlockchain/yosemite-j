@@ -48,15 +48,20 @@ public class TokenContractJSample {
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
         try {
             tokenUser1PublicKey = createKeyPairAndAccount(apiClient, yxSystemJ, TOKEN_PROVIDER_ACCOUNT, "tkuserxxxxx1");
+
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
             log(e.toString());
             tokenUser1PublicKey = apiClient.getAccount("tkuserxxxxx1").execute().getActivePublicKey();
         }
 
+        YosemiteNativeTokenJ nativeTokenJ = new YosemiteNativeTokenJ(apiClient);
+        PushedTransaction pushedTransaction = nativeTokenJ.issueNativeToken(
+                "tkuserxxxxx1", "1000000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "", null, null).join();
+        log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
+
         YosemiteTokenJ yxTokenJ = new YosemiteTokenJ(apiClient);
 
-        PushedTransaction pushedTransaction = null;
         try {
             EnumSet<YosemiteTokenJ.CanSetOptionsType> emptyOptions = EnumSet.noneOf(YosemiteTokenJ.CanSetOptionsType.class);
             pushedTransaction = yxTokenJ.createToken("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, emptyOptions,
@@ -70,15 +75,18 @@ public class TokenContractJSample {
                 null, new String[]{tokenProviderPublicKey}).join();
         log("Issue Transaction:" + pushedTransaction.getTransactionId());
 
+        // transfer token with transacation fee payer as TOKEN_PROVIDER_ACCOUNT
+        pushedTransaction = yxTokenJ.transferToken("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT, "1.12345678 XYZ",
+                TOKEN_PROVIDER_ACCOUNT, "my memo", null, new String[]{tokenUser1PublicKey, tokenProviderPublicKey}).join();
+        log("TransferWithPayer Transaction:" + pushedTransaction.getTransactionId());
+        if (wait_for_irreversibility) {
+            waitForIrreversibility(apiClient, pushedTransaction);
+        }
+
         pushedTransaction = yxTokenJ.redeemToken("1.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo", null, new String[]{tokenProviderPublicKey}).join();
         log("Redeem Transaction:" + pushedTransaction.getTransactionId());
-
-        if (!wait_for_irreversibility) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                //ignored
-            }
+        if (wait_for_irreversibility) {
+            waitForIrreversibility(apiClient, pushedTransaction);
         }
 
         TableRow tableRow = yxTokenJ.getTokenStats("XYZ", 8, TOKEN_PROVIDER_ACCOUNT).join();

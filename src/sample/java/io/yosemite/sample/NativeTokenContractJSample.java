@@ -51,10 +51,15 @@ public class NativeTokenContractJSample {
 
         // create the user accounts
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
+        YosemiteNativeTokenJ yxNativeTokenJ = new YosemiteNativeTokenJ(apiClient);
 
         String user1PublicKey;
         try {
             user1PublicKey = createKeyPairAndAccount(apiClient, yxSystemJ, "ntuser1");
+
+            PushedTransaction pushedTransaction = yxNativeTokenJ.issueNativeToken(
+                    "ntuser1", "1000000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "", null, null).join();
+            log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
             log(e.toString());
@@ -64,21 +69,22 @@ public class NativeTokenContractJSample {
         // KYC process done by Identity Authority Service for DKRW
         processKYC(yxSystemJ, "ntuser1", EnumSet.allOf(KYCStatusType.class));
 
-        YosemiteNativeTokenJ yxNativeTokenJ = new YosemiteNativeTokenJ(apiClient);
-
         PushedTransaction pushedTransaction = yxNativeTokenJ.issueNativeToken(
                 "ntuser1", "1000000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", null, new String[]{sysDepoPublicKey}).join();
         log("Issue Native Token Transaction:" + pushedTransaction.getTransactionId());
 
+        // transfer token with transacation fee payer as SYSTEM_DEPOSITORY_ACCOUNT
+        pushedTransaction = yxNativeTokenJ.transferNativeToken(
+                "ntuser1", SYSTEM_DEPOSITORY_ACCOUNT, "100000.00 DKRW", "my memo",
+                null, new String[]{user1PublicKey, sysDepoPublicKey}).join();
+        log("TransferWithPayer Native Token Transaction:" + pushedTransaction.getTransactionId());
+        if (wait_for_irreversibility) {
+            waitForIrreversibility(apiClient, pushedTransaction);
+        }
+
         pushedTransaction = yxNativeTokenJ.redeemNativeToken("100000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo",
                 null, new String[]{sysDepoPublicKey}).join();
         log("Redeem Native Token Transaction:" + pushedTransaction.getTransactionId());
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            //ignored
-        }
 
         TableRow tableRow = yxNativeTokenJ.getNativeTokenAccountTotalBalance("ntuser1").join();
         for (Map<String, ?> row : tableRow.getRows()) {

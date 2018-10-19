@@ -219,12 +219,12 @@ public class LibraryTest {
         Thread.sleep(1000);
 
         EnumSet<KYCStatusType> kycStatusPhoneAuth = EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH);
-        pushedTransaction = yxj.setTokenKYCRule("XYZ", 4, "d2", YosemiteTokenJ.TokenRuleType.KYC_RULE_TRANSFER_RECEIVE,
+        pushedTransaction = yxj.setTokenKYCRule("XYZ", 4, "d2", AbstractToken.TokenRuleType.KYC_RULE_TRANSFER_RECEIVE,
                 kycStatusPhoneAuth, new String[]{"d2@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
-        EnumSet<YosemiteTokenJ.TokenOptionsType> freezeTokenTransfer = EnumSet.of(YosemiteTokenJ.TokenOptionsType.FREEZE_TOKEN_TRANSFER);
+        EnumSet<YosemiteTokenJ.TokenOptionsType> freezeTokenTransfer = EnumSet.of(AbstractToken.TokenOptionsType.FREEZE_TOKEN_TRANSFER);
         pushedTransaction = yxj.setTokenOptions("XYZ", 4, "d2", freezeTokenTransfer, true, new String[]{"d2@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());

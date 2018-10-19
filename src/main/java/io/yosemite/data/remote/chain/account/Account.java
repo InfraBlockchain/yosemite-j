@@ -182,6 +182,10 @@ public class Account {
         return Utils.prettyPrintJson(this);
     }
 
+    /**
+     * Get 'active' public key from account permission information.
+     * @return public key string
+     */
     public String getActivePublicKey() {
         if (permissions == null || permissions.isEmpty()) return null;
         for (Permission permission : permissions) {
