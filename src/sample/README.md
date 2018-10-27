@@ -58,10 +58,16 @@ clyos push action yosemite regsysdepo '["d1","http://d1.org",1]' -p d1@active -p
 clyos push action yosemite authsysdepo '["d1"]' -p yosemite@active
 clyos push action yosemite regidauth '["d1","http://d1.org",1]' -p d1@active -p yosemite@active
 clyos push action yosemite authidauth '["d1"]' -p yosemite@active
-clyos push action yx.identity setidinfo "{\"account\":\"d1\", \"identity_authority\":\"d1\", \"type\":$(echo 'ibase=2; 0' | bc), \"kyc\":$(echo 'ibase=2; 1111' | bc), \"state\":$(echo 'ibase=2; 0' | bc), \"data\":\"sysdepo1\"}" -p idauth1
+clyos push action yx.identity setidinfo "{\"account\":\"d1\", \"identity_authority\":\"d1\", \"type\":$(echo 'ibase=2; 0' | bc), \"kyc\":$(echo 'ibase=2; 1111' | bc), \"state\":$(echo 'ibase=2; 0' | bc), \"data\":\"sysdepo1\"}" -p d1
 
 # set transaction fee to yx.system service (for newaccount)
 clyos push action yx.txfee settxfee '[ "tf.newacc", "1000.00 DKRW" ]' -p yosemite@active
+
+# set transaction fee to yx.ntoken service
+clyos push action yx.txfee settxfee '{"operation":"tf.nissue", "fee":"0.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.nredeem", "fee":"1000.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.ntransfer", "fee":"10.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.transfer", "fee":"20.00 DKRW"}}' -p yosemite
 
 # set transaction fee to yx.dcontract service (for DigitalContractJSample)
 clyos push action yx.txfee settxfee '{"operation":"tf.dccreate", "fee":"50.00 DKRW"}}' -p yosemite
@@ -78,6 +84,14 @@ clyos push action yx.txfee settxfee '{"operation":"tf.ttransfer", "fee":"10.00 D
 clyos push action yx.txfee settxfee '{"operation":"tf.tsetkyc", "fee":"5.00 DKRW"}}' -p yosemite
 clyos push action yx.txfee settxfee '{"operation":"tf.tsetopts", "fee":"5.00 DKRW"}}' -p yosemite
 clyos push action yx.txfee settxfee '{"operation":"tf.tfreezeac", "fee":"5.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tgissue", "fee":"5.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tissuebyu", "fee":"5.00 DKRW"}}' -p yosemite
+clyos push action yx.txfee settxfee '{"operation":"tf.tchangeis", "fee":"5.00 DKRW"}}' -p yosemite
+
+# turn off KYC check of yx.ntoken for test convenience
+clyos push action yx.ntoken setkycrule '{"type":0, "kyc":0}' -p yosemite
+clyos push action yx.ntoken setkycrule '{"type":1, "kyc":0}' -p yosemite
+
 ```
 
 ## Build

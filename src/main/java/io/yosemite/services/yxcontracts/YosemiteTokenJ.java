@@ -204,6 +204,94 @@ public class YosemiteTokenJ extends AbstractToken {
         return freezeAccounts(YOSEMITE_TOKEN_CONTRACT, symbol, precision, issuer, accounts, freeze, permissions, publicKeys);
     }
 
+    /**
+     * Grants the authority of token issue with the limited amount to the user by the token issuer.
+     * @param to the account who is granted the issue authority
+     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param issuer the account name of the issuer
+     * @param memo data which the caller wants to save to
+     * @param permissions the permission of the issuer
+     * @param publicKeys the required public keys to sign the transaction
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
+    public CompletableFuture<PushedTransaction> grantTokenIssueAuthority(
+            String to, String amount, String issuer, String memo, @Nullable String[] permissions, @Nullable final String[] publicKeys) {
+        if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
+        if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+        if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
+
+        JsonArray arrayObj = new JsonArray();
+        arrayObj.add(to);
+        JsonObject tokenObj = new JsonObject();
+        tokenObj.addProperty("amount", new TypeAsset(amount).toString());
+        tokenObj.addProperty("issuer", issuer);
+        arrayObj.add(tokenObj);
+        arrayObj.add(memo);
+
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "grantissue", gson.toJson(arrayObj),
+                isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions, publicKeys);
+    }
+
+    /**
+     * Issues the amount of the token by the <code>user</code> who is granted the issue authority.
+     * Transaction fee is charged to the user.
+     * @param user the account who is granted the issue authority
+     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param issuer the account name of the issuer
+     * @param memo data which the caller wants to save to
+     * @param permissions the permission of the issuer
+     * @param publicKeys the required public keys to sign the transaction
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
+    public CompletableFuture<PushedTransaction> issueTokenByUser(
+            String user, String amount, String issuer, String memo, @Nullable String[] permissions, @Nullable final String[] publicKeys) {
+        if (StringUtils.isEmpty(user)) throw new IllegalArgumentException("wrong user");
+        if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+        if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
+
+        JsonArray arrayObj = new JsonArray();
+        arrayObj.add(user);
+        JsonObject tokenObj = new JsonObject();
+        tokenObj.addProperty("amount", new TypeAsset(amount).toString());
+        tokenObj.addProperty("issuer", issuer);
+        arrayObj.add(tokenObj);
+        arrayObj.add(memo);
+
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "issuebyuser", gson.toJson(arrayObj),
+                isEmptyArray(permissions) ? new String[]{user + "@active"} : permissions, publicKeys);
+    }
+
+    /**
+     * Issues the amount of the token by the <code>user</code> who is granted the issue authority.
+     * Transaction fee is charged to the issuer.
+     * @param user the account who is granted the issue authority
+     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param issuer the account name of the issuer
+     * @param decrease boolean(T/F) field to indicate decrement or increment of token amount
+     * @param permissions the permission of the issuer
+     * @param publicKeys the required public keys to sign the transaction
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
+    public CompletableFuture<PushedTransaction> changeIssuedTokenAmount(
+            String user, String amount, String issuer, boolean decrease, @Nullable String[] permissions, @Nullable final String[] publicKeys) {
+        if (StringUtils.isEmpty(user)) throw new IllegalArgumentException("wrong user");
+        if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+
+        JsonArray arrayObj = new JsonArray();
+        arrayObj.add(user);
+        JsonObject tokenObj = new JsonObject();
+        tokenObj.addProperty("amount", new TypeAsset(amount).toString());
+        tokenObj.addProperty("issuer", issuer);
+        arrayObj.add(tokenObj);
+        arrayObj.add(decrease ? 1 : 0);
+
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "changeissued", gson.toJson(arrayObj),
+                isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions, publicKeys);
+    }
+
     public CompletableFuture<TableRow> getTokenStats(String symbol, int precision, String issuer) {
         return getTokenStats(YOSEMITE_TOKEN_CONTRACT, symbol, precision, issuer);
     }
@@ -212,4 +300,22 @@ public class YosemiteTokenJ extends AbstractToken {
         return getTokenAccountBalance(YOSEMITE_TOKEN_CONTRACT, symbol, precision, issuer, account);
     }
 
+    public CompletableFuture<TableRow> getTokenDelegatedIssue(String symbol, int precision, String issuer, String account) {
+        if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+        if (StringUtils.isEmpty(account)) throw new IllegalArgumentException("wrong account");
+        checkPrecision(precision);
+
+        String secondaryKeySerializedHex = Utils.makeWebAssembly128BitIntegerAsHexString(
+                TypeName.stringToName(issuer), TypeName.stringToName(account));
+
+        GetTableOptions options = new GetTableOptions();
+        options.setIndexPosition("2"); // indicates secondary index
+                                       // defined by contracts/yx.token/yx.token.hpp of YosemiteChain
+        options.setKeyType("i128");
+        options.setLowerBound(secondaryKeySerializedHex);
+        options.setLimit(1);
+
+        return getTableRows(YOSEMITE_TOKEN_CONTRACT, new TypeSymbol(precision, symbol).toString(), "delissue", options);
+    }
 }

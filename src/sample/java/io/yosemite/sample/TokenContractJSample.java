@@ -42,6 +42,7 @@ public class TokenContractJSample {
         // For this sample, we get the public keys from the chain, but in real case, you should get them from the RDB.
         Account account = apiClient.getAccount(TOKEN_PROVIDER_ACCOUNT).execute();
         String tokenProviderPublicKey = account.getActivePublicKey();
+        log("Token provider's public key = " + tokenProviderPublicKey);
 
         // create the user accounts
         String tokenUser1PublicKey;
@@ -75,27 +76,121 @@ public class TokenContractJSample {
                 null, new String[]{tokenProviderPublicKey}).join();
         log("Issue Transaction:" + pushedTransaction.getTransactionId());
 
-        // transfer token with transacation fee payer as TOKEN_PROVIDER_ACCOUNT
-        pushedTransaction = yxTokenJ.transferToken("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT, "1.12345678 XYZ",
-                TOKEN_PROVIDER_ACCOUNT, "my memo", null, new String[]{tokenUser1PublicKey, tokenProviderPublicKey}).join();
-        log("TransferWithPayer Transaction:" + pushedTransaction.getTransactionId());
-        if (wait_for_irreversibility) {
-            waitForIrreversibility(apiClient, pushedTransaction);
-        }
-
-        pushedTransaction = yxTokenJ.redeemToken("1.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo", null, new String[]{tokenProviderPublicKey}).join();
-        log("Redeem Transaction:" + pushedTransaction.getTransactionId());
-        if (wait_for_irreversibility) {
-            waitForIrreversibility(apiClient, pushedTransaction);
-        }
-
+        log("");
+        log("[Token Stats]");
         TableRow tableRow = yxTokenJ.getTokenStats("XYZ", 8, TOKEN_PROVIDER_ACCOUNT).join();
         for (Map<String, ?> row : tableRow.getRows()) {
             // There must be only one row.
             log(row.toString());
         }
 
+        log("");
+        log("[Account's Token Balance]");
         tableRow = yxTokenJ.getTokenAccountBalance("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, "tkuserxxxxx1").join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            log(row.toString());
+        }
+
+        pushedTransaction = yxTokenJ.transferToken("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT, "1.23456789 XYZ",
+                TOKEN_PROVIDER_ACCOUNT, "my memo", null, new String[]{tokenUser1PublicKey}).join();
+        log("Transfer Transaction:" + pushedTransaction.getTransactionId());
+        if (wait_for_irreversibility) {
+            waitForIrreversibility(apiClient, pushedTransaction);
+        }
+
+        pushedTransaction = yxTokenJ.redeemToken("1.23456789 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
+                null, new String[]{tokenProviderPublicKey}).join();
+        log("Redeem Transaction:" + pushedTransaction.getTransactionId());
+        if (wait_for_irreversibility) {
+            waitForIrreversibility(apiClient, pushedTransaction);
+        }
+
+        log("");
+        log("[Token Stats]");
+        tableRow = yxTokenJ.getTokenStats("XYZ", 8, TOKEN_PROVIDER_ACCOUNT).join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            log(row.toString());
+        }
+
+        log("");
+        log("[Account's Token Balance]");
+        tableRow = yxTokenJ.getTokenAccountBalance("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, "tkuserxxxxx1").join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            log(row.toString());
+        }
+
+        pushedTransaction = yxTokenJ.grantTokenIssueAuthority("tkuserxxxxx1", "50.00000000 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
+                null, new String[]{tokenProviderPublicKey}).join();
+        log("Grant Issue Authority Transaction:" + pushedTransaction.getTransactionId());
+
+        pushedTransaction = yxTokenJ.issueTokenByUser("tkuserxxxxx1", "10.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
+                null, new String[]{tokenUser1PublicKey}).join();
+        log("Issue By User Transaction:" + pushedTransaction.getTransactionId());
+
+        log("");
+        log("[Account's Delegated Issue]");
+        tableRow = yxTokenJ.getTokenDelegatedIssue("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, "tkuserxxxxx1").join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            log(row.toString());
+        }
+
+        log("");
+        log("[Token Stats]");
+        tableRow = yxTokenJ.getTokenStats("XYZ", 8, TOKEN_PROVIDER_ACCOUNT).join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            log(row.toString());
+        }
+
+        log("");
+        log("[Account's Token Balance]");
+        tableRow = yxTokenJ.getTokenAccountBalance("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, "tkuserxxxxx1").join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            log(row.toString());
+        }
+
+        pushedTransaction = yxTokenJ.transferToken("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT, "10.12345678 XYZ",
+                TOKEN_PROVIDER_ACCOUNT, "my memo", null, new String[]{tokenUser1PublicKey}).join();
+        log("Transfer Transaction:" + pushedTransaction.getTransactionId());
+        if (wait_for_irreversibility) {
+            waitForIrreversibility(apiClient, pushedTransaction);
+        }
+
+        pushedTransaction = yxTokenJ.redeemToken("10.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
+                null, new String[]{tokenProviderPublicKey}).join();
+        log("Redeem Transaction:" + pushedTransaction.getTransactionId());
+        if (wait_for_irreversibility) {
+            waitForIrreversibility(apiClient, pushedTransaction);
+        }
+
+        log("");
+        log("[Token Stats]");
+        tableRow = yxTokenJ.getTokenStats("XYZ", 8, TOKEN_PROVIDER_ACCOUNT).join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            log(row.toString());
+        }
+
+        log("");
+        log("[Account's Token Balance]");
+        tableRow = yxTokenJ.getTokenAccountBalance("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, "tkuserxxxxx1").join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            log(row.toString());
+        }
+
+        pushedTransaction = yxTokenJ.changeIssuedTokenAmount("tkuserxxxxx1", "10.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, true,
+                null, new String[]{tokenProviderPublicKey}).join();
+        log("Issue By User Transaction:" + pushedTransaction.getTransactionId());
+
+        log("");
+        log("[Account's Delegated Issue]");
+        tableRow = yxTokenJ.getTokenDelegatedIssue("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, "tkuserxxxxx1").join();
         for (Map<String, ?> row : tableRow.getRows()) {
             // There must be only one row.
             log(row.toString());

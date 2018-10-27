@@ -207,29 +207,31 @@ public class AbstractToken extends YosemiteJ {
     }
 
     CompletableFuture<TableRow> getTokenStats(String contract, String symbol, int precision, String issuer) {
+        if (StringUtils.isEmpty(contract)) throw new IllegalArgumentException("wrong contract");
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
 
         String eosSymbolStr = precision + "," + symbol;
 
         GetTableOptions options = new GetTableOptions();
-        options.setLowerBound(String.valueOf(TypeName.string_to_name(issuer)));
+        options.setLowerBound(String.valueOf(TypeName.stringToName(issuer)));
         options.setLimit(1);
 
         return getTableRows(contract, eosSymbolStr, "tstats", options);
     }
 
     CompletableFuture<TableRow> getTokenAccountBalance(String contract, String symbol, int precision, String issuer, String account) {
-        if (StringUtils.isEmpty(account)) throw new IllegalArgumentException("wrong account");
+        if (StringUtils.isEmpty(contract)) throw new IllegalArgumentException("wrong contract");
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+        if (StringUtils.isEmpty(account)) throw new IllegalArgumentException("wrong account");
 
         String yxSymbolSerializedHex = Utils.makeWebAssembly128BitIntegerAsHexString(
-                TypeSymbol.stringToSymbol(precision, symbol), TypeName.string_to_name(issuer));
+                TypeSymbol.stringToSymbol(precision, symbol), TypeName.stringToName(issuer));
 
         GetTableOptions options = new GetTableOptions();
         options.setIndexPosition("2"); // indicates secondary index 'yxsymbol' of accounts
-        // defined by contracts/yx.token/yx.token.hpp of YosemiteChain
+                                       // defined by contracts/yx.token/yx.token.hpp of YosemiteChain
         options.setKeyType("i128");
         options.setLowerBound(yxSymbolSerializedHex);
         options.setLimit(1);
