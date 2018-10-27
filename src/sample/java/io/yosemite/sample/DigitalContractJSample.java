@@ -90,14 +90,14 @@ public class DigitalContractJSample {
         // 3. sign contract by signers
         pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 20, "servpuserxx2", "",
                 new String[]{"servpuserxx2@active", SERVICE_PROVIDER_ACCOUNT + "@active"},
-                new String[]{user2PublicKey, serviceProviderPublicKey}).join();
+                new String[]{user2PublicKey}).join();
         log("\nPushed Sign Transaction:\n" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
         }
 
         pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 20, "servpuserxx1", "I am user1",
-                null, new String[]{user1PublicKey, serviceProviderPublicKey}).join();
+                null, new String[]{user1PublicKey}).join();
         log("\nPushed Sign Transaction:\n" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
