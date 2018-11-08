@@ -3,13 +3,16 @@ package io.yosemite.sample;
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.chain.account.Account;
-import io.yosemite.data.remote.history.transaction.Transaction;
-import io.yosemite.services.*;
-import io.yosemite.services.yxcontracts.*;
+import io.yosemite.services.YosemiteApiClientFactory;
+import io.yosemite.services.YosemiteApiRestClient;
+import io.yosemite.services.yxcontracts.KYCStatusType;
+import io.yosemite.services.yxcontracts.YosemiteDigitalContractJ;
+import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
+import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 
 import java.util.*;
 
-public class DigitalContractJSample {
+public class DigitalContractJSample extends SampleCommon {
     private static final String SYSTEM_DEPOSITORY_ACCOUNT = "d1";
     private static final String SERVICE_PROVIDER_ACCOUNT = "servprovider";
 
@@ -60,8 +63,8 @@ public class DigitalContractJSample {
 
         // KYC process done by Identity Authority Service
         // assume d1 is Identity Authority and the users did phone authentication(2=KYCStatusType.KYC_STATUS_PHONE_AUTH) successfully
-        processKYC(yxSystemJ, "servpuserxx1", EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
-        processKYC(yxSystemJ, "servpuserxx2", EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
+        processKYC(yxSystemJ, SYSTEM_DEPOSITORY_ACCOUNT, "servpuserxx1", EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
+        processKYC(yxSystemJ, SYSTEM_DEPOSITORY_ACCOUNT, "servpuserxx2", EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
 
         //----------------------------------------------
         // Let's start to use digital contract service!
@@ -125,37 +128,6 @@ public class DigitalContractJSample {
         }
     }
 
-    private static void waitForIrreversibility(YosemiteApiRestClient apiRestClient, PushedTransaction pushedTransaction) {
-        int waitTime = apiRestClient.getTxExpirationInMillis() + 10000; // + 10 seconds
-        do {
-            Transaction tx = apiRestClient.getTransaction(pushedTransaction.getTransactionId()).execute();
-            if (tx.getIrreversibleAt() != null) {
-                log(pushedTransaction.getTransactionId() + " is irreversible.");
-                break;
-            } else {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                }
-                waitTime = waitTime - 1000;
-            }
-        } while (waitTime > 0);
-
-        if (waitTime <= 0) {
-            throw new RuntimeException("Transaction could be expired");
-        }
-    }
-
-    private static void processKYC(YosemiteSystemJ yxSystemJ, String accountName, EnumSet<KYCStatusType> flags) {
-        String contract = "yx.identity";
-        String action = "setidinfo";
-        String data = "{\"identity_authority\":\"" + SYSTEM_DEPOSITORY_ACCOUNT + "\",\"account\":\"" + accountName + "\",\"type\":0,\"kyc\":" + KYCStatusType.getAsBitFlags(flags) + ",\"state\":0,\"data\":\"\"}";
-        String[] permissions = new String[]{SYSTEM_DEPOSITORY_ACCOUNT + "@active"};
-
-        PushedTransaction pushedTransaction = yxSystemJ.pushAction(contract, action, data, permissions).join();
-        log("\nsetidinfo Transaction:\n" + pushedTransaction.getTransactionId());
-    }
-
     private static void prepareServiceProvider(YosemiteApiRestClient apiClient) {
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
 
@@ -168,7 +140,7 @@ public class DigitalContractJSample {
         }
 
         // KYC process done by Identity Authority Service for DKRW
-        processKYC(yxSystemJ, SERVICE_PROVIDER_ACCOUNT, EnumSet.allOf(KYCStatusType.class));
+        processKYC(yxSystemJ, SYSTEM_DEPOSITORY_ACCOUNT, SERVICE_PROVIDER_ACCOUNT, EnumSet.allOf(KYCStatusType.class));
 
         // issue native token by system depository
         YosemiteNativeTokenJ nativeTokenJ = new YosemiteNativeTokenJ(apiClient);
@@ -177,16 +149,4 @@ public class DigitalContractJSample {
         log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
     }
 
-    private static String createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ,
-                                                  String creator, String accountName) {
-        String publicKey = apiClient.createKey("default").execute();
-        PushedTransaction pushedTransaction = yxSystemJ.createAccount(
-                creator, accountName, publicKey, publicKey, null, null).join();
-        log("Account Creation Transaction : " + pushedTransaction.getTransactionId());
-        return publicKey;
-    }
-
-    private static void log(String s) {
-        System.out.println(s);
-    }
 }
