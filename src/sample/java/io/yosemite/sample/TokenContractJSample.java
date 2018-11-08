@@ -14,7 +14,7 @@ import io.yosemite.services.yxcontracts.YosemiteTokenJ;
 import java.util.EnumSet;
 import java.util.Map;
 
-public class TokenContractJSample {
+public class TokenContractJSample extends SampleCommon {
     private static final String SYSTEM_DEPOSITORY_ACCOUNT = "d1";
     private static final String TOKEN_PROVIDER_ACCOUNT = "tkprovider";
 
@@ -122,12 +122,12 @@ public class TokenContractJSample {
             log(row.toString());
         }
 
-        pushedTransaction = yxTokenJ.grantTokenIssueAuthority("tkuserxxxxx1", "50.00000000 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
+        pushedTransaction = yxTokenJ.setUserIssueLimit("tkuserxxxxx1", "50.00000000 XYZ", TOKEN_PROVIDER_ACCOUNT,
                 null, new String[]{tokenProviderPublicKey}).join();
         log("Grant Issue Authority Transaction:" + pushedTransaction.getTransactionId());
 
-        pushedTransaction = yxTokenJ.issueTokenByUser("tkuserxxxxx1", "10.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
-                null, new String[]{tokenUser1PublicKey}).join();
+        pushedTransaction = yxTokenJ.issueTokenByUser("tkuserxxxxx1", "tkuserxxxxx1", "10.12345678 XYZ",
+                TOKEN_PROVIDER_ACCOUNT, "my memo", null, new String[]{tokenUser1PublicKey}).join();
         log("Issue By User Transaction:" + pushedTransaction.getTransactionId());
 
         log("");
@@ -154,6 +154,7 @@ public class TokenContractJSample {
             log(row.toString());
         }
 
+        // transfer token from user to issuer for redemption
         pushedTransaction = yxTokenJ.transferToken("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT, "10.12345678 XYZ",
                 TOKEN_PROVIDER_ACCOUNT, "my memo", null, new String[]{tokenUser1PublicKey}).join();
         log("Transfer Transaction:" + pushedTransaction.getTransactionId());
@@ -161,7 +162,47 @@ public class TokenContractJSample {
             waitForIrreversibility(apiClient, pushedTransaction);
         }
 
-        pushedTransaction = yxTokenJ.redeemToken("10.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
+        try {
+            pushedTransaction = yxTokenJ.entrustUserIssueTo("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT,
+                    "XYZ", 8, TOKEN_PROVIDER_ACCOUNT, null, new String[]{tokenUser1PublicKey}).join();
+            log("entrustUserIssueTo Transaction:" + pushedTransaction.getTransactionId());
+            if (wait_for_irreversibility) {
+                waitForIrreversibility(apiClient, pushedTransaction);
+            }
+        } catch (Exception e) {
+            log(e.toString()); // entrusted issuer is already set
+        }
+
+        log("");
+        log("[Account's Delegated Issue]");
+        tableRow = yxTokenJ.getTokenDelegatedIssue("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, "tkuserxxxxx1").join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            log(row.toString());
+        }
+
+        pushedTransaction = yxTokenJ.issueTokenByUser("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT,
+                "1.00000000 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
+                new String[]{TOKEN_PROVIDER_ACCOUNT + "@active"}, new String[]{tokenProviderPublicKey}).join();
+        log("Issue By User Transaction:" + pushedTransaction.getTransactionId());
+
+        log("");
+        log("[Account's Delegated Issue]");
+        tableRow = yxTokenJ.getTokenDelegatedIssue("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, "tkuserxxxxx1").join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            log(row.toString());
+        }
+
+        log("");
+        log("[Account's Token Balance]");
+        tableRow = yxTokenJ.getTokenAccountBalance("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, TOKEN_PROVIDER_ACCOUNT).join();
+        for (Map<String, ?> row : tableRow.getRows()) {
+            // There must be only one row.
+            log(row.toString());
+        }
+
+        pushedTransaction = yxTokenJ.redeemToken("11.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
                 null, new String[]{tokenProviderPublicKey}).join();
         log("Redeem Transaction:" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
@@ -197,37 +238,6 @@ public class TokenContractJSample {
         }
     }
 
-    private static void waitForIrreversibility(YosemiteApiRestClient apiRestClient, PushedTransaction pushedTransaction) {
-        int waitTime = apiRestClient.getTxExpirationInMillis() + 10000; // + 10 seconds
-        do {
-            Transaction tx = apiRestClient.getTransaction(pushedTransaction.getTransactionId()).execute();
-            if (tx.getIrreversibleAt() != null) {
-                log(pushedTransaction.getTransactionId() + " is irreversible.");
-                break;
-            } else {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                }
-                waitTime = waitTime - 1000;
-            }
-        } while (waitTime > 0);
-
-        if (waitTime <= 0) {
-            throw new RuntimeException("Transaction could be expired");
-        }
-    }
-
-    private static void processKYC(YosemiteSystemJ yxSystemJ, String accountName, EnumSet<KYCStatusType> flags) {
-        String contract = "yx.identity";
-        String action = "setidinfo";
-        String data = "{\"identity_authority\":\"" + SYSTEM_DEPOSITORY_ACCOUNT + "\",\"account\":\"" + accountName + "\",\"type\":0,\"kyc\":" + KYCStatusType.getAsBitFlags(flags) + ",\"state\":0,\"data\":\"\"}";
-        String[] permissions = new String[]{SYSTEM_DEPOSITORY_ACCOUNT + "@active"};
-
-        PushedTransaction pushedTransaction = yxSystemJ.pushAction(contract, action, data, permissions).join();
-        log("\nsetidinfo Transaction:\n" + pushedTransaction.getTransactionId());
-    }
-
     private static void prepareTokenProvider(YosemiteApiRestClient apiClient) {
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
 
@@ -240,7 +250,7 @@ public class TokenContractJSample {
         }
 
         // KYC process done by Identity Authority Service for DKRW
-        processKYC(yxSystemJ, TOKEN_PROVIDER_ACCOUNT, EnumSet.allOf(KYCStatusType.class));
+        processKYC(yxSystemJ, SYSTEM_DEPOSITORY_ACCOUNT, TOKEN_PROVIDER_ACCOUNT, EnumSet.allOf(KYCStatusType.class));
 
         // issue native token by system depository
         YosemiteNativeTokenJ nativeTokenJ = new YosemiteNativeTokenJ(apiClient);
@@ -249,15 +259,4 @@ public class TokenContractJSample {
         log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
     }
 
-    private static String createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ, String creator, String accountName) {
-        String publicKey = apiClient.createKey().execute();
-        PushedTransaction pushedTransaction = yxSystemJ.createAccount(
-                creator, accountName, publicKey, publicKey, null, null).join();
-        log("Account Creation Transaction : " + pushedTransaction.getTransactionId());
-        return publicKey;
-    }
-
-    private static void log(String s) {
-        System.out.println(s);
-    }
 }

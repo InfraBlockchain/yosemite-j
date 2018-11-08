@@ -5,13 +5,9 @@ import com.google.gson.JsonObject;
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.history.action.GetTableOptions;
-import io.yosemite.data.types.TypeAsset;
-import io.yosemite.data.types.TypeName;
 import io.yosemite.data.types.TypeSymbol;
 import io.yosemite.services.YosemiteApiRestClient;
-import io.yosemite.services.YosemiteJ;
 import io.yosemite.util.StringUtils;
-import io.yosemite.util.Utils;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -20,7 +16,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static io.yosemite.util.Consts.YOSEMITE_NFT_CONTRACT;
-import static io.yosemite.util.Consts.YOSEMITE_TOKEN_CONTRACT;
 
 /**
  * Provides the APIs for the non-fungible token service.
@@ -53,9 +48,8 @@ public class YosemiteNonFungibleTokenJ extends AbstractToken {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
 
-        String eosSymbolStr = "0," + symbol;
         JsonArray arrayObj = new JsonArray();
-        JsonObject symbolObj = getTokenJsonObject(eosSymbolStr, issuer);
+        JsonObject symbolObj = getYSymbolJsonObject(0, symbol, issuer);
         arrayObj.add(symbolObj);
         arrayObj.add(AbstractToken.CanSetOptionsType.getAsBitFlags(canSetOptions));
 
@@ -92,8 +86,7 @@ public class YosemiteNonFungibleTokenJ extends AbstractToken {
 
         JsonArray arrayObj = new JsonArray();
         arrayObj.add(to);
-        String eosSymbolStr = "0," + symbol;
-        JsonObject symbolObj = getTokenJsonObject(eosSymbolStr, issuer);
+        JsonObject symbolObj = getYSymbolJsonObject(0, symbol, issuer);
         arrayObj.add(symbolObj);
 
         arrayObj.add(convertCollectionToJsonArray(ids));

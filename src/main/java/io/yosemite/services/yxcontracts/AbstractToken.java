@@ -18,8 +18,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static io.yosemite.util.Consts.YOSEMITE_TOKEN_CONTRACT;
-
 public class AbstractToken extends YosemiteJ {
     protected AbstractToken(YosemiteApiRestClient yosemiteApiRestClient) {
         super(yosemiteApiRestClient);
@@ -133,9 +131,9 @@ public class AbstractToken extends YosemiteJ {
         return object;
     }
 
-    JsonObject getTokenJsonObject(String eosSymbolStr, String issuer) {
+    JsonObject getYSymbolJsonObject(int precision, String symbol, String issuer) {
         JsonObject symbolObj = new JsonObject();
-        symbolObj.addProperty("tsymbol", eosSymbolStr);
+        symbolObj.addProperty("tsymbol", precision + "," + symbol);
         symbolObj.addProperty("issuer", issuer);
         return symbolObj;
     }
@@ -155,9 +153,8 @@ public class AbstractToken extends YosemiteJ {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
 
-        String eosSymbolStr = precision + "," + symbol;
         JsonArray arrayObj = new JsonArray();
-        JsonObject symbolObj = getTokenJsonObject(eosSymbolStr, issuer);
+        JsonObject symbolObj = getYSymbolJsonObject(precision, symbol, issuer);
         arrayObj.add(symbolObj);
         arrayObj.add(tokenRuleType.getValue());
         arrayObj.add(KYCStatusType.getAsBitFlags(kycVectors));
@@ -172,9 +169,8 @@ public class AbstractToken extends YosemiteJ {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
 
-        String eosSymbolStr = precision + "," + symbol;
         JsonArray arrayObj = new JsonArray();
-        JsonObject symbolObj = getTokenJsonObject(eosSymbolStr, issuer);
+        JsonObject symbolObj = getYSymbolJsonObject(precision, symbol, issuer);
         arrayObj.add(symbolObj);
         arrayObj.add(TokenOptionsType.getAsBitFlags(options));
         arrayObj.add(reset ? 1 : 0);
@@ -190,9 +186,8 @@ public class AbstractToken extends YosemiteJ {
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
         if (accounts == null || accounts.isEmpty()) throw new IllegalArgumentException("empty accounts");
 
-        String eosSymbolStr = precision + "," + symbol;
         JsonArray arrayObj = new JsonArray();
-        JsonObject symbolObj = getTokenJsonObject(eosSymbolStr, issuer);
+        JsonObject symbolObj = getYSymbolJsonObject(precision, symbol, issuer);
         arrayObj.add(symbolObj);
 
         JsonArray accountsObj = new JsonArray();

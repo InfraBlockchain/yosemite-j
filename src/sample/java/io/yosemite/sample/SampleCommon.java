@@ -34,12 +34,12 @@ abstract class SampleCommon {
         }
     }
 
-    static void processKYC(String systemDepositoryAccount,
-                           YosemiteSystemJ yxSystemJ, String accountName, EnumSet<KYCStatusType> flags) {
+    static void processKYC(YosemiteSystemJ yxSystemJ, String identityAuthorityAccount,
+                           String accountName, EnumSet<KYCStatusType> flags) {
         String contract = "yx.identity";
         String action = "setidinfo";
-        String data = "{\"identity_authority\":\"" + systemDepositoryAccount + "\",\"account\":\"" + accountName + "\",\"type\":0,\"kyc\":" + KYCStatusType.getAsBitFlags(flags) + ",\"state\":0,\"data\":\"\"}";
-        String[] permissions = new String[]{systemDepositoryAccount + "@active"};
+        String data = "{\"identity_authority\":\"" + identityAuthorityAccount + "\",\"account\":\"" + accountName + "\",\"type\":0,\"kyc\":" + KYCStatusType.getAsBitFlags(flags) + ",\"state\":0,\"data\":\"\"}";
+        String[] permissions = new String[]{identityAuthorityAccount + "@active"};
 
         PushedTransaction pushedTransaction = yxSystemJ.pushAction(contract, action, data, permissions).join();
         log("\nsetidinfo Transaction:\n" + pushedTransaction.getTransactionId());
@@ -58,7 +58,7 @@ abstract class SampleCommon {
         }
 
         // KYC process done by Identity Authority Service for DKRW
-        processKYC(systemDepositoryAccount, yxSystemJ, accountName, EnumSet.allOf(KYCStatusType.class));
+        processKYC(yxSystemJ, systemDepositoryAccount, accountName, EnumSet.allOf(KYCStatusType.class));
 
         // issue native token by system depository
         YosemiteNativeTokenJ nativeTokenJ = new YosemiteNativeTokenJ(apiClient);

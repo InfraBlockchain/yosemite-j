@@ -56,9 +56,8 @@ public class YosemiteTokenJ extends AbstractToken {
         checkPrecision(precision);
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
 
-        String eosSymbolStr = precision + "," + symbol;
         JsonArray arrayObj = new JsonArray();
-        JsonObject symbolObj = getTokenJsonObject(eosSymbolStr, issuer);
+        JsonObject symbolObj = getYSymbolJsonObject(precision, symbol, issuer);
         arrayObj.add(symbolObj);
         arrayObj.add(CanSetOptionsType.getAsBitFlags(canSetOptions));
 
@@ -205,21 +204,19 @@ public class YosemiteTokenJ extends AbstractToken {
     }
 
     /**
-     * Grants the authority of token issue with the limited amount to the user by the token issuer.
-     * @param to the account who is granted the issue authority
+     * Sets the limit of user issue amount by the token issuer.
+     * @param to the account who is set the user issue limit
      * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
      * @param issuer the account name of the issuer
-     * @param memo data which the caller wants to save to
      * @param permissions the permission of the issuer
      * @param publicKeys the required public keys to sign the transaction
      * @return CompletableFuture instance to get PushedTransaction instance
      */
-    public CompletableFuture<PushedTransaction> grantTokenIssueAuthority(
-            String to, String amount, String issuer, String memo, @Nullable String[] permissions, @Nullable final String[] publicKeys) {
+    public CompletableFuture<PushedTransaction> setUserIssueLimit(
+            String to, String amount, String issuer, @Nullable String[] permissions, @Nullable final String[] publicKeys) {
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
-        if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
 
         JsonArray arrayObj = new JsonArray();
         arrayObj.add(to);
@@ -227,32 +224,35 @@ public class YosemiteTokenJ extends AbstractToken {
         tokenObj.addProperty("amount", new TypeAsset(amount).toString());
         tokenObj.addProperty("issuer", issuer);
         arrayObj.add(tokenObj);
-        arrayObj.add(memo);
 
-        return pushAction(YOSEMITE_TOKEN_CONTRACT, "grantissue", gson.toJson(arrayObj),
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "setuilimit", gson.toJson(arrayObj),
                 isEmptyArray(permissions) ? new String[]{issuer + "@active"} : permissions, publicKeys);
     }
 
     /**
-     * Issues the amount of the token by the <code>user</code> who is granted the issue authority.
+     * Issues the amount of the token by the <code>user</code> who is granted the user issue authority.
      * Transaction fee is charged to the user.
-     * @param user the account who is granted the issue authority
+     * @param user the account who is granted the user issue authority
+     * @param to the account who is transferred the token
      * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
      * @param issuer the account name of the issuer
      * @param memo data which the caller wants to save to
-     * @param permissions the permission of the issuer
+     * @param permissions the permission of the user or issuer
      * @param publicKeys the required public keys to sign the transaction
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> issueTokenByUser(
-            String user, String amount, String issuer, String memo, @Nullable String[] permissions, @Nullable final String[] publicKeys) {
+            String user, String to, String amount, String issuer, @Nullable String memo,
+            @Nullable String[] permissions, @Nullable final String[] publicKeys) {
         if (StringUtils.isEmpty(user)) throw new IllegalArgumentException("wrong user");
+        if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
         if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
 
         JsonArray arrayObj = new JsonArray();
         arrayObj.add(user);
+        arrayObj.add(to);
         JsonObject tokenObj = new JsonObject();
         tokenObj.addProperty("amount", new TypeAsset(amount).toString());
         tokenObj.addProperty("issuer", issuer);
@@ -264,7 +264,40 @@ public class YosemiteTokenJ extends AbstractToken {
     }
 
     /**
-     * Issues the amount of the token by the <code>user</code> who is granted the issue authority.
+     * Entrust the user issue authority to another account.
+     * Transaction fee is charged to the user.
+     * Even if the entrustment is settled, the user still can do `user issue` by himself or herself.
+     * If <code>to</code> account is set to <code>user</code>, it means cancellation of entrustment.
+     * @param user the account who is granted the user issue authority
+     * @param to the account who is entrusted the user issue; Currently it must be the token issuer or user.
+     * @param symbol the symbol name; <a href="https://developers.eos.io/eosio-cpp/docs/naming-conventions#section-symbols">Naming Convention of Symbols</a>
+     * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers; from 4 to 18
+     * @param issuer the account name of the issuer
+     * @param permissions the permission of the user
+     * @param publicKeys the required public keys to sign the transaction
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
+    public CompletableFuture<PushedTransaction> entrustUserIssueTo(
+            String user, String to, String symbol, int precision, String issuer,
+            @Nullable String[] permissions, @Nullable final String[] publicKeys) {
+        if (StringUtils.isEmpty(user)) throw new IllegalArgumentException("wrong user");
+        if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
+        if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
+        checkPrecision(precision);
+        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
+
+        JsonArray arrayObj = new JsonArray();
+        arrayObj.add(user);
+        arrayObj.add(to);
+        JsonObject symbolObj = getYSymbolJsonObject(precision, symbol, issuer);
+        arrayObj.add(symbolObj);
+
+        return pushAction(YOSEMITE_TOKEN_CONTRACT, "entrustui", gson.toJson(arrayObj),
+                isEmptyArray(permissions) ? new String[]{user + "@active"} : permissions, publicKeys);
+    }
+
+    /**
+     * Decreases or increases the total user-issued amount of token of the user.
      * Transaction fee is charged to the issuer.
      * @param user the account who is granted the issue authority
      * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
