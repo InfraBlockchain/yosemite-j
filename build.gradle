@@ -78,8 +78,8 @@ apply plugin: 'maven'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'maven-publish'
 
-version = '0.5.1-SNAPSHOT'
-group = 'org.yosemitelabs'
+version = '0.6.0-SNAPSHOT'
+group = 'io.yosemite'
 
 uploadArchives {
     repositories {
