@@ -69,7 +69,7 @@ public class LibraryTest {
         PushedTransaction pushedTransaction = yxj.createAccount("idauth1", "joepark1good",
                 "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ",
                 "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ",
-                new String[]{"idauth1@active"}
+                new String[]{"idauth1@active"}, null
         ).join();
 
         logger.debug(pushedTransaction.getTransactionId());
@@ -138,7 +138,7 @@ public class LibraryTest {
 
         String contract = "yx.ntoken";
         String action = "transfer";
-        String data = "{\"from\":\"user1\",\"to\":\"user2\",\"amount\":\"2.0000 DKRW\",\"memo\":\"test\"}";
+        String data = "{\"from\":\"user1\",\"to\":\"user2\",\"amount\":\"2.00 DKRW\",\"memo\":\"test\"}";
         String[] permissions = new String[]{"user1@active"};
 
         PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, permissions, new String[]{user1PublicKey}).join();
@@ -159,7 +159,7 @@ public class LibraryTest {
         EnumSet<YosemiteTokenJ.CanSetOptionsType> emptyOptions = EnumSet.noneOf(YosemiteTokenJ.CanSetOptionsType.class);
         PushedTransaction pushedTransaction = null;
         try {
-            pushedTransaction = yxj.createToken("TEST", 5, "d2", emptyOptions, new String[]{"d2@active"}).join();
+            pushedTransaction = yxj.createToken("TEST", 5, "d2", emptyOptions, new String[]{"d2@active"}, null).join();
         } catch (CompletionException e) {
             Throwable cause = e.getCause();
             if (cause instanceof YosemiteApiException) {
@@ -172,26 +172,19 @@ public class LibraryTest {
 
         Thread.sleep(1000);
 
-        pushedTransaction = yxj.issueToken("user1", "100000.00000 TEST", "d2", "my memo", new String[]{"d2@active"}).join();
+        pushedTransaction = yxj.issueToken("user1", "100000.00000 TEST", "d2", "my memo", new String[]{"d2@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
         Thread.sleep(1000);
 
-        pushedTransaction = yxj.transferToken("user1", "d2", "10000.00000 TEST", "d2", "my memo", new String[]{"user1@active"}).join();
+        pushedTransaction = yxj.transferToken("user1", "d2", "10000.00000 TEST", "d2", "my memo", new String[]{"user1@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
         Thread.sleep(1000);
 
-        pushedTransaction = yxj.transferTokenWithPayer("user1", "d2", "10000.00000 TEST", "d2", "servprovider", "my memo",
-                new String[]{"user1@active", "servprovider@active"}).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        Thread.sleep(1000);
-
-        pushedTransaction = yxj.redeemToken("20000.00000 TEST", "d2", "my memo", new String[]{"d2@active"}).join();
+        pushedTransaction = yxj.redeemToken("20000.00000 TEST", "d2", "my memo", new String[]{"d2@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
@@ -219,24 +212,25 @@ public class LibraryTest {
         YosemiteTokenJ yxj = new YosemiteTokenJ(apiClient);
 
         EnumSet<YosemiteTokenJ.CanSetOptionsType> allOptions = EnumSet.allOf(YosemiteTokenJ.CanSetOptionsType.class);
-        PushedTransaction pushedTransaction = yxj.createToken("XYZ", 4, "d2", allOptions, new String[]{"d2@active"}).join();
+        PushedTransaction pushedTransaction = yxj.createToken("XYZ", 4, "d2", allOptions, new String[]{"d2@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
         Thread.sleep(1000);
 
         EnumSet<KYCStatusType> kycStatusPhoneAuth = EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH);
-        pushedTransaction = yxj.setTokenKYCRule("XYZ", 4, "d2", YosemiteTokenJ.TokenRuleType.KYC_RULE_TRANSFER_RECEIVE, kycStatusPhoneAuth, new String[]{"d2@active"}).join();
+        pushedTransaction = yxj.setTokenKYCRule("XYZ", 4, "d2", AbstractToken.TokenRuleType.KYC_RULE_TRANSFER_RECEIVE,
+                kycStatusPhoneAuth, new String[]{"d2@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
-        EnumSet<YosemiteTokenJ.TokenOptionsType> freezeTokenTransfer = EnumSet.of(YosemiteTokenJ.TokenOptionsType.FREEZE_TOKEN_TRANSFER);
-        pushedTransaction = yxj.setTokenOptions("XYZ", 4, "d2", freezeTokenTransfer, true, new String[]{"d2@active"}).join();
+        EnumSet<YosemiteTokenJ.TokenOptionsType> freezeTokenTransfer = EnumSet.of(AbstractToken.TokenOptionsType.FREEZE_TOKEN_TRANSFER);
+        pushedTransaction = yxj.setTokenOptions("XYZ", 4, "d2", freezeTokenTransfer, true, new String[]{"d2@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
         List<String> accounts = Arrays.asList("user1", "user2");
-        pushedTransaction = yxj.freezeAccounts("XYZ", 4, "d2", accounts, true, new String[]{"d2@active"}).join();
+        pushedTransaction = yxj.freezeAccounts("XYZ", 4, "d2", accounts, true, new String[]{"d2@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
     }
@@ -252,7 +246,7 @@ public class LibraryTest {
         // 0. remove digital contract first
         PushedTransaction pushedTransaction;
         try {
-            pushedTransaction = yxj.removeDigitalContract("servprovider", 11, new String[]{"servprovider@active"}).join();
+            pushedTransaction = yxj.removeDigitalContract("servprovider", 11, new String[]{"servprovider@active"}, null).join();
             logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         } catch (Exception ignored) {
         }
@@ -265,7 +259,7 @@ public class LibraryTest {
         Date expirationTime = calendar.getTime();
 
         pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
-                signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short) 0, new String[]{"servprovider@active"}).join();
+                signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short) 0, new String[]{"servprovider@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
@@ -273,22 +267,22 @@ public class LibraryTest {
 
         // 2. add additional signers if needed
         List<String> newSigners = Collections.singletonList("user3");
-        pushedTransaction = yxj.addSigners("servprovider", 11, newSigners, new String[]{"servprovider@active"}).join();
+        pushedTransaction = yxj.addSigners("servprovider", 11, newSigners, new String[]{"servprovider@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
         Thread.sleep(1000);
 
         // 3. sign contract by signers
-        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", new String[]{"user2@active", "servprovider@active"}).join();
+        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", new String[]{"user2@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
-        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user3", "I am user3", new String[]{"user3@active", "servprovider@active"}).join();
+        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user3", "I am user3", new String[]{"user3@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
-        pushedTransaction = yxj.updateAdditionalDocumentHash("servprovider", 11, "added after signing", new String[]{"servprovider@active"}).join();
+        pushedTransaction = yxj.updateAdditionalDocumentHash("servprovider", 11, "added after signing", new String[]{"servprovider@active"}, null).join();
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
 
@@ -332,7 +326,7 @@ public class LibraryTest {
         // 0. remove digital contract first
         PushedTransaction pushedTransaction;
         try {
-            pushedTransaction = yxj.removeDigitalContract("servprovider", 11, new String[]{"servprovider@active"}).join();
+            pushedTransaction = yxj.removeDigitalContract("servprovider", 11, new String[]{"servprovider@active"}, null).join();
             logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
             yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());
         } catch (Exception ignored) {
@@ -346,18 +340,18 @@ public class LibraryTest {
         Date expirationTime = calendar.getTime();
 
         pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
-                signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short) 0, new String[]{"servprovider@active"}).join();
+                signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short) 0, new String[]{"servprovider@active"}, null).join();
         logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
         yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());
 
         // 2. sign contract by signers
-        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", null).join();
+        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", null, null).join();
         logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
         yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());
 
-        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user1", "I am user1", null).join();
+        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user1", "I am user1", null, null).join();
         logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
         yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());

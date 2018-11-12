@@ -32,7 +32,7 @@ public class TypeName implements EosType.Packer {
     private final long mValue;
     private volatile String form;
 
-    static byte char_to_symbol(char c) {
+    static byte charToSymbol(char c) {
         if (c >= 'a' && c <= 'z')
             return (byte) ((c - 'a') + 6);
         if (c >= '1' && c <= '5')
@@ -41,7 +41,7 @@ public class TypeName implements EosType.Packer {
         return (byte) 0;
     }
 
-    static public long string_to_name(String str) {
+    public static long stringToName(String str) {
         if (null == str) {
             return 0L;
         }
@@ -52,7 +52,7 @@ public class TypeName implements EosType.Packer {
         for (int i = 0; i <= MAX_NAME_IDX; i++) {
             long c = 0;
 
-            if (i < len && i <= MAX_NAME_IDX) c = char_to_symbol(str.charAt(i));
+            if (i < len) c = charToSymbol(str.charAt(i));
 
             if (i < MAX_NAME_IDX) {
                 c &= 0x1f;
@@ -67,7 +67,7 @@ public class TypeName implements EosType.Packer {
         return value;
     }
 
-    static public String name_to_string(long nameAsLong) {
+    public static String nameToString(long nameAsLong) {
         long tmp = nameAsLong;
 
         char[] result = new char[MAX_NAME_IDX + 1];
@@ -87,7 +87,7 @@ public class TypeName implements EosType.Packer {
     }
 
     public TypeName(String name) {
-        mValue = string_to_name(name);
+        mValue = stringToName(name);
         this.form = name;
     }
 
@@ -100,7 +100,7 @@ public class TypeName implements EosType.Packer {
     public String toString() {
         String form = this.form;
         if (form == null) {
-            form = name_to_string(mValue);
+            form = nameToString(mValue);
             this.form = form;
         }
         return form;

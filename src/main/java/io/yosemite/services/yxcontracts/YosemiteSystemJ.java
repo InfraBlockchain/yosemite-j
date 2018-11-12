@@ -30,23 +30,6 @@ public class YosemiteSystemJ extends YosemiteJ {
      * @param ownerKey the public key
      * @param activeKey the public key
      * @param permissions the permission of the creator; can be null
-     * @return CompletableFuture instance to get PushedTransaction instance
-     */
-    public CompletableFuture<PushedTransaction> createAccount(String creator, String name, String ownerKey,
-                                                              String activeKey, @Nullable final String[] permissions) {
-        return createAccount(creator, name, ownerKey, activeKey, permissions, null);
-    }
-
-    /**
-     * Creates the new account with its public key and the creator account.
-     * The convenion of the account <code>name</code> follows
-     * <a href="https://developers.eos.io/eosio-cpp/docs/naming-conventions#section-standard-account-names">Naming Convention of YOSEMITE Standard Account Names</a>
-     * Transaction fee is charged to the creator.
-     * @param creator the name of the creator account
-     * @param name the new account
-     * @param ownerKey the public key
-     * @param activeKey the public key
-     * @param permissions the permission of the creator; can be null
      * @param publicKeys the required public keys to sign the transaction
      * @return CompletableFuture instance to get PushedTransaction instance
      */

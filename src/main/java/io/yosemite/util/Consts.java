@@ -30,6 +30,8 @@ public final class Consts {
     public static final String YOSEMITE_NATIVE_TOKEN_CONTRACT = "yx.ntoken";
     public static final String YOSEMITE_TOKEN_CONTRACT = "yx.token";
     public static final String YOSEMITE_DIGITAL_CONTRACT_CONTRACT = "yx.dcontract";
+    public static final String YOSEMITE_TOKEN_ESCROW_CONTRACT = "yx.escrow";
+    public static final String YOSEMITE_NFT_CONTRACT = "yx.nft";
 
     public static final String DEFAULT_KEYOS_HTTP_URL = "http://127.0.0.1:8900";
     public static final String DEFAULT_WALLET_NAME = "default";
@@ -38,10 +40,5 @@ public final class Consts {
     public static final int TX_EXPIRATION_IN_MILLIS = 1000 * 60 * 2; // 2 minutes (from cleos)
 
     public static final String DEFAULT_SYMBOL_STRING = "DKRW";
-    public static final int DEFAULT_SYMBOL_PRECISION = 4;
-
-    // constants from /libraries/include/eosio/chain/config.hpp
-    public static final int DEFAULT_BASE_PER_TRANSACTION_NET_USAGE = 100;
-    public static final int DEFAULT_BASE_PER_TRANSACTION_CPU_USAGE = 500;
-    public static final int DEFAULT_BASE_PER_ACTION_CPU_USAGE = 1000;
+    public static final int DEFAULT_SYMBOL_PRECISION = 2;
 }
