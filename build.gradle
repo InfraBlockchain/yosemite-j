@@ -83,8 +83,8 @@ compileJava {
     targetCompatibility = 1.8
 }
 
-version = '0.6.0-SNAPSHOT'
-group = 'org.yosemitelabs'
+version = '0.6.0'
+group = 'io.yosemite'
 
 uploadArchives {
     repositories {
