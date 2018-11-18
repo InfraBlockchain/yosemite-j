@@ -1,3 +1,6 @@
+version = '0.7.0'
+group = 'io.yosemite'
+
 buildscript {
     repositories {
         jcenter()
@@ -78,8 +81,10 @@ apply plugin: 'maven'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'maven-publish'
 
-version = '0.7.0'
-group = 'io.yosemite'
+compileJava {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+}
 
 uploadArchives {
     repositories {
