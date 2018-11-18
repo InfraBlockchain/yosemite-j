@@ -1,8 +1,6 @@
+import com.google.gson.Gson;
 import io.yosemite.crypto.ec.EcDsa;
-import io.yosemite.data.remote.chain.Block;
-import io.yosemite.data.remote.chain.Info;
-import io.yosemite.data.remote.chain.PushedTransaction;
-import io.yosemite.data.remote.chain.TableRow;
+import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.event.TxIrreversibilityResponse;
 import io.yosemite.data.remote.history.action.Actions;
@@ -21,6 +19,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Signed;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -127,21 +126,43 @@ public class LibraryTest {
 
     //@Test
     public void testYosemiteNativeTokenJ() {
+
+        final String chainId = "6376573815dbd2de2d9929027a94aeab3f6e60e87caa953f94ee701ac8425811";
+
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
+
         apiClient.setTransactionVoteTarget("d1");
+        apiClient.setDelegatedTransactionFeePayer("payeraccount");
 
-        Account user1 = apiClient.getAccount("user1").execute();
-        String user1PublicKey = user1.getActivePublicKey();
-
-        YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
+            Account serviceUser = apiClient.getAccount("serviceuser1").execute();
+        Account userAccount = apiClient.getAccount("useraccounta").execute();
+        Account payerAccount = apiClient.getAccount("payeraccount").execute();
 
         String contract = "yx.ntoken";
         String action = "transfer";
-        String data = "{\"from\":\"user1\",\"to\":\"user2\",\"amount\":\"2.00 DKRW\",\"memo\":\"test\"}";
-        String[] permissions = new String[]{"user1@active"};
+        String data = "{\"from\":\"" + serviceUser.getAccountName() + "\",\"to\":\"" + userAccount.getAccountName() + "\",\"amount\":\"1.00 DKRW\",\"memo\":\"test\"}";
+        String[] permissions = new String[]{serviceUser.getAccountName() + "@active"};
 
-        PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, permissions, new String[]{user1PublicKey}).join();
+        YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
+
+        final SignedTransaction signedTransactionByService = yxj.signTransaction(contract, action , data, permissions, new String[]{serviceUser.getActivePublicKey()}).join();
+
+        logger.debug("\nFirst Signed Transaction:\n" + Utils.prettyPrintJson(signedTransactionByService));
+
+        Gson gson = Utils.createYosemiteJGsonBuilder().create();
+
+        String stringifiedSignedTransactionByService = gson.toJson(signedTransactionByService);
+
+        // Pass along the signed transaction in JSON string to the next party to get the signature from
+
+        final SignedTransaction unmarshalledTransaction = gson.fromJson(stringifiedSignedTransactionByService, SignedTransaction.class);
+
+        final SignedTransaction finalSignedTransaction = yxj.signTransaction(unmarshalledTransaction, chainId, new String[]{payerAccount.getActivePublicKey()}).join();
+
+        logger.debug("\nFinal Signed Transaction:\n" + Utils.prettyPrintJson(finalSignedTransaction));
+
+        PushedTransaction pushedTransaction = apiClient.pushTransaction(new PackedTransaction(finalSignedTransaction)).execute();
 
         logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
 

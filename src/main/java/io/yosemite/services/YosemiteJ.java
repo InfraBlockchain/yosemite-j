@@ -42,19 +42,63 @@ public abstract class YosemiteJ {
     private CompletableFuture<PackedTransaction> signAndPackTransaction(final SignedTransaction txnBeforeSign,
                                                                         final String chainId,
                                                                         String[] requiredPublicKeys) {
+        return signTransaction(txnBeforeSign, chainId, requiredPublicKeys).thenApply(
+                PackedTransaction::new
+        );
+    }
+
+    /**
+     * Get signed transaction.
+     *
+     * You may use the returned signed transaction as the intermediate data before sending it to the network
+     * @param txnBeforeSign transaction to sign
+     * @param chainId blockchain ID to send this transaction
+     * @param requiredPublicKeys Keys that are going to be used to sign this transaction
+     * @return CompletableFuture instance that contains the original transaction data and its signature added
+     */
+    public CompletableFuture<SignedTransaction> signTransaction(final SignedTransaction txnBeforeSign,
+                                                                final String chainId,
+                                                                String[] requiredPublicKeys) {
         if (requiredPublicKeys == null || requiredPublicKeys.length == 0) {
             List<String> pubKeys = mYosemiteApiRestClient.getPublicKeys().execute();
             GetRequiredKeysRequest getRequiredKeysRequest = new GetRequiredKeysRequest(txnBeforeSign, pubKeys);
 
-            return mYosemiteApiRestClient.getRequiredKeys(getRequiredKeysRequest).executeAsync().thenApply(getRequiredKeysRes -> {
-                SignedTransaction signedTx =
-                        mYosemiteApiRestClient.signTransaction(txnBeforeSign, getRequiredKeysRes.getRequiredKeys(), chainId).execute();
-                return new PackedTransaction(signedTx);
-            });
+            return mYosemiteApiRestClient.getRequiredKeys(getRequiredKeysRequest).executeAsync().thenApply(
+                    getRequiredKeysRes -> mYosemiteApiRestClient.signTransaction(txnBeforeSign, getRequiredKeysRes.getRequiredKeys(), chainId).execute());
         }
 
-        return mYosemiteApiRestClient.signTransaction(txnBeforeSign, Arrays.asList(requiredPublicKeys), chainId).executeAsync().thenApply(
-                PackedTransaction::new
+        return mYosemiteApiRestClient.signTransaction(txnBeforeSign, Arrays.asList(requiredPublicKeys), chainId).executeAsync();
+    }
+
+    /**
+     * Get signed transaction.
+     * This method is used only once at its signing pipeline operations
+     * Use {@link #signAndPackTransaction(SignedTransaction, String, String[])}} for the subsequent operations.
+     *
+     * You may use the returned signed transaction as the intermediate data before sending it to the network
+     * @param contract the name of the smart contract
+     * @param action the name of the action method
+     * @param data the json formatted data
+     * @param permissions the required permission arrays of the action
+     * @param requiredPublicKeys the required public keys matching to permissions; if not provided, performance problem would be occurred
+     * @return CompletableFuture instance that contains the original transaction data and its signature added
+     */
+    public CompletableFuture<SignedTransaction> signTransaction(final String contract, final String action, final String data,
+                                                                final String[] permissions, @Nullable final String[] requiredPublicKeys) {
+
+        return getActionWithBinaryData(contract, action, data, permissions).thenCompose(actionReq ->
+                mYosemiteApiRestClient.getInfo().executeAsync().thenCompose(info -> {
+
+                    SignedTransaction txnBeforeSign = new SignedTransaction();
+
+                    txnBeforeSign.addAction(actionReq);
+                    txnBeforeSign.setReferenceBlock(info.getHeadBlockId());
+                    txnBeforeSign.setExpiration(info.getTimeAfterHeadBlockTime(mYosemiteApiRestClient.getTxExpirationInMillis()));
+                    txnBeforeSign.setStringTransactionExtension(TransactionExtensionField.TRANSACTION_VOTE_ACCOUNT, mYosemiteApiRestClient.getTransactionVoteTarget());
+                    txnBeforeSign.setStringTransactionExtension(TransactionExtensionField.DELEGATED_TRANSACTION_FEE_PAYER, mYosemiteApiRestClient.getDelegatedTransactionFeePayer());
+
+                    return signTransaction(txnBeforeSign, info.getChainId(), requiredPublicKeys);
+                })
         );
     }
 
@@ -104,7 +148,8 @@ public abstract class YosemiteJ {
                     txnBeforeSign.addAction(actionReq);
                     txnBeforeSign.setReferenceBlock(info.getHeadBlockId());
                     txnBeforeSign.setExpiration(info.getTimeAfterHeadBlockTime(mYosemiteApiRestClient.getTxExpirationInMillis()));
-                    txnBeforeSign.setTransactionVoteTarget(mYosemiteApiRestClient.getTransactionVoteTarget());
+                    txnBeforeSign.setStringTransactionExtension(TransactionExtensionField.TRANSACTION_VOTE_ACCOUNT, mYosemiteApiRestClient.getTransactionVoteTarget());
+                    txnBeforeSign.setStringTransactionExtension(TransactionExtensionField.DELEGATED_TRANSACTION_FEE_PAYER, mYosemiteApiRestClient.getDelegatedTransactionFeePayer());
 
                     return signAndPackTransaction(txnBeforeSign, info.getChainId(), requiredPublicKeys).thenCompose(packedTx ->
                             mYosemiteApiRestClient.pushTransaction(packedTx).executeAsync(txnBeforeSign));
