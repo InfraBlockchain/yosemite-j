@@ -188,6 +188,41 @@ String signature = yxj.sign(data, pubKey).join();
 boolean isVerified = EcDsa.verifySignature(data, signature, pubKey);
 ```
 
+### Delegating fee to another account
+If you don't want to worry about handling DKRW yourself and there is a 3rd party service(ex: depositories may expose such an API as a service) that handles DKRW directly, you can delegate your transaction fee payment by just signing your transaction first and passing it to the 3rd party service. Then, it adds its signature to the received transaction and finally pushes it to the network. The code snippet below describes how it works.
+
+```
+// Set the data below for your needs
+final String chainId = "...";
+
+final String payerAccountName = "...";
+final String payerAccountPublicKey = "...;
+
+final String contract = "...";
+final String action = "...";
+final String data = "...";
+final String[] permissions = "...";
+final String[] requiredPublicKeys = "...";
+
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+apiClient.setDelegatedTransactionFeePayer(payerAccountName);
+
+// Here, we use YosemiteNativeTokenJ as an example
+YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
+
+final SignedTransaction signedTransactionByService = yxj.signTransaction(contract, action , data, permissions, requiredPublicKeys).join();
+
+// Send `signedTransactionByService` to the payer. Here we assume that `unmarshalledTransaction` is what the payer side receives and unmarshalls after that.
+final SignedTransaction unmarshalledReceivedTransaction = "...";
+
+// Lastly, sign the transaction with the payer's account. Remember how the method signature is different from the one above. The former `signTransaction()` is only used when the signed transaction is initiated and all subsequent signing operations should be performed by the one below.
+final SignedTransaction finalSignedTransaction = yxj.signTransaction(unmarshalledReceivedTransaction, chainId, new String[]{payerAccountPublicKey}).join();
+
+// Push the transaction to the network
+PushedTransaction pushedTransaction = apiClient.pushTransaction(new PackedTransaction(finalSignedTransaction)).execute();
+```
+
+
 # Yosemite Actions
 
 Note that most methods below are just the wrapper of HTTP JSON request using `pushAction` method.
