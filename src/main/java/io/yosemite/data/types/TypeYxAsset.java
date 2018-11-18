@@ -35,6 +35,11 @@ public class TypeYxAsset extends TypeAsset implements EosType.Packer {
         return issuer;
     }
 
+    /**
+     * Get TypeYxAsset instance from the Yosemite asset string.
+     * @param from Yosemite asset string e.g. 1000.00 DKRW@sysdepo1
+     * @return TypeYxAsset instance
+     */
     public static TypeYxAsset fromString(String from) {
         int index = from.indexOf(symbolIssuerDenominator);
         if (index < 0) {

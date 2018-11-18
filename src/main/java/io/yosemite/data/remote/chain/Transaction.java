@@ -5,6 +5,7 @@ import io.yosemite.crypto.digest.Sha256;
 import io.yosemite.data.types.EosByteWriter;
 import io.yosemite.data.types.EosType;
 import io.yosemite.data.types.TypeName;
+import io.yosemite.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,11 +59,15 @@ public class Transaction extends TransactionHeader {
         writer.putCollection(transaction_extensions);
     }
 
-    public void setTransactionVoteTarget(String txVoteTarget) {
-        TypeName voteTarget = new TypeName(txVoteTarget);
+    public void setStringTransactionExtension(TransactionExtensionField field, String value) {
+
+        if (StringUtils.isEmpty(value))
+            return;
+
+        TypeName typeName = new TypeName(value);
         EosByteWriter eosByteWriter = new EosByteWriter(8);
-        voteTarget.pack(eosByteWriter);
-        transaction_extensions.add(new TransactionExtension(TransactionExtensionField.TRANSACTION_VOTE_ACCOUNT, eosByteWriter.toBytes()));
+        typeName.pack(eosByteWriter);
+        transaction_extensions.add(new TransactionExtension(field, eosByteWriter.toBytes()));
     }
 
     public String getId() {

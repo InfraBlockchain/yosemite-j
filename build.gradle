@@ -1,3 +1,6 @@
+version = '0.7.0'
+group = 'io.yosemite'
+
 buildscript {
     repositories {
         jcenter()
@@ -82,9 +85,6 @@ compileJava {
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 }
-
-version = '0.6.0'
-group = 'io.yosemite'
 
 uploadArchives {
     repositories {
