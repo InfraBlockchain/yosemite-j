@@ -3,7 +3,7 @@ package io.yosemite.sample;
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.chain.account.Account;
-import io.yosemite.services.CommonParameters;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.yxcontracts.KYCStatusType;
@@ -59,29 +59,29 @@ public class NativeTokenContractJSample extends SampleCommon {
         // KYC process done by Identity Authority Service for DKRW
         processKYC(yxSystemJ, SYSTEM_DEPOSITORY_ACCOUNT, "ntuser1", EnumSet.allOf(KYCStatusType.class));
 
-        CommonParameters commonParametersForSysDepo =
-                CommonParameters.Builder().addPublicKey(sysDepoPublicKey).build();
+        TransactionParameters txParametersForSysDepo =
+                TransactionParameters.Builder().addPublicKey(sysDepoPublicKey).build();
 
         PushedTransaction pushedTransaction = yxNativeTokenJ.issueNativeToken(
-                "ntuser1", "1000000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", commonParametersForSysDepo).join();
+                "ntuser1", "1000000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo", txParametersForSysDepo).join();
         log("Issue Native Token Transaction:" + pushedTransaction.getTransactionId());
 
         // transfer token with transaction fee payer as SYSTEM_DEPOSITORY_ACCOUNT
-        CommonParameters commonParametersForTransfer = CommonParameters.Builder().
+        TransactionParameters txParametersForTransfer = TransactionParameters.Builder().
                 addPermission("ntuser1").addPermission(SYSTEM_DEPOSITORY_ACCOUNT).
                 addPublicKey(user1PublicKey).addPublicKey(sysDepoPublicKey).
                 setDelegatedTransactionFeePayer(SYSTEM_DEPOSITORY_ACCOUNT).
                 build();
         pushedTransaction = yxNativeTokenJ.transferNativeToken(
                 "ntuser1", SYSTEM_DEPOSITORY_ACCOUNT, "100000.00 DKRW", "my memo",
-                commonParametersForTransfer).join();
+                txParametersForTransfer).join();
         log("TransferWithPayer Native Token Transaction:" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
         }
 
         pushedTransaction = yxNativeTokenJ.redeemNativeToken("100000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "my memo",
-                commonParametersForSysDepo).join();
+                txParametersForSysDepo).join();
         log("Redeem Native Token Transaction:" + pushedTransaction.getTransactionId());
 
         TableRow tableRow = yxNativeTokenJ.getNativeTokenAccountTotalBalance("ntuser1").join();

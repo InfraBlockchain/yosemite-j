@@ -4,7 +4,7 @@ import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.transaction.Transaction;
-import io.yosemite.services.CommonParameters;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
@@ -139,12 +139,12 @@ public class LibraryTest {
 
         YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
 
-        CommonParameters commonParameters = CommonParameters.Builder().
+        TransactionParameters txParameters = TransactionParameters.Builder().
                 addPermission(serviceUser.getAccountName()).
                 addPublicKey(serviceUser.getActivePublicKey()).
                 build();
         final SignedTransaction signedTransactionByService = yxj.signTransaction(
-                contract, action , data, commonParameters).join();
+                contract, action , data, txParameters).join();
 
         logger.debug("\nFirst Signed Transaction:\n" + Utils.prettyPrintJson(signedTransactionByService));
 

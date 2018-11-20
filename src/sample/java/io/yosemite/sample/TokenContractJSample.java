@@ -3,10 +3,9 @@ package io.yosemite.sample;
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.chain.account.Account;
-import io.yosemite.services.CommonParameters;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
-import io.yosemite.services.yxcontracts.KYCStatusType;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
 import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import io.yosemite.services.yxcontracts.YosemiteTokenJ;
@@ -62,22 +61,22 @@ public class TokenContractJSample extends SampleCommon {
         log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
 
         YosemiteTokenJ yxTokenJ = new YosemiteTokenJ(apiClient);
-        CommonParameters commonParametersForTokenProvider =
-                CommonParameters.Builder().addPublicKey(tokenProviderPublicKey).build();
-        CommonParameters commonParametersForUser1 =
-                CommonParameters.Builder().addPublicKey(tokenUser1PublicKey).build();
+        TransactionParameters txParametersForTokenProvider =
+                TransactionParameters.Builder().addPublicKey(tokenProviderPublicKey).build();
+        TransactionParameters txParametersForUser1 =
+                TransactionParameters.Builder().addPublicKey(tokenUser1PublicKey).build();
 
         try {
             EnumSet<YosemiteTokenJ.CanSetOptionsType> emptyOptions = EnumSet.noneOf(YosemiteTokenJ.CanSetOptionsType.class);
             pushedTransaction = yxTokenJ.createToken("XYZ", 8, TOKEN_PROVIDER_ACCOUNT, emptyOptions,
-                    commonParametersForTokenProvider).join();
+                    txParametersForTokenProvider).join();
             log("Create Transaction:" + pushedTransaction.getTransactionId());
         } catch (Exception e) {
             log(e.toString()); // already created
         }
 
         pushedTransaction = yxTokenJ.issueToken("tkuserxxxxx1", "1.23456789 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
-                commonParametersForTokenProvider).join();
+                txParametersForTokenProvider).join();
         log("Issue Transaction:" + pushedTransaction.getTransactionId());
 
         log("");
@@ -97,14 +96,14 @@ public class TokenContractJSample extends SampleCommon {
         }
 
         pushedTransaction = yxTokenJ.transferToken("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT, "1.23456789 XYZ",
-                TOKEN_PROVIDER_ACCOUNT, "my memo", commonParametersForUser1).join();
+                TOKEN_PROVIDER_ACCOUNT, "my memo", txParametersForUser1).join();
         log("Transfer Transaction:" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
         }
 
         pushedTransaction = yxTokenJ.redeemToken("1.23456789 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
-                commonParametersForTokenProvider).join();
+                txParametersForTokenProvider).join();
         log("Redeem Transaction:" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
@@ -127,11 +126,11 @@ public class TokenContractJSample extends SampleCommon {
         }
 
         pushedTransaction = yxTokenJ.setUserIssueLimit("tkuserxxxxx1", "50.00000000 XYZ", TOKEN_PROVIDER_ACCOUNT,
-                commonParametersForTokenProvider).join();
+                txParametersForTokenProvider).join();
         log("Grant Issue Authority Transaction:" + pushedTransaction.getTransactionId());
 
         pushedTransaction = yxTokenJ.issueTokenByUser("tkuserxxxxx1", "tkuserxxxxx1", "10.12345678 XYZ",
-                TOKEN_PROVIDER_ACCOUNT, "my memo", commonParametersForUser1).join();
+                TOKEN_PROVIDER_ACCOUNT, "my memo", txParametersForUser1).join();
         log("Issue By User Transaction:" + pushedTransaction.getTransactionId());
 
         log("");
@@ -160,7 +159,7 @@ public class TokenContractJSample extends SampleCommon {
 
         // transfer token from user to issuer for redemption
         pushedTransaction = yxTokenJ.transferToken("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT, "10.12345678 XYZ",
-                TOKEN_PROVIDER_ACCOUNT, "my memo", commonParametersForUser1).join();
+                TOKEN_PROVIDER_ACCOUNT, "my memo", txParametersForUser1).join();
         log("Transfer Transaction:" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
@@ -168,7 +167,7 @@ public class TokenContractJSample extends SampleCommon {
 
         try {
             pushedTransaction = yxTokenJ.entrustUserIssueTo("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT,
-                    "XYZ", 8, TOKEN_PROVIDER_ACCOUNT, commonParametersForUser1).join();
+                    "XYZ", 8, TOKEN_PROVIDER_ACCOUNT, txParametersForUser1).join();
             log("entrustUserIssueTo Transaction:" + pushedTransaction.getTransactionId());
             if (wait_for_irreversibility) {
                 waitForIrreversibility(apiClient, pushedTransaction);
@@ -187,7 +186,7 @@ public class TokenContractJSample extends SampleCommon {
 
         pushedTransaction = yxTokenJ.issueTokenByUser("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT,
                 "1.00000000 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
-                commonParametersForTokenProvider).join();
+                txParametersForTokenProvider).join();
         log("Issue By User Transaction:" + pushedTransaction.getTransactionId());
 
         log("");
@@ -207,7 +206,7 @@ public class TokenContractJSample extends SampleCommon {
         }
 
         pushedTransaction = yxTokenJ.redeemToken("11.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
-                commonParametersForTokenProvider).join();
+                txParametersForTokenProvider).join();
         log("Redeem Transaction:" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
@@ -230,7 +229,7 @@ public class TokenContractJSample extends SampleCommon {
         }
 
         pushedTransaction = yxTokenJ.changeIssuedTokenAmount("tkuserxxxxx1", "10.12345678 XYZ", TOKEN_PROVIDER_ACCOUNT, true,
-                commonParametersForTokenProvider).join();
+                txParametersForTokenProvider).join();
         log("Issue By User Transaction:" + pushedTransaction.getTransactionId());
 
         log("");

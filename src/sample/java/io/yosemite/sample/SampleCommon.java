@@ -2,7 +2,7 @@ package io.yosemite.sample;
 
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.history.transaction.Transaction;
-import io.yosemite.services.CommonParameters;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.yxcontracts.KYCStatusType;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
@@ -40,9 +40,9 @@ abstract class SampleCommon {
         String contract = "yx.identity";
         String action = "setidinfo";
         String data = "{\"identity_authority\":\"" + identityAuthorityAccount + "\",\"account\":\"" + accountName + "\",\"type\":0,\"kyc\":" + KYCStatusType.getAsBitFlags(flags) + ",\"state\":0,\"data\":\"\"}";
-        CommonParameters commonParameters = CommonParameters.Builder().addPublicKey(identityAuthorityAccount).build();
+        TransactionParameters txParameters = TransactionParameters.Builder().addPublicKey(identityAuthorityAccount).build();
 
-        PushedTransaction pushedTransaction = yxSystemJ.pushAction(contract, action, data, commonParameters).join();
+        PushedTransaction pushedTransaction = yxSystemJ.pushAction(contract, action, data, txParameters).join();
         log("\nsetidinfo Transaction:\n" + pushedTransaction.getTransactionId());
     }
 

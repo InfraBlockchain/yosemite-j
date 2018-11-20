@@ -4,7 +4,7 @@ import io.yosemite.crypto.ec.EosPublicKey;
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.contract.ActionNewAccount;
 import io.yosemite.data.types.TypePublicKey;
-import io.yosemite.services.CommonParameters;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
 import io.yosemite.util.StringUtils;
@@ -30,12 +30,12 @@ public class YosemiteSystemJ extends YosemiteJ {
      * @param name the new account
      * @param ownerKey the public key
      * @param activeKey the public key
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> createAccount(String creator, String name, String ownerKey,
                                                               String activeKey,
-                                                              @Nullable CommonParameters params) {
+                                                              @Nullable TransactionParameters params) {
 
         if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator account name");
         if (StringUtils.isEmpty(name)) throw new IllegalArgumentException("empty target account name");

@@ -8,7 +8,7 @@ import io.yosemite.data.remote.history.action.GetTableOptions;
 import io.yosemite.data.types.TypeAsset;
 import io.yosemite.data.types.TypeName;
 import io.yosemite.data.types.TypeSymbol;
-import io.yosemite.services.CommonParameters;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
@@ -44,14 +44,14 @@ public class YosemiteTokenJ extends AbstractToken {
      * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers; from 4 to 18
      * @param issuer the account name of the issuer
      * @param canSetOptions the EnumSet of {@link CanSetOptionsType} enum values
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      * @see TypeSymbol
      * @see io.yosemite.data.types.TypeYxSymbol
      */
     public CompletableFuture<PushedTransaction> createToken(
             String symbol, int precision, String issuer, EnumSet<CanSetOptionsType> canSetOptions,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         checkPrecision(precision);
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
@@ -72,11 +72,11 @@ public class YosemiteTokenJ extends AbstractToken {
      * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
      * @param issuer the account name of the issuer
      * @param memo data which the caller wants to save to
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> issueToken(
-            String to, String amount, String issuer, String memo, @Nullable CommonParameters params) {
+            String to, String amount, String issuer, String memo, @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
@@ -100,12 +100,12 @@ public class YosemiteTokenJ extends AbstractToken {
      * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
      * @param issuer the account name of the issuer
      * @param memo data which the caller wants to save to
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> redeemToken(
             String amount, String issuer, String memo,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
         if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
@@ -129,12 +129,12 @@ public class YosemiteTokenJ extends AbstractToken {
      * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
      * @param issuer the account name of the issuer
      * @param memo data which the caller wants to save to
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> transferToken(
             String from, String to, String amount, String issuer, String memo,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         return transferToken(YOSEMITE_TOKEN_CONTRACT, from, to, amount, issuer, memo, params);
     }
 
@@ -147,13 +147,13 @@ public class YosemiteTokenJ extends AbstractToken {
      * @param issuer the account name of the issuer
      * @param tokenRuleType the rule type which indicates token send or receipt
      * @param kycVectors the EnumSet of {@link KYCStatusType} enum values
-     * @param params common parameters
+     * @param params transaction parameters
      * @see TokenRuleType
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> setTokenKYCRule(
             String symbol, int precision, String issuer, TokenRuleType tokenRuleType, EnumSet<KYCStatusType> kycVectors,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         checkPrecision(precision);
         return setTokenKYCRule(YOSEMITE_TOKEN_CONTRACT, symbol, precision, issuer, tokenRuleType, kycVectors, params);
     }
@@ -168,12 +168,12 @@ public class YosemiteTokenJ extends AbstractToken {
      * @param issuer the account name of the issuer
      * @param options the EnumSet of {@link TokenOptionsType} enum values
      * @param reset the flag which indicates whether the previous options are cleared or not
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> setTokenOptions(
             String symbol, int precision, String issuer, EnumSet<TokenOptionsType> options, boolean reset,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         checkPrecision(precision);
         return setTokenOptions(YOSEMITE_TOKEN_CONTRACT, symbol, precision, issuer, options, reset, params);
     }
@@ -187,12 +187,12 @@ public class YosemiteTokenJ extends AbstractToken {
      * @param issuer the account name of the issuer
      * @param accounts the list of account names to be frozen or unfrozen
      * @param freeze the flag which indicates whether to freeze or unfreeze
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> freezeAccounts(
             String symbol, int precision, String issuer, final List<String> accounts, boolean freeze,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         checkPrecision(precision);
         return freezeAccounts(YOSEMITE_TOKEN_CONTRACT, symbol, precision, issuer, accounts, freeze, params);
     }
@@ -202,11 +202,11 @@ public class YosemiteTokenJ extends AbstractToken {
      * @param to the account who is set the user issue limit
      * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
      * @param issuer the account name of the issuer
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> setUserIssueLimit(
-            String to, String amount, String issuer, @Nullable CommonParameters params) {
+            String to, String amount, String issuer, @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
@@ -230,12 +230,12 @@ public class YosemiteTokenJ extends AbstractToken {
      * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
      * @param issuer the account name of the issuer
      * @param memo data which the caller wants to save to
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> issueTokenByUser(
             String user, String to, String amount, String issuer, @Nullable String memo,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(user)) throw new IllegalArgumentException("wrong user");
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
@@ -265,12 +265,12 @@ public class YosemiteTokenJ extends AbstractToken {
      * @param symbol the symbol name; <a href="https://developers.eos.io/eosio-cpp/docs/naming-conventions#section-symbols">Naming Convention of Symbols</a>
      * @param precision the number of bits used to hold the fractional part in the concept of floating-point numbers; from 4 to 18
      * @param issuer the account name of the issuer
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> entrustUserIssueTo(
             String user, String to, String symbol, int precision, String issuer,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(user)) throw new IllegalArgumentException("wrong user");
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
@@ -294,11 +294,11 @@ public class YosemiteTokenJ extends AbstractToken {
      * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
      * @param issuer the account name of the issuer
      * @param decrease boolean(T/F) field to indicate decrement or increment of token amount
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> changeIssuedTokenAmount(
-            String user, String amount, String issuer, boolean decrease, @Nullable CommonParameters params) {
+            String user, String amount, String issuer, boolean decrease, @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(user)) throw new IllegalArgumentException("wrong user");
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");

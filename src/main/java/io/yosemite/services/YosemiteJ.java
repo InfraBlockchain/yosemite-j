@@ -1,7 +1,6 @@
 package io.yosemite.services;
 
 import com.google.gson.Gson;
-import io.yosemite.Consts;
 import io.yosemite.crypto.digest.Sha256;
 import io.yosemite.data.remote.api.AbiJsonToBinRequest;
 import io.yosemite.data.remote.api.GetRequiredKeysRequest;
@@ -81,7 +80,7 @@ public abstract class YosemiteJ {
      * @return CompletableFuture instance that contains the original transaction data and its signature added
      */
     public CompletableFuture<SignedTransaction> signTransaction(final String contract, final String action, final String data,
-                                                                final CommonParameters params) {
+                                                                final TransactionParameters params) {
         if (params == null) throw new IllegalArgumentException("params cannot be null");
 
         return getActionWithBinaryData(contract, action, data, params.getPermissions()).thenCompose(actionReq ->
@@ -94,7 +93,7 @@ public abstract class YosemiteJ {
         );
     }
 
-    private SignedTransaction buildSignedTransaction(Action actionReq, Info info, CommonParameters params) {
+    private SignedTransaction buildSignedTransaction(Action actionReq, Info info, TransactionParameters params) {
         SignedTransaction txnBeforeSign = new SignedTransaction();
 
         txnBeforeSign.addAction(actionReq);
@@ -132,7 +131,7 @@ public abstract class YosemiteJ {
      */
     public final CompletableFuture<PushedTransaction> pushAction(
             final String contract, final String action, final String data,
-            final CommonParameters params) {
+            final TransactionParameters params) {
         if (params == null) throw new IllegalArgumentException("params cannot be null");
 
         return getActionWithBinaryData(contract, action, data, params.getPermissions()).thenCompose(actionReq ->
@@ -158,20 +157,20 @@ public abstract class YosemiteJ {
         return mYosemiteApiRestClient.getTableRows(contract, scope, table, options).executeAsync();
     }
 
-    protected CommonParameters buildCommonParametersWithDefaults(CommonParameters commonParameters,
-                                                                 String defaultAccountName) {
-        if (commonParameters == null) {
-            return CommonParameters.Builder().addPermission(defaultAccountName).build();
+    protected TransactionParameters buildCommonParametersWithDefaults(TransactionParameters transactionParameters,
+                                                                      String defaultAccountName) {
+        if (transactionParameters == null) {
+            return TransactionParameters.Builder().addPermission(defaultAccountName).build();
         }
-        List<TypePermissionLevel> permissions = commonParameters.getPermissions();
+        List<TypePermissionLevel> permissions = transactionParameters.getPermissions();
         if (permissions.isEmpty()) {
             permissions.add(new TypePermissionLevel(defaultAccountName));
-            if (commonParameters.getDelegatedTransactionFeePayer() != null) {
-                permissions.add(new TypePermissionLevel(commonParameters.getDelegatedTransactionFeePayer()));
+            if (transactionParameters.getDelegatedTransactionFeePayer() != null) {
+                permissions.add(new TypePermissionLevel(transactionParameters.getDelegatedTransactionFeePayer()));
             } else if (mYosemiteApiRestClient.getDelegatedTransactionFeePayer() != null) {
                 permissions.add(new TypePermissionLevel(mYosemiteApiRestClient.getDelegatedTransactionFeePayer()));
             }
         }
-        return commonParameters;
+        return transactionParameters;
     }
 }

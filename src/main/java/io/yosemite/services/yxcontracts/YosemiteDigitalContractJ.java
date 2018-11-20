@@ -7,7 +7,7 @@ import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.history.action.GetTableOptions;
 import io.yosemite.data.types.TypeName;
-import io.yosemite.services.CommonParameters;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
 import io.yosemite.util.StringUtils;
@@ -45,14 +45,14 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
      * @param accountType the type of the signer account; only the signer who is the specified type can sign the digital contract
      * @param kycVectors the KYC authentication flags of the signer account; only the signer who passes the required KYC authentication can sign the digital contract
      * @param options reserved; must be 0
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> createDigitalContract(
             String creator, long sequence, String digitalContractHash, String additionalDocumentHash,
             List<String> signers, Date expiration,
             int accountType, EnumSet<KYCStatusType> kycVectors,
-            short options, @Nullable CommonParameters params) {
+            short options, @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
         if (StringUtils.isEmpty(digitalContractHash)) throw new IllegalArgumentException("empty digitalContractHash");
@@ -93,12 +93,12 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
      * @param creator the account who creates the digital contract
      * @param sequence 64-bit unsigned integer which indicates the digital contract
      * @param signers the list of account name who will sign the digital contract
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> addSigners(
             String creator, long sequence, List<String> signers,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
         if (signers == null || signers.isEmpty()) throw new IllegalArgumentException("empty signers");
@@ -125,12 +125,12 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
      * @param sequence 64-bit unsigned integer which indicates the digital contract
      * @param signer the account name who will sign the digital contract
      * @param signerInfo the information of the signer
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> signDigitalDocument(
             String creator, long sequence, String signer, String signerInfo,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
         if (StringUtils.isEmpty(signer)) throw new IllegalArgumentException("empty signer");
@@ -154,12 +154,12 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
      * @param creator the account who creates the digital contract
      * @param sequence 64-bit unsigned integer which indicates the digital contract
      * @param additionalDocumentHash string representation of the additional document hash
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> updateAdditionalDocumentHash(
             String creator, long sequence, String additionalDocumentHash,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
         if (additionalDocumentHash != null && additionalDocumentHash.length() > MAX_INPUT_STRING_LENGTH) {
@@ -183,12 +183,12 @@ public class YosemiteDigitalContractJ extends YosemiteJ {
      * Note that it doesn't remove the digital contract information in the block and no one can remove as the irreversible attribute of Blockchain.
      * @param creator the account who creates the digital contract
      * @param sequence 64-bit unsigned integer which indicates the digital contract
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> removeDigitalContract(
             String creator, long sequence,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator");
         if (sequence < 0) throw new IllegalArgumentException("negative sequence");
 

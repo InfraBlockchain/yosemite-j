@@ -8,36 +8,36 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Contains the API-level common parameters.
+ * Contains the API-level transaction parameters.
  */
-public class CommonParameters {
+public class TransactionParameters {
     private List<TypePermissionLevel> permissions = new ArrayList<>();
     private List<String> publicKeys = new ArrayList<>();
     private String delegatedTransactionFeePayer;
     private String transactionVoteTarget;
     private int txExpirationInMillis = -1;
 
-    public static CommonParametersBuilder Builder() {
-        return new CommonParametersBuilder();
+    public static TransactionParametersBuilder Builder() {
+        return new TransactionParametersBuilder();
     }
 
     /**
-     * Builder for the API-level common parameters.
+     * Builder for the API-level transaction parameters.
      */
-    public static class CommonParametersBuilder {
+    public static class TransactionParametersBuilder {
 
-        private CommonParameters commonParameters = new CommonParameters();
+        private TransactionParameters txParameters = new TransactionParameters();
 
-        public CommonParameters build() {
-            commonParameters.publicKeys = Collections.unmodifiableList(commonParameters.publicKeys);
-            return commonParameters;
+        public TransactionParameters build() {
+            txParameters.publicKeys = Collections.unmodifiableList(txParameters.publicKeys);
+            return txParameters;
         }
 
         /**
          * Add the account name which needs the signature for 'active' permission.
          * @param accountName account name
          */
-        public CommonParametersBuilder addPermission(String accountName) {
+        public TransactionParametersBuilder addPermission(String accountName) {
             if (accountName == null) {
                 throw new IllegalArgumentException("accountName cannot be null.");
             }
@@ -49,14 +49,14 @@ public class CommonParameters {
          * @param accountName account name
          * @param permissionName the name of the permission; usually active
          */
-        public CommonParametersBuilder addPermission(String accountName, String permissionName) {
+        public TransactionParametersBuilder addPermission(String accountName, String permissionName) {
             if (accountName == null) {
                 throw new IllegalArgumentException("accountName cannot be null.");
             }
             if (permissionName == null) {
                 throw new IllegalArgumentException("permissionName cannot be null.");
             }
-            commonParameters.permissions.add(new TypePermissionLevel(accountName, permissionName));
+            txParameters.permissions.add(new TypePermissionLevel(accountName, permissionName));
             return this;
         }
 
@@ -65,11 +65,11 @@ public class CommonParameters {
          * If it's not provided, performance problem would be occurred.
          * @param publicKey public key string
          */
-        public CommonParametersBuilder addPublicKey(String publicKey) {
+        public TransactionParametersBuilder addPublicKey(String publicKey) {
             if (publicKey == null) {
                 throw new IllegalArgumentException("publicKey cannot be null.");
             }
-            commonParameters.publicKeys.add(publicKey);
+            txParameters.publicKeys.add(publicKey);
             return this;
         }
 
@@ -79,8 +79,8 @@ public class CommonParameters {
          *
          * @param delegatedTransactionFeePayer fee payer account name
          */
-        public CommonParametersBuilder setDelegatedTransactionFeePayer(String delegatedTransactionFeePayer) {
-            commonParameters.delegatedTransactionFeePayer = delegatedTransactionFeePayer;
+        public TransactionParametersBuilder setDelegatedTransactionFeePayer(String delegatedTransactionFeePayer) {
+            txParameters.delegatedTransactionFeePayer = delegatedTransactionFeePayer;
             return this;
         }
 
@@ -89,8 +89,8 @@ public class CommonParameters {
          *
          * @param transactionVoteTarget The account name to vote to
          */
-        public CommonParametersBuilder setTransactionVoteTarget(String transactionVoteTarget) {
-            commonParameters.transactionVoteTarget = transactionVoteTarget;
+        public TransactionParametersBuilder setTransactionVoteTarget(String transactionVoteTarget) {
+            txParameters.transactionVoteTarget = transactionVoteTarget;
             return this;
         }
 
@@ -99,11 +99,11 @@ public class CommonParameters {
          *
          * @param txExpirationInMillis expiration time in milliseconds
          */
-        public CommonParametersBuilder setTxExpirationInMillis(int txExpirationInMillis) {
+        public TransactionParametersBuilder setTxExpirationInMillis(int txExpirationInMillis) {
             if (txExpirationInMillis < 0) {
                 throw new IllegalArgumentException("txExpirationInMillis cannot be negative.");
             }
-            commonParameters.txExpirationInMillis = txExpirationInMillis;
+            txParameters.txExpirationInMillis = txExpirationInMillis;
             return this;
         }
     }

@@ -6,7 +6,7 @@ import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.history.action.GetTableOptions;
 import io.yosemite.data.types.TypeSymbol;
-import io.yosemite.services.CommonParameters;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.util.StringUtils;
 
@@ -37,14 +37,14 @@ public class YosemiteNonFungibleTokenJ extends AbstractToken {
      * @param symbol the symbol name; <a href="https://developers.eos.io/eosio-cpp/docs/naming-conventions#section-symbols">Naming Convention of Symbols</a>
      * @param issuer the account name of the issuer
      * @param canSetOptions the EnumSet of {@link CanSetOptionsType} enum values
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      * @see TypeSymbol
      * @see io.yosemite.data.types.TypeYxSymbol
      */
     public CompletableFuture<PushedTransaction> createToken(
             String symbol, String issuer, EnumSet<CanSetOptionsType> canSetOptions,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
 
@@ -67,12 +67,12 @@ public class YosemiteNonFungibleTokenJ extends AbstractToken {
      * @param uris the list of item information URIs for each NFT; the number of uris must match with the number of ids
      * @param name the name of NFT; less than or equal to 32 bytes
      * @param memo data which the caller wants to save to
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> issueToken(
             String to, String symbol, String issuer, Collection<Long> ids, Collection<String> uris, String name, String memo,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
@@ -115,12 +115,12 @@ public class YosemiteNonFungibleTokenJ extends AbstractToken {
      * @param issuer the account name of the issuer
      * @param ids the list of identifiers assigned by the issuer for each NFT
      * @param memo data which the caller wants to save to
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> redeemToken(
             String issuer, Collection<Long> ids, String memo,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
         if (ids.isEmpty()) throw new IllegalArgumentException("wrong ids");
         if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
@@ -143,12 +143,12 @@ public class YosemiteNonFungibleTokenJ extends AbstractToken {
      * @param issuer the account name of the issuer
      * @param ids the list of identifiers assigned by the issuer for each NFT
      * @param memo data which the caller wants to save to
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> transferByTokenId(
             String from, String to, String issuer, Collection<Long> ids, String memo,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(from)) throw new IllegalArgumentException("wrong from");
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
@@ -173,13 +173,13 @@ public class YosemiteNonFungibleTokenJ extends AbstractToken {
      * @param issuer the account name of the issuer
      * @param tokenRuleType the rule type which indicates token send or receipt
      * @param kycVectors the EnumSet of {@link KYCStatusType} enum values
-     * @param params common parameters
+     * @param params transaction parameters
      * @see TokenRuleType
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> setTokenKYCRule(
             String symbol, String issuer, TokenRuleType tokenRuleType, EnumSet<KYCStatusType> kycVectors,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         return setTokenKYCRule(YOSEMITE_NFT_CONTRACT, symbol, 0, issuer, tokenRuleType, kycVectors, params);
     }
 
@@ -192,12 +192,12 @@ public class YosemiteNonFungibleTokenJ extends AbstractToken {
      * @param issuer the account name of the issuer
      * @param options the EnumSet of {@link TokenOptionsType} enum values
      * @param reset the flag which indicates whether the previous options are cleared or not
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> setTokenOptions(
             String symbol, String issuer, EnumSet<TokenOptionsType> options, boolean reset,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         return setTokenOptions(YOSEMITE_NFT_CONTRACT, symbol, 0, issuer, options, reset, params);
     }
 
@@ -209,12 +209,12 @@ public class YosemiteNonFungibleTokenJ extends AbstractToken {
      * @param issuer the account name of the issuer
      * @param accounts the list of account names to be frozen or unfrozen
      * @param freeze the flag which indicates whether to freeze or unfreeze
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> freezeAccounts(
             String symbol, String issuer, final List<String> accounts, boolean freeze,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         return freezeAccounts(YOSEMITE_NFT_CONTRACT, symbol, 0, issuer, accounts, freeze, params);
     }
 

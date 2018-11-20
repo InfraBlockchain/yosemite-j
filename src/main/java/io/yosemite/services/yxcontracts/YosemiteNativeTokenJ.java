@@ -6,7 +6,7 @@ import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.history.action.GetTableOptions;
 import io.yosemite.data.types.TypeAsset;
-import io.yosemite.services.CommonParameters;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
 import io.yosemite.util.StringUtils;
@@ -32,12 +32,12 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
      * @param amount the amount of the native token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
      * @param issuer the account name of the issuer
      * @param memo data which the caller wants to save to
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> issueNativeToken(
             final String to, final String amount, final String issuer, final String memo,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
@@ -61,12 +61,12 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
      * @param amount the amount of the native token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
      * @param issuer the account name of the issuer
      * @param memo data which the caller wants to save to
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> redeemNativeToken(
             final String amount, final String issuer, final String memo,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
         if (memo != null && memo.length() > 256) throw new IllegalArgumentException("too long memo");
@@ -89,12 +89,12 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
      * @param to the account name of to
      * @param amount the amount of the native token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
      * @param memo data which the caller wants to save to
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> transferNativeToken(
             final String from, final String to, final String amount, final String memo,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         JsonObject object = getJsonObjectForTransfer(from, to, amount, memo);
 
         return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "transfer", gson.toJson(object),
@@ -123,12 +123,12 @@ public class YosemiteNativeTokenJ extends YosemiteJ {
      * @param amount the amount of the native token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
      * @param issuer the account name of the native token issuer
      * @param memo data which the caller wants to save to
-     * @param params common parameters
+     * @param params transaction parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public CompletableFuture<PushedTransaction> ntransferNativeToken(
             final String from, final String to, final String amount, final String issuer,
-            final String memo, @Nullable CommonParameters params) {
+            final String memo, @Nullable TransactionParameters params) {
         JsonObject object = getJsonObjectForNTransfer(from, to, amount, issuer, memo);
 
         return pushAction(YOSEMITE_NATIVE_TOKEN_CONTRACT, "ntransfer", gson.toJson(object),

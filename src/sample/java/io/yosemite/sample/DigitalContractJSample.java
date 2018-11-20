@@ -3,7 +3,7 @@ package io.yosemite.sample;
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.chain.account.Account;
-import io.yosemite.services.CommonParameters;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.yxcontracts.KYCStatusType;
@@ -73,14 +73,14 @@ public class DigitalContractJSample extends SampleCommon {
         //----------------------------------------------
         YosemiteDigitalContractJ digitalContractJ = new YosemiteDigitalContractJ(apiClient);
 
-        CommonParameters commonParametersForServiceProvider =
-                CommonParameters.Builder().addPublicKey(serviceProviderPublicKey).build();
+        TransactionParameters txParametersForServiceProvider =
+                TransactionParameters.Builder().addPublicKey(serviceProviderPublicKey).build();
 
         // 0. remove digital contract first
         PushedTransaction pushedTransaction;
         try {
             pushedTransaction = digitalContractJ.removeDigitalContract(
-                    SERVICE_PROVIDER_ACCOUNT, 20, commonParametersForServiceProvider).join();
+                    SERVICE_PROVIDER_ACCOUNT, 20, txParametersForServiceProvider).join();
             log("\nPushed Remove Transaction:\n" + pushedTransaction.getTransactionId());
         } catch (Exception ignored) {
         }
@@ -94,29 +94,29 @@ public class DigitalContractJSample extends SampleCommon {
 
         pushedTransaction = digitalContractJ.createDigitalContract(SERVICE_PROVIDER_ACCOUNT, 20, "test1234", "",
                 signers, expirationTime, 0, EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH), (short) 0,
-                commonParametersForServiceProvider).join();
+                txParametersForServiceProvider).join();
         log("\nPushed Create Transaction:\n" + pushedTransaction.getTransactionId());
 
         // 3. sign contract by signers
-        CommonParameters commonParametersForUser2 = CommonParameters.Builder().
+        TransactionParameters txParametersForUser2 = TransactionParameters.Builder().
                 addPermission(USER2_ACCOUNT).addPermission(SERVICE_PROVIDER_ACCOUNT).
                 addPublicKey(user2PublicKey).addPublicKey(serviceProviderPublicKey).
                 setDelegatedTransactionFeePayer(SERVICE_PROVIDER_ACCOUNT).
                 build();
         pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 20, USER2_ACCOUNT, "",
-                commonParametersForUser2).join();
+                txParametersForUser2).join();
         log("\nPushed Sign Transaction:\n" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
         }
 
-        CommonParameters commonParametersForUser1 = CommonParameters.Builder().
+        TransactionParameters txParametersForUser1 = TransactionParameters.Builder().
                 addPermission(USER1_ACCOUNT).addPermission(SERVICE_PROVIDER_ACCOUNT).
                 addPublicKey(user1PublicKey).addPublicKey(serviceProviderPublicKey).
                 setDelegatedTransactionFeePayer(SERVICE_PROVIDER_ACCOUNT).
                 build();
         pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 20, USER1_ACCOUNT, "I am user1",
-                commonParametersForUser1).join();
+                txParametersForUser1).join();
         log("\nPushed Sign Transaction:\n" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
@@ -124,7 +124,7 @@ public class DigitalContractJSample extends SampleCommon {
 
         // update additional info
         pushedTransaction = digitalContractJ.updateAdditionalDocumentHash(SERVICE_PROVIDER_ACCOUNT, 20, "added after signing",
-                commonParametersForServiceProvider).join();
+                txParametersForServiceProvider).join();
         log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
 
         log("");

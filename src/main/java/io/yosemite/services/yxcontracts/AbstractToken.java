@@ -8,7 +8,7 @@ import io.yosemite.data.remote.history.action.GetTableOptions;
 import io.yosemite.data.types.TypeAsset;
 import io.yosemite.data.types.TypeName;
 import io.yosemite.data.types.TypeSymbol;
-import io.yosemite.services.CommonParameters;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
 import io.yosemite.util.StringUtils;
@@ -141,7 +141,7 @@ public class AbstractToken extends YosemiteJ {
 
     CompletableFuture<PushedTransaction> transferToken(
             String contract, String from, String to, String amount, String issuer, String memo,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         JsonObject object = getJsonObjectForTransfer(from, to, amount, issuer, memo);
 
         return pushAction(contract, "transfer", gson.toJson(object),
@@ -150,7 +150,7 @@ public class AbstractToken extends YosemiteJ {
 
     CompletableFuture<PushedTransaction> setTokenKYCRule(
             String contract, String symbol, int precision, String issuer, TokenRuleType tokenRuleType, EnumSet<KYCStatusType> kycVectors,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
 
@@ -166,7 +166,7 @@ public class AbstractToken extends YosemiteJ {
 
     CompletableFuture<PushedTransaction> setTokenOptions(
             String contract, String symbol, int precision, String issuer, EnumSet<TokenOptionsType> options, boolean reset,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
 
@@ -182,7 +182,7 @@ public class AbstractToken extends YosemiteJ {
 
     CompletableFuture<PushedTransaction> freezeAccounts(
             String contract, String symbol, int precision, String issuer, final List<String> accounts, boolean freeze,
-            @Nullable CommonParameters params) {
+            @Nullable TransactionParameters params) {
         if (StringUtils.isEmpty(symbol)) throw new IllegalArgumentException("wrong symbol");
         if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
         if (accounts == null || accounts.isEmpty()) throw new IllegalArgumentException("empty accounts");
