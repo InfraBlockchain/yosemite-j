@@ -90,23 +90,14 @@ public class Action implements EosType.Packer {
         return authorization;
     }
 
-    public void setAuthorization(List<TypePermissionLevel> authorization) {
-        this.authorization = authorization;
-    }
-
-    public void setAuthorization(TypePermissionLevel[] authorization) {
-        this.authorization.addAll(Arrays.asList(authorization));
-    }
-
-    public void setAuthorization(String[] accountWithPermLevel) {
-        if (null == accountWithPermLevel) {
-            return;
-        }
-
+    public void setAuthorization(List<TypePermissionLevel> accountWithPermLevel) {
+        /*
         for (String permissionStr : accountWithPermLevel) {
             String[] split = permissionStr.split("@", 2);
             authorization.add(new TypePermissionLevel(split[0], split[1]));
         }
+        */
+        authorization = accountWithPermLevel;
     }
 
     public JsonElement getData() {
