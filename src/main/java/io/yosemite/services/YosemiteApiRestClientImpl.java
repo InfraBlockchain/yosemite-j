@@ -29,7 +29,11 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
                               String transactionVoteTarget) {
         yxChainApiService = ApiServiceExecutor.create(YosemiteChainApiService.class, chainBaseUrl);
         yxWalletApiService = ApiServiceExecutor.create(YosemiteWalletApiService.class, walletBaseUrl);
-        yxHistoryApiService = ApiServiceExecutor.create(YosemiteHistoryApiService.class, historyBaseUrl);
+        if (historyBaseUrl != null) {
+            yxHistoryApiService = ApiServiceExecutor.create(YosemiteHistoryApiService.class, historyBaseUrl);
+        } else {
+            yxHistoryApiService = null;
+        }
         this.txExpirationInMillis = txExpirationInMillis;
         this.transactionVoteTarget = transactionVoteTarget;
     }
@@ -148,11 +152,13 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
 
     @Override
     public Request<io.yosemite.data.remote.history.transaction.Transaction> getTransaction(String txId) {
+        if (yxHistoryApiService == null) throw new IllegalStateException("Chain explorer URL is not set");
         return new Request<>(yxHistoryApiService.getService().getTransaction(txId), yxHistoryApiService);
     }
 
     @Override
     public Request<Actions> getActions(String accountName, Integer startPosition, Integer offset) {
+        if (yxHistoryApiService == null) throw new IllegalStateException("Chain explorer URL is not set");
         return new Request<>(yxHistoryApiService.getService().getActions(accountName, startPosition, offset), yxHistoryApiService);
     }
 
