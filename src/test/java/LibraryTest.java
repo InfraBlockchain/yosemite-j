@@ -2,28 +2,22 @@ import com.google.gson.Gson;
 import io.yosemite.crypto.ec.EcDsa;
 import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.account.Account;
-import io.yosemite.data.remote.event.TxIrreversibilityResponse;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.transaction.Transaction;
-import io.yosemite.exception.YosemiteApiException;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
-import io.yosemite.services.event.EventNotificationCallback;
-import io.yosemite.services.event.YosemiteEventNotificationClient;
-import io.yosemite.services.event.YosemiteEventNotificationClientFactory;
-import io.yosemite.services.yxcontracts.*;
+import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
+import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import io.yosemite.util.Utils;
 import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Signed;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.concurrent.CompletionException;
+import java.util.Collections;
 
 import static org.junit.Assert.assertTrue;
 
@@ -68,7 +62,7 @@ public class LibraryTest {
         PushedTransaction pushedTransaction = yxj.createAccount("idauth1", "joepark1good",
                 "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ",
                 "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ",
-                new String[]{"idauth1@active"}, null
+                null
         ).join();
 
         logger.debug(pushedTransaction.getTransactionId());
@@ -135,18 +129,22 @@ public class LibraryTest {
         apiClient.setTransactionVoteTarget("d1");
         apiClient.setDelegatedTransactionFeePayer("payeraccount");
 
-            Account serviceUser = apiClient.getAccount("serviceuser1").execute();
+        Account serviceUser = apiClient.getAccount("serviceuser1").execute();
         Account userAccount = apiClient.getAccount("useraccounta").execute();
         Account payerAccount = apiClient.getAccount("payeraccount").execute();
 
         String contract = "yx.ntoken";
         String action = "transfer";
         String data = "{\"from\":\"" + serviceUser.getAccountName() + "\",\"to\":\"" + userAccount.getAccountName() + "\",\"amount\":\"1.00 DKRW\",\"memo\":\"test\"}";
-        String[] permissions = new String[]{serviceUser.getAccountName() + "@active"};
 
         YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
 
-        final SignedTransaction signedTransactionByService = yxj.signTransaction(contract, action , data, permissions, new String[]{serviceUser.getActivePublicKey()}).join();
+        TransactionParameters txParameters = TransactionParameters.Builder().
+                addPermission(serviceUser.getAccountName()).
+                addPublicKey(serviceUser.getActivePublicKey()).
+                build();
+        final SignedTransaction signedTransactionByService = yxj.signTransaction(
+                contract, action , data, txParameters).join();
 
         logger.debug("\nFirst Signed Transaction:\n" + Utils.prettyPrintJson(signedTransactionByService));
 
@@ -158,7 +156,8 @@ public class LibraryTest {
 
         final SignedTransaction unmarshalledTransaction = gson.fromJson(stringifiedSignedTransactionByService, SignedTransaction.class);
 
-        final SignedTransaction finalSignedTransaction = yxj.signTransaction(unmarshalledTransaction, chainId, new String[]{payerAccount.getActivePublicKey()}).join();
+        final SignedTransaction finalSignedTransaction = yxj.signTransaction(
+                unmarshalledTransaction, chainId, Collections.singletonList(payerAccount.getActivePublicKey())).join();
 
         logger.debug("\nFinal Signed Transaction:\n" + Utils.prettyPrintJson(finalSignedTransaction));
 
@@ -169,215 +168,4 @@ public class LibraryTest {
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
     }
 
-    //@Test
-    public void testYosemiteTokenJ() throws InterruptedException {
-
-        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
-
-        YosemiteTokenJ yxj = new YosemiteTokenJ(apiClient);
-
-        EnumSet<YosemiteTokenJ.CanSetOptionsType> emptyOptions = EnumSet.noneOf(YosemiteTokenJ.CanSetOptionsType.class);
-        PushedTransaction pushedTransaction = null;
-        try {
-            pushedTransaction = yxj.createToken("TEST", 5, "d2", emptyOptions, new String[]{"d2@active"}, null).join();
-        } catch (CompletionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof YosemiteApiException) {
-                logger.debug("Pushed Error Transaction: " + ((YosemiteApiException)cause).getTransactionId());
-            }
-            throw e;
-        }
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        Thread.sleep(1000);
-
-        pushedTransaction = yxj.issueToken("user1", "100000.00000 TEST", "d2", "my memo", new String[]{"d2@active"}, null).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        Thread.sleep(1000);
-
-        pushedTransaction = yxj.transferToken("user1", "d2", "10000.00000 TEST", "d2", "my memo", new String[]{"user1@active"}, null).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        Thread.sleep(1000);
-
-        pushedTransaction = yxj.redeemToken("20000.00000 TEST", "d2", "my memo", new String[]{"d2@active"}, null).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        Thread.sleep(1000);
-
-        TableRow tableRow = yxj.getTokenStats("TEST", 5, "d2").join();
-        for (Map<String, ?> row : tableRow.getRows()) {
-            // There must be only one row.
-            logger.debug(row.toString());
-        }
-
-        tableRow = yxj.getTokenAccountBalance("TEST", 5, "d2", "user1").join();
-        for (Map<String, ?> row : tableRow.getRows()) {
-            // There must be only one row.
-            logger.debug(row.toString());
-        }
-    }
-
-    //@Test
-    public void testYosemiteTokenManagement() throws InterruptedException {
-
-        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
-
-        YosemiteTokenJ yxj = new YosemiteTokenJ(apiClient);
-
-        EnumSet<YosemiteTokenJ.CanSetOptionsType> allOptions = EnumSet.allOf(YosemiteTokenJ.CanSetOptionsType.class);
-        PushedTransaction pushedTransaction = yxj.createToken("XYZ", 4, "d2", allOptions, new String[]{"d2@active"}, null).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        Thread.sleep(1000);
-
-        EnumSet<KYCStatusType> kycStatusPhoneAuth = EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH);
-        pushedTransaction = yxj.setTokenKYCRule("XYZ", 4, "d2", AbstractToken.TokenRuleType.KYC_RULE_TRANSFER_RECEIVE,
-                kycStatusPhoneAuth, new String[]{"d2@active"}, null).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        EnumSet<YosemiteTokenJ.TokenOptionsType> freezeTokenTransfer = EnumSet.of(AbstractToken.TokenOptionsType.FREEZE_TOKEN_TRANSFER);
-        pushedTransaction = yxj.setTokenOptions("XYZ", 4, "d2", freezeTokenTransfer, true, new String[]{"d2@active"}, null).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        List<String> accounts = Arrays.asList("user1", "user2");
-        pushedTransaction = yxj.freezeAccounts("XYZ", 4, "d2", accounts, true, new String[]{"d2@active"}, null).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-    }
-
-    //@Test
-    public void testYosemiteDigitalContractJ() throws InterruptedException {
-
-        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
-
-        YosemiteDigitalContractJ yxj = new YosemiteDigitalContractJ(apiClient);
-
-        // 0. remove digital contract first
-        PushedTransaction pushedTransaction;
-        try {
-            pushedTransaction = yxj.removeDigitalContract("servprovider", 11, new String[]{"servprovider@active"}, null).join();
-            logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        } catch (Exception ignored) {
-        }
-
-        // 1. create digital contract
-        List<String> signers = Arrays.asList("user1", "user2");
-        // prepare expiration time based on UTC time-zone
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.add(Calendar.HOUR, 48);
-        Date expirationTime = calendar.getTime();
-
-        pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
-                signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short) 0, new String[]{"servprovider@active"}, null).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        Thread.sleep(1000);
-
-        // 2. add additional signers if needed
-        List<String> newSigners = Collections.singletonList("user3");
-        pushedTransaction = yxj.addSigners("servprovider", 11, newSigners, new String[]{"servprovider@active"}, null).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        Thread.sleep(1000);
-
-        // 3. sign contract by signers
-        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", new String[]{"user2@active"}, null).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user3", "I am user3", new String[]{"user3@active"}, null).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        pushedTransaction = yxj.updateAdditionalDocumentHash("servprovider", 11, "added after signing", new String[]{"servprovider@active"}, null).join();
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-
-        TableRow tableRow = yxj.getCreatedDigitalContract("servprovider", 11).join();
-        for (Map<String, ?> row : tableRow.getRows()) {
-            // There must be only one row.
-            logger.debug(row.toString());
-        }
-
-        TableRow signerInfoTable = yxj.getSignerInfo("user3", "servprovider", 11).join();
-        logger.debug(String.valueOf(signerInfoTable.getMore()));
-        for (Map<String, ?> row : signerInfoTable.getRows()) {
-            // There must be only one row.
-            logger.debug(row.toString());
-            logger.debug((String) row.get("signerinfo"));
-        }
-    }
-
-    private class TestEventCallback implements EventNotificationCallback<TxIrreversibilityResponse> {
-
-        @Override
-        public void eventNotified(TxIrreversibilityResponse response, Map<String, Object> responseJsonMap) {
-            logger.debug(responseJsonMap.toString());
-        }
-
-        @Override
-        public void errorOccurred(Throwable error) {
-        }
-    }
-
-    //@Test
-    public void testYosemiteEventNotificationWithDigitalContract() throws InterruptedException {
-        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
-        YosemiteEventNotificationClient yosemiteEventNotificationClient =
-                YosemiteEventNotificationClientFactory.createYosemiteEventNotificationClient("ws://127.0.0.1:8888");
-        yosemiteEventNotificationClient.subscribe();
-
-        YosemiteDigitalContractJ yxj = new YosemiteDigitalContractJ(apiClient);
-
-        // 0. remove digital contract first
-        PushedTransaction pushedTransaction;
-        try {
-            pushedTransaction = yxj.removeDigitalContract("servprovider", 11, new String[]{"servprovider@active"}, null).join();
-            logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
-            yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());
-        } catch (Exception ignored) {
-        }
-
-        // 1. create digital contract
-        List<String> signers = Arrays.asList("user1", "user2");
-        // prepare expiration time based on UTC time-zone
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.add(Calendar.HOUR, 48);
-        Date expirationTime = calendar.getTime();
-
-        pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
-                signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short) 0, new String[]{"servprovider@active"}, null).join();
-        logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-        yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());
-
-        // 2. sign contract by signers
-        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", null, null).join();
-        logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-        yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());
-
-        pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user1", "I am user1", null, null).join();
-        logger.debug("Pushed Transaction Id: " + pushedTransaction.getTransactionId());
-        assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
-        yosemiteEventNotificationClient.checkTransactionIrreversibility(pushedTransaction.getTransactionId(), new TestEventCallback());
-
-        Thread.sleep(5000);
-        yosemiteEventNotificationClient.unsubscribe();
-    }
 }

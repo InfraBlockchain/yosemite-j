@@ -24,15 +24,23 @@
 package io.yosemite.data.types;
 
 import com.google.gson.annotations.Expose;
+import io.yosemite.Consts;
 
 
 public class TypePermissionLevel implements EosType.Packer {
+
+    private final static TypePermissionName ACTIVE_PERMISSION = new TypePermissionName(Consts.ACTIVE_PERMISSION_NAME);
 
     @Expose
     private TypeAccountName actor;
 
     @Expose
     private TypePermissionName permission;
+
+    public TypePermissionLevel(String accountName) {
+        actor = new TypeAccountName(accountName);
+        permission = ACTIVE_PERMISSION;
+    }
 
     public TypePermissionLevel(String accountName, String permissionName) {
         actor = new TypeAccountName(accountName);

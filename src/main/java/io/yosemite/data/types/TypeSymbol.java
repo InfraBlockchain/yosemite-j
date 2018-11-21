@@ -24,7 +24,7 @@
 
 package io.yosemite.data.types;
 
-import io.yosemite.util.Consts;
+import io.yosemite.Consts;
 import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
 
