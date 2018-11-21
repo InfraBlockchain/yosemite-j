@@ -131,6 +131,10 @@ For such pending transaction, it can be expired. The DApps can set the expiratio
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", 30000);
 ```
 
+### Setting transaction parameters for each transaction
+Setting of Transaction-as-a-Vote(TaaV) Account, transaction expiration time, and delegated fee payer including required permissions and public keys can be set by TransactionParameters class for each action or transaction.
+You can see the sample usages of TransactionParameters and TransactionParametersBuilder from samples.
+
 ### Pushing action
 If you want to push an action as a transaction to a deployed contract on the blockchain, you can use `pushAction` method.
 API calls are asynchronously composed using `CompletableFuture` in each method. The returned `PushedTransaction` instance provides the transaction id.
@@ -140,9 +144,9 @@ API calls are asynchronously composed using `CompletableFuture` in each method. 
 String contract = "yx.ntoken";
 String action = "transfer";
 String data = "{\"from\":\"user1\",\"to\":\"user2\",\"quantity\":\"1000.0000 DKRW\",\"memo\":\"test\"}";
-String[] permissions = new String[]{"user1@active"};
+TransactionParameters txParameters = TransactionParameters.Builder().addPermission("user1").build();
 
-PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, permissions).join();
+PushedTransaction pushedTransaction = yxj.pushAction(contract, action, data, txParameters).join();
 
 String txId = pushedTransaction.getTransactionId();
 ```
@@ -205,18 +209,25 @@ final String[] permissions = "...";
 final String[] requiredPublicKeys = "...";
 
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
-apiClient.setDelegatedTransactionFeePayer(payerAccountName);
+//apiClient.setDelegatedTransactionFeePayer(payerAccountName); // globally set but not recommended
 
 // Here, we use YosemiteNativeTokenJ as an example
 YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
 
-final SignedTransaction signedTransactionByService = yxj.signTransaction(contract, action , data, permissions, requiredPublicKeys).join();
+TransactionParameters txParameters = TransactionParameters.Builder().
+        addPermission(...).addPermission(...).
+        addPublicKey(...).addPublicKey(...).
+        setDelegatedTransactionFeePayer(payerAccountName).
+        build();
+final SignedTransaction signedTransactionByService = yxj.signTransaction(
+    contract, action , data, txParameters).join();
 
 // Send `signedTransactionByService` to the payer. Here we assume that `unmarshalledTransaction` is what the payer side receives and unmarshalls after that.
 final SignedTransaction unmarshalledReceivedTransaction = "...";
 
 // Lastly, sign the transaction with the payer's account. Remember how the method signature is different from the one above. The former `signTransaction()` is only used when the signed transaction is initiated and all subsequent signing operations should be performed by the one below.
-final SignedTransaction finalSignedTransaction = yxj.signTransaction(unmarshalledReceivedTransaction, chainId, new String[]{payerAccountPublicKey}).join();
+final SignedTransaction finalSignedTransaction = yxj.signTransaction(
+    unmarshalledReceivedTransaction, chainId, Collections.singletonList(payerAccountPublicKey)).join();
 
 // Push the transaction to the network
 PushedTransaction pushedTransaction = apiClient.pushTransaction(new PackedTransaction(finalSignedTransaction)).execute();
@@ -255,11 +266,14 @@ YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
 
 String identityPublicKey = "YOS8fCYDtA6FRYtnDpJ4qkoHq3riQUDyTebdsTAR5SDYUkaefNHMR"; // get it from your service location
 
+TransactionParameters txParameters = TransactionParameters.Builder().
+        addPermission("identity").
+        addPublicKey(identityPublicKey).
+        build();
 PushedTransaction pushedTransaction = yxj.createAccount("identity", "user1account",
                 "YOS8Ledj...vr9gj",
                 "YOS8Ledj...vr9gj",
-                new String[]{"identity@active"},
-                new String[]{identityPublicKey}).join();
+                txParameters).join();
 ``` 
 
 ## Native Token Actions
@@ -270,12 +284,16 @@ import io.yosemite.services.yxcontracts.*;
 
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
-PushedTransaction pushedTransaction = yxj.issueNativeToken("servprovider", "1000000.0000 DKRW", "sysdepo", "memo", new String[]{"sysdepo@active"}).join();
+PushedTransaction pushedTransaction = yxj.issueNativeToken(
+        "servprovider", "1000000.0000 DKRW", "sysdepo", "memo", null).join();
 ```
 
 ### Redeeming Native Token
 ```java
-PushedTransaction pushedTransaction = yxj.redeemNativeToken("100000.0000 DKRW", "sysdepo", "memo", new String[]{"sysdepo@active"}).join();
+TransactionParameters txParameters = TransactionParameters.Builder().
+        addPermission("sysdepo").
+        build();
+PushedTransaction pushedTransaction = yxj.redeemNativeToken("100000.0000 DKRW", "sysdepo", "memo", txParameters).join();
 ```
 
 ### Transferring Native Token
@@ -318,28 +336,37 @@ TableRow tableRow = yxj.getNativeTokenAccountTotalBalance("user1").join();
 
 ### Creating Token
 ```java
-PushedTransaction pushedTransaction = yxj.createToken("BTC", 4, "d2", new String[]{"d2@active"}).join();
+TransactionParameters txParameters = TransactionParameters.Builder().
+        addPermission("d2").
+        build();
+PushedTransaction pushedTransaction = yxj.createToken("BTC", 4, "d2", txParameters).join();
 ```
 
-### Issuing Token
+### Issueing Token
 ```java
-PushedTransaction pushedTransaction = yxj.issueToken("user1", "100000.0000 BTC", "d2", "my memo", new String[]{"d2@active"}).join();
+PushedTransaction pushedTransaction = yxj.issueToken("user1", "100000.0000 BTC", "d2", "my memo", txParameters).join();
 ```
 
 ### Redeeming Token
 ```java
-PushedTransaction pushedTransaction = yxj.redeemToken("20000.0000 BTC", "d2", "my memo", new String[]{"d2@active"}).join();
+PushedTransaction pushedTransaction = yxj.redeemToken("20000.0000 BTC", "d2", "my memo", txParameters).join();
 ```
 
 ### Transferring Token
 #### Without fee payer
 ```java
-PushedTransaction pushedTransaction = yxj.transferToken("user1", "user2", "100.0000 BTC", "d2", "my memo", new String[]{"user1@active"}).join();
+TransactionParameters txParameters = TransactionParameters.Builder().
+        addPermission("user1").
+        build();
+PushedTransaction pushedTransaction = yxj.transferToken("user1", "user2", "100.0000 BTC", "d2", "my memo", txParameters).join();
 ```
 
 #### With fee payer
 ```java
-PushedTransaction pushedTransaction = yxj.transferToken("user1", "user2", "100.0000 BTC", "d2", "servprovider", "my memo", new String[]{"user1@active"}).join();
+TransactionParameters txParameters = TransactionParameters.Builder().
+        setDelegatedTransactionFeePayer("servprovider").
+        build();
+PushedTransaction pushedTransaction = yxj.transferToken("user1", "user2", "100.0000 BTC", "d2", "my memo", txParameters).join();
 ```
 
 ### Getting Token Statistics of Issuer
@@ -383,7 +410,7 @@ calendar.add(Calendar.HOUR, 48); // contract will be expired after 2 days
 Date expirationTime = calendar.getTime();
 
 PushedTransaction pushedTransaction = yxj.createDigitalContract("servprovider", 11, "test1234", "",
-        signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short)0, new String[]{"servprovider@active"}).join();
+        signers, expirationTime, 0, EnumSet.noneOf(KYCStatusType.class), (short)0, null).join();
 ```
 * Even if createDigitalContract method returns successfully, the digital contract you have created is not actually created on the YosemiteChain.
 * The create action must be included in the block and finally confirmed by other block producers, which it is called the action is irreversible.
@@ -393,22 +420,22 @@ PushedTransaction pushedTransaction = yxj.createDigitalContract("servprovider", 
 ### Adding Additional Signers
 ```java
 List<String> newSigners = Collections.singletonList("user3");
-pushedTransaction = yxj.addSigners("servprovider", 11, newSigners, new String[]{"servprovider@active"}).join();
+pushedTransaction = yxj.addSigners("servprovider", 11, newSigners, null).join();
 ```
 
 ### Signing Digital Contract
 ```java
-pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", new String[]{"user2@active"}).join();
-pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user3", "I am user3", new String[]{"user3@active"}).join();
+pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user2", "", null).join();
+pushedTransaction = yxj.signDigitalDocument("servprovider", 11, "user3", "I am user3", null).join();
 ```
 ### Updating Additional Document Hash of Digital Contract
 ```java
-pushedTransaction = yxj.updateAdditionalDocumentHash("servprovider", 11, "added after signing", new String[]{"servprovider@active"}).join();
+pushedTransaction = yxj.updateAdditionalDocumentHash("servprovider", 11, "added after signing", null).join();
 ```
 
 ### Removing Digital Contract
 ```java
-pushedTransaction = yxj.removeDigitalContract("servprovider", 11, new String[]{"servprovider@active"}).join();
+pushedTransaction = yxj.removeDigitalContract("servprovider", 11, null).join();
 ```
 
 ### Getting Created Digital Contract
