@@ -11,7 +11,7 @@ import java.util.List;
  * Contains the API-level transaction parameters.
  */
 public class TransactionParameters {
-    private List<TypePermissionLevel> permissions = new ArrayList<>();
+    private final List<TypePermissionLevel> permissions = new ArrayList<>();
     private List<String> publicKeys = new ArrayList<>();
     private String delegatedTransactionFeePayer;
     private String transactionVoteTarget;
@@ -26,7 +26,7 @@ public class TransactionParameters {
      */
     public static class TransactionParametersBuilder {
 
-        private TransactionParameters txParameters = new TransactionParameters();
+        private final TransactionParameters txParameters = new TransactionParameters();
 
         public TransactionParameters build() {
             txParameters.publicKeys = Collections.unmodifiableList(txParameters.publicKeys);
