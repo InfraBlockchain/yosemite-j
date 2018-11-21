@@ -3,6 +3,7 @@ package io.yosemite.sample;
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.chain.account.Account;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
@@ -56,9 +57,14 @@ public class NonFungibleTokenContractJSample extends SampleCommon {
             tokenUser1PublicKey = apiClient.getAccount("tkuserxxxxx1").execute().getActivePublicKey();
         }
 
+        TransactionParameters txParametersForTokenProvider =
+                TransactionParameters.Builder().addPublicKey(tokenProviderPublicKey).build();
+        TransactionParameters txParametersForUser1 =
+                TransactionParameters.Builder().addPublicKey(tokenUser1PublicKey).build();
+
         YosemiteNativeTokenJ nativeTokenJ = new YosemiteNativeTokenJ(apiClient);
         PushedTransaction pushedTransaction = nativeTokenJ.issueNativeToken(
-                "tkuserxxxxx1", "1000000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "", null, null).join();
+                "tkuserxxxxx1", "1000000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "", null).join();
         log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
 
         YosemiteNonFungibleTokenJ yxTokenJ = new YosemiteNonFungibleTokenJ(apiClient);
@@ -66,7 +72,7 @@ public class NonFungibleTokenContractJSample extends SampleCommon {
         try {
             EnumSet<YosemiteTokenJ.CanSetOptionsType> emptyOptions = EnumSet.noneOf(YosemiteTokenJ.CanSetOptionsType.class);
             pushedTransaction = yxTokenJ.createToken("MYITEM", TOKEN_PROVIDER_ACCOUNT, emptyOptions,
-                    null, new String[]{tokenProviderPublicKey}).join();
+                    txParametersForTokenProvider).join();
             log("Create Transaction:" + pushedTransaction.getTransactionId());
         } catch (Exception e) {
             log(e.toString()); // already created
@@ -77,7 +83,7 @@ public class NonFungibleTokenContractJSample extends SampleCommon {
         ids.add(1001L);
 
         try {
-            pushedTransaction = yxTokenJ.redeemToken(TOKEN_PROVIDER_ACCOUNT, ids, "my memo", null, new String[]{tokenProviderPublicKey}).join();
+            pushedTransaction = yxTokenJ.redeemToken(TOKEN_PROVIDER_ACCOUNT, ids, "my memo", txParametersForTokenProvider).join();
             log("Redeem Transaction:" + pushedTransaction.getTransactionId());
             if (!wait_for_irreversibility) {
                 waitForIrreversibility(apiClient, pushedTransaction);
@@ -90,7 +96,7 @@ public class NonFungibleTokenContractJSample extends SampleCommon {
         uris.add("http://game.com/git0");
         uris.add("http://game.com/git1");
         pushedTransaction = yxTokenJ.issueToken("tkuserxxxxx1", "MYITEM", TOKEN_PROVIDER_ACCOUNT, ids, uris, "swordX",
-                "my memo", null, new String[]{tokenProviderPublicKey}).join();
+                "my memo", txParametersForTokenProvider).join();
         log("Issue Transaction:" + pushedTransaction.getTransactionId());
 
         TableRow tableRow = yxTokenJ.getTokenStats("MYITEM", TOKEN_PROVIDER_ACCOUNT).join();
@@ -112,10 +118,10 @@ public class NonFungibleTokenContractJSample extends SampleCommon {
         }
 
         pushedTransaction = yxTokenJ.transferByTokenId("tkuserxxxxx1", TOKEN_PROVIDER_ACCOUNT, TOKEN_PROVIDER_ACCOUNT, ids, "transfer for redeem",
-                null, new String[]{tokenUser1PublicKey}).join();
+                txParametersForUser1).join();
         log("TransferId Transaction:" + pushedTransaction.getTransactionId());
 
-        pushedTransaction = yxTokenJ.redeemToken(TOKEN_PROVIDER_ACCOUNT, ids, "my memo", null, new String[]{tokenProviderPublicKey}).join();
+        pushedTransaction = yxTokenJ.redeemToken(TOKEN_PROVIDER_ACCOUNT, ids, "my memo", txParametersForTokenProvider).join();
         log("Redeem Transaction:" + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);

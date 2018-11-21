@@ -2,6 +2,7 @@ package io.yosemite.sample;
 
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.history.transaction.Transaction;
+import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.yxcontracts.KYCStatusType;
 import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
@@ -39,9 +40,9 @@ abstract class SampleCommon {
         String contract = "yx.identity";
         String action = "setidinfo";
         String data = "{\"identity_authority\":\"" + identityAuthorityAccount + "\",\"account\":\"" + accountName + "\",\"type\":0,\"kyc\":" + KYCStatusType.getAsBitFlags(flags) + ",\"state\":0,\"data\":\"\"}";
-        String[] permissions = new String[]{identityAuthorityAccount + "@active"};
+        TransactionParameters txParameters = TransactionParameters.Builder().addPermission(identityAuthorityAccount).build();
 
-        PushedTransaction pushedTransaction = yxSystemJ.pushAction(contract, action, data, permissions).join();
+        PushedTransaction pushedTransaction = yxSystemJ.pushAction(contract, action, data, txParameters).join();
         log("\nsetidinfo Transaction:\n" + pushedTransaction.getTransactionId());
     }
 
@@ -63,7 +64,7 @@ abstract class SampleCommon {
         // issue native token by system depository
         YosemiteNativeTokenJ nativeTokenJ = new YosemiteNativeTokenJ(apiClient);
         PushedTransaction pushedTransaction = nativeTokenJ.issueNativeToken(
-                accountName, "1000000.00 DKRW", systemDepositoryAccount, "", null, null).join();
+                accountName, "1000000.00 DKRW", systemDepositoryAccount, "", null).join();
         log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
     }
 
@@ -71,7 +72,7 @@ abstract class SampleCommon {
                                           String creator, String accountName) {
         String publicKey = apiClient.createKey().execute();
         PushedTransaction pushedTransaction = yxSystemJ.createAccount(
-                creator, accountName, publicKey, publicKey, null, null).join();
+                creator, accountName, publicKey, publicKey, null).join();
         log("Account Creation Transaction : " + pushedTransaction.getTransactionId());
         return publicKey;
     }

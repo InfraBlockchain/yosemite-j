@@ -1,6 +1,6 @@
 package io.yosemite.services;
 
-import io.yosemite.util.Consts;
+import io.yosemite.Consts;
 import io.yosemite.util.StringUtils;
 
 public class YosemiteApiClientFactory {

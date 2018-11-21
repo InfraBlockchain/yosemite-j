@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import io.yosemite.crypto.util.HexUtils;
 import io.yosemite.data.types.*;
 
-import static io.yosemite.util.Consts.YOSEMITE_SYSTEM_CONTRACT;
+import static io.yosemite.Consts.YOSEMITE_SYSTEM_CONTRACT;
 
 public class ActionNewAccount implements EosType.Packer {
 
