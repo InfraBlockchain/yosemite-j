@@ -40,13 +40,17 @@ public class PushedTransaction {
     private TransactionTrace processed;
 
     /**
-     * @return the string representation of SHA-256 hash of transaction bytes; you can use this value for retrieving transaction information from the Yosemite network.
+     * @return the string representation of SHA-256 hash of transaction bytes; you can use this value for retrieving
+     *         transaction information from the Yosemite network.
      */
     public String getTransactionId() {
         return transactionId;
     }
 
-    public TransactionTrace getProcessed() {
+    /**
+     * @return transaction processing result including pushed block number and block time
+     */
+    public TransactionTrace getTransactionTrace() {
         return processed;
     }
 

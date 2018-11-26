@@ -3,7 +3,6 @@ package io.yosemite.data.remote.chain;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-
 public class TransactionReceiptHeader {
 
 //    enum status_enum {
@@ -18,11 +17,11 @@ public class TransactionReceiptHeader {
 
     @Expose
     @SerializedName("cpu_usage_us")
-    private long cpuUsageUs;   ///< total billed CPU usage (microseconds)
+    private long cpuUsageUs;
 
     @Expose
     @SerializedName("net_usage_words")
-    private long netUsageWords;///<  total billed NET usage, so we can reconstruct resource state when skipping context free data... hard failures...
+    private long netUsageWords;
 
     public String getStatus() {
         return status;

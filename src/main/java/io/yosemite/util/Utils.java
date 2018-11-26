@@ -30,7 +30,10 @@ import io.yosemite.data.util.*;
 
 import java.io.Closeable;
 import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -104,5 +107,16 @@ public class Utils {
         wasm128BitInteger = wasm128BitInteger.shiftLeft(64);
         wasm128BitInteger = wasm128BitInteger.add(BigInteger.valueOf(Long.reverseBytes(valueHigh)));
         return wasm128BitInteger;
+    }
+
+    /**
+     * Converts "yyyy-MM-dd'T'HH:mm:ss" string to java Date.
+     * @param eosTimestamp "yyyy-MM-dd'T'HH:mm:ss"
+     * @return java Date instance
+     * @throws ParseException if eosTimestamp is wrong-formatted
+     */
+    public static Date convertTimestampToDate(String eosTimestamp) throws ParseException {
+        DateFormat sdf = Utils.SIMPLE_DATE_FORMAT_FOR_EOS.get();
+        return sdf.parse(eosTimestamp);
     }
 }

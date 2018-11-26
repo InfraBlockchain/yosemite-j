@@ -81,7 +81,7 @@ public class DigitalContractJSample extends SampleCommon {
         try {
             pushedTransaction = digitalContractJ.removeDigitalContract(
                     SERVICE_PROVIDER_ACCOUNT, 20, txParametersForServiceProvider).join();
-            log("\nPushed Remove Transaction:\n" + pushedTransaction.getTransactionId());
+            log("Pushed Remove Transaction:" + pushedTransaction.getTransactionId());
         } catch (Exception ignored) {
         }
 
@@ -95,7 +95,7 @@ public class DigitalContractJSample extends SampleCommon {
         pushedTransaction = digitalContractJ.createDigitalContract(SERVICE_PROVIDER_ACCOUNT, 20, "test1234", "",
                 signers, expirationTime, 0, EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH), (short) 0,
                 txParametersForServiceProvider).join();
-        log("\nPushed Create Transaction:\n" + pushedTransaction.getTransactionId());
+        log("Pushed Create Transaction: " + pushedTransaction.getTransactionId() + ", block number=" + pushedTransaction.getTransactionTrace().getBlockNumer());
 
         // 3. sign contract by signers
         TransactionParameters txParametersForUser2 = TransactionParameters.Builder().
@@ -105,7 +105,7 @@ public class DigitalContractJSample extends SampleCommon {
                 build();
         pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 20, USER2_ACCOUNT, "",
                 txParametersForUser2).join();
-        log("\nPushed Sign Transaction:\n" + pushedTransaction.getTransactionId());
+        log("Pushed Sign Transaction: " + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
         }
@@ -117,7 +117,7 @@ public class DigitalContractJSample extends SampleCommon {
                 build();
         pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 20, USER1_ACCOUNT, "I am user1",
                 txParametersForUser1).join();
-        log("\nPushed Sign Transaction:\n" + pushedTransaction.getTransactionId());
+        log("Pushed Sign Transaction: " + pushedTransaction.getTransactionId());
         if (wait_for_irreversibility) {
             waitForIrreversibility(apiClient, pushedTransaction);
         }
@@ -125,7 +125,7 @@ public class DigitalContractJSample extends SampleCommon {
         // update additional info
         pushedTransaction = digitalContractJ.updateAdditionalDocumentHash(SERVICE_PROVIDER_ACCOUNT, 20, "added after signing",
                 txParametersForServiceProvider).join();
-        log("\nPushed Transaction:\n" + pushedTransaction.getTransactionId());
+        log("Pushed Transaction: " + pushedTransaction.getTransactionId());
 
         log("");
         log("[Digital Contract]");

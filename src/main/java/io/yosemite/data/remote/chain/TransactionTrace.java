@@ -26,6 +26,8 @@ package io.yosemite.data.remote.chain;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import io.yosemite.data.remote.chain.yosemite.TransactionVote;
+import io.yosemite.data.types.TypeAccountName;
 
 import java.util.List;
 
@@ -35,6 +37,14 @@ public class TransactionTrace {
     private String id;
 
     @Expose
+    @SerializedName("block_num")
+    private long blockNumer;
+
+    @Expose
+    @SerializedName("block_time")
+    private String blockTime;
+
+    @Expose
     private TransactionReceiptHeader receipt;
 
     @Expose
@@ -42,17 +52,65 @@ public class TransactionTrace {
 
     @Expose
     @SerializedName("net_usage")
-    private long netUsage; // uint64_t
+    private long netUsage;
 
     @Expose
-    private boolean scheduled = false;
+    private boolean scheduled;
 
     @Expose
     @SerializedName("action_traces")
     private List<ActionTrace> actionTraces;
 
     @Expose
+    @SerializedName("trx_vote")
+    private TransactionVote transactionVote;
+
+    @Expose
+    @SerializedName("fee_payer")
+    private TypeAccountName feePayer;
+
+    @Expose
     private JsonElement except;
+
+    public String getId() {
+        return id;
+    }
+
+    public long getBlockNumer() {
+        return blockNumer;
+    }
+
+    public String getBlockTime() {
+        return blockTime;
+    }
+
+    public TransactionReceiptHeader getReceipt() {
+        return receipt;
+    }
+
+    public long getElapsed() {
+        return elapsed;
+    }
+
+    public long getNetUsage() {
+        return netUsage;
+    }
+
+    public boolean isScheduled() {
+        return scheduled;
+    }
+
+    public TransactionVote getTransactionVote() {
+        return transactionVote;
+    }
+
+    public TypeAccountName getFeePayer() {
+        return feePayer;
+    }
+
+    public JsonElement getExcept() {
+        return except;
+    }
 
     public List<ActionTrace> getActionTraces() {
         return actionTraces;

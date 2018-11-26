@@ -1,5 +1,6 @@
 package io.yosemite.data.remote.chain;
 
+import com.google.gson.JsonElement;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -14,22 +15,29 @@ public class ActionTrace {
     private Action act;
 
     @Expose
-    private long elapsed;
+    @SerializedName("context_free")
+    private boolean contextFree;
 
     @Expose
-    @SerializedName("cpu_usage")
-    private long cpuUsage;
+    private long elapsed;
 
     @Expose
     private String console;
 
     @Expose
-    @SerializedName("total_cpu_usage")
-    private long totalCpuUsage;
-
-    @Expose
     @SerializedName("trx_id")
     private String trxId;
+
+    @Expose
+    @SerializedName("block_num")
+    private long blockNumer;
+
+    @Expose
+    @SerializedName("block_time")
+    private String blockTime;
+
+    @Expose
+    private JsonElement except;
 
     @Expose
     @SerializedName("inline_traces")
@@ -47,20 +55,28 @@ public class ActionTrace {
         return elapsed;
     }
 
-    public long getCpuUsage() {
-        return cpuUsage;
-    }
-
     public String getConsole() {
         return console;
     }
 
-    public long getTotalCpuUsage() {
-        return totalCpuUsage;
-    }
-
     public String getTrxId() {
         return trxId;
+    }
+
+    public boolean isContextFree() {
+        return contextFree;
+    }
+
+    public long getBlockNumer() {
+        return blockNumer;
+    }
+
+    public String getBlockTime() {
+        return blockTime;
+    }
+
+    public JsonElement getExcept() {
+        return except;
     }
 
     public List<ActionTrace> getInlineTraces() {
