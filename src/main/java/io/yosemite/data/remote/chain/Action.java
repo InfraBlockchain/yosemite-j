@@ -26,6 +26,7 @@ package io.yosemite.data.remote.chain;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import io.yosemite.crypto.util.HexUtils;
 import io.yosemite.data.types.EosType;
 import io.yosemite.data.types.TypeAccountName;
@@ -48,6 +49,10 @@ public class Action implements EosType.Packer {
 
     @Expose
     private JsonElement data;
+
+    @Expose
+    @SerializedName("hex_data")
+    private String hexData;
 
     public Action(String account, String name, TypePermissionLevel authorization, String data) {
         this.account = new TypeAccountName(account);
@@ -106,6 +111,10 @@ public class Action implements EosType.Packer {
 
     public void setData(String data) {
         this.data = new JsonPrimitive(data);
+    }
+
+    public String getHexData() {
+        return hexData;
     }
 
     @Override

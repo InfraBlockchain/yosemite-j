@@ -58,7 +58,7 @@ public class TokenContractJSample extends SampleCommon {
         YosemiteNativeTokenJ nativeTokenJ = new YosemiteNativeTokenJ(apiClient);
         PushedTransaction pushedTransaction = nativeTokenJ.issueNativeToken(
                 "tkuserxxxxx1", "1000000.00 DKRW", SYSTEM_DEPOSITORY_ACCOUNT, "", null).join();
-        log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
+        log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId() + ", block number=" + pushedTransaction.getTransactionTrace().getBlockNumer());
 
         YosemiteTokenJ yxTokenJ = new YosemiteTokenJ(apiClient);
         TransactionParameters txParametersForTokenProvider =
@@ -77,7 +77,7 @@ public class TokenContractJSample extends SampleCommon {
 
         pushedTransaction = yxTokenJ.issueToken("tkuserxxxxx1", "1.23456789 XYZ", TOKEN_PROVIDER_ACCOUNT, "my memo",
                 txParametersForTokenProvider).join();
-        log("Issue Transaction:" + pushedTransaction.getTransactionId());
+        log("Issue Transaction:" + pushedTransaction.getTransactionId() + ", block number=" + pushedTransaction.getTransactionTrace().getBlockNumer());
 
         log("");
         log("[Token Stats]");
