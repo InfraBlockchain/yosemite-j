@@ -109,7 +109,7 @@ public class EosByteWriter implements EosType.Writer {
 
     @Override
     public void putString(String value) {
-        if (null == value) {
+        if (null == value || value.isEmpty()) {
             putVariableUInt(0);
             return;
         }
@@ -120,7 +120,7 @@ public class EosByteWriter implements EosType.Writer {
 
     @Override
     public void putCollection(Collection<? extends EosType.Packer> collection) {
-        if (null == collection) {
+        if (null == collection || collection.isEmpty()) {
             putVariableUInt(0);
             return;
         }

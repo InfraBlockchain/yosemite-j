@@ -125,7 +125,7 @@ public abstract class YosemiteJ {
      * Push an action to the Yosemite chain network.
      * @param contract the name of the smart contract
      * @param action the name of the action method
-     * @param data the json formatted data
+     * @param data the json-formatted data
      * @param params common parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
