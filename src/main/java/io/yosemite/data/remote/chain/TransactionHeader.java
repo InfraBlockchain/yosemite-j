@@ -1,6 +1,7 @@
 package io.yosemite.data.remote.chain;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import io.yosemite.crypto.util.BitUtils;
 import io.yosemite.crypto.util.HexUtils;
 import io.yosemite.data.types.EosType;
@@ -16,30 +17,35 @@ public class TransactionHeader implements EosType.Packer {
     private String expiration;
 
     @Expose
-    private int ref_block_num; // uint16_t
+    @SerializedName("ref_block_num")
+    private int refBlockNum;
 
     @Expose
-    private long ref_block_prefix;// uint32_t
+    @SerializedName("ref_block_prefix")
+    private long refBlockPrefix;
 
     @Expose
-    private long max_net_usage_words; // fc::unsigned_int
+    @SerializedName("max_net_usage_words")
+    private long maxNetUsageWords;
 
     @Expose
-    private long max_cpu_usage_ms;    // fc::unsigned_int
+    @SerializedName("max_cpu_usage_ms")
+    private long maxCpuUsageMs;
 
     @Expose
-    private long delay_sec;     // fc::unsigned_int
+    @SerializedName("delay_sec")
+    private long delaySec;
 
     public TransactionHeader() {
     }
 
     public TransactionHeader(TransactionHeader other) {
         this.expiration = other.expiration;
-        this.ref_block_num = other.ref_block_num;
-        this.ref_block_prefix = other.ref_block_prefix;
-        this.max_net_usage_words = other.max_net_usage_words;
-        this.max_cpu_usage_ms = other.max_cpu_usage_ms;
-        this.delay_sec = other.delay_sec;
+        this.refBlockNum = other.refBlockNum;
+        this.refBlockPrefix = other.refBlockPrefix;
+        this.maxNetUsageWords = other.maxNetUsageWords;
+        this.maxCpuUsageMs = other.maxCpuUsageMs;
+        this.delaySec = other.delaySec;
     }
 
     public String getExpiration() {
@@ -48,22 +54,6 @@ public class TransactionHeader implements EosType.Packer {
 
     public void setExpiration(String expiration) {
         this.expiration = expiration;
-    }
-
-    public void setReferenceBlock(String refBlockIdAsSha256) {
-        ref_block_num = new BigInteger(1, HexUtils.toBytes(refBlockIdAsSha256.substring(0, 8))).intValue();
-
-        ref_block_prefix = //new BigInteger( 1, HexUtils.toBytesReversed( refBlockIdAsSha256.substring(16,24))).longValue();
-                BitUtils.uint32ToLong(HexUtils.toBytes(refBlockIdAsSha256.substring(16, 24)), 0); // BitUtils treats bytes in little endian.
-        // so, no need to reverse bytes.
-    }
-
-    public int getRefBlockNum() {
-        return ref_block_num;
-    }
-
-    public long getRefBlockPrefix() {
-        return ref_block_prefix;
     }
 
     private Date getExpirationAsDate(String dateStr) {
@@ -76,24 +66,41 @@ public class TransactionHeader implements EosType.Packer {
         }
     }
 
-    public void putNetUsageWords(long netUsage) {
-        this.max_net_usage_words = netUsage;
+    public void setReferenceBlock(String refBlockIdAsSha256) {
+        refBlockNum = new BigInteger(1, HexUtils.toBytes(refBlockIdAsSha256.substring(0, 8))).intValue();
+
+        refBlockPrefix = //new BigInteger( 1, HexUtils.toBytesReversed( refBlockIdAsSha256.substring(16,24))).longValue();
+                BitUtils.uint32ToLong(HexUtils.toBytes(refBlockIdAsSha256.substring(16, 24)), 0); // BitUtils treats bytes in little endian.
+        // so, no need to reverse bytes.
     }
 
-    public void putKcpuUsage(long kCpuUsage) {
-        this.max_cpu_usage_ms = kCpuUsage;
+    public int getRefBlockNum() {
+        return refBlockNum;
+    }
+
+    public long getRefBlockPrefix() {
+        return refBlockPrefix;
+    }
+
+    public long getMaxNetUsageWords() {
+        return maxNetUsageWords;
+    }
+
+    public long getMaxCpuUsageMs() {
+        return maxCpuUsageMs;
+    }
+
+    public long getDelaySec() {
+        return delaySec;
     }
 
     @Override
     public void pack(EosType.Writer writer) {
         writer.putIntLE((int) (getExpirationAsDate(expiration).getTime() / 1000)); // ms -> sec
-
-        writer.putShortLE((short) (ref_block_num & 0xFFFF));  // uint16
-        writer.putIntLE((int) (ref_block_prefix & 0xFFFFFFFF));// uint32
-
-        // fc::unsigned_int
-        writer.putVariableUInt(max_net_usage_words);
-        writer.putVariableUInt(max_cpu_usage_ms);
-        writer.putVariableUInt(delay_sec);
+        writer.putShortLE((short) (refBlockNum & 0xFFFF));
+        writer.putIntLE((int)(refBlockPrefix));
+        writer.putVariableUInt(maxNetUsageWords);
+        writer.putVariableUInt(maxCpuUsageMs);
+        writer.putVariableUInt(delaySec);
     }
 }
