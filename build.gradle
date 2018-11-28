@@ -78,7 +78,7 @@ apply plugin: 'maven'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'maven-publish'
 
-version = '0.8.2'
+version = '0.8.3-SNAPSHOT'
 group = 'io.yosemite'
 
 compileJava {
