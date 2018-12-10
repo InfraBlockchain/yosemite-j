@@ -1,5 +1,7 @@
 import com.google.gson.Gson;
 import io.yosemite.crypto.ec.EcDsa;
+import io.yosemite.data.remote.api.AbiBinToJsonRequest;
+import io.yosemite.data.remote.api.AbiBinToJsonResponse;
 import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
@@ -12,6 +14,7 @@ import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
 import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import io.yosemite.util.Utils;
 import org.junit.Assert;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,6 +119,16 @@ public class LibraryTest {
         Actions actions = apiClient.getActions("rentservice1", -1, -50).execute();
         logger.debug("Last irreversible block: " + actions.getLastIrreversibleBlock());
         logger.debug(Utils.prettyPrintJson(actions));
+    }
+
+    //@Test
+    public void testAbiBinToJson() throws IOException {
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
+
+        AbiBinToJsonRequest req = new AbiBinToJsonRequest("yx.token", "entrustui", "10aeca58e5740df2a090db57e1740df20243524400000000a090db57e1740df2");
+        AbiBinToJsonResponse response = apiClient.abiBinToJson(req).execute();
+        logger.debug(Utils.prettyPrintJson(response));
     }
 
     //@Test

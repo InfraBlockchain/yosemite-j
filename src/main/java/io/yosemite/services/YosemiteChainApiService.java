@@ -1,9 +1,6 @@
 package io.yosemite.services;
 
-import io.yosemite.data.remote.api.AbiJsonToBinRequest;
-import io.yosemite.data.remote.api.AbiJsonToBinResponse;
-import io.yosemite.data.remote.api.GetRequiredKeysRequest;
-import io.yosemite.data.remote.api.GetRequiredKeysResponse;
+import io.yosemite.data.remote.api.*;
 import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.chain.account.Account;
@@ -30,6 +27,9 @@ public interface YosemiteChainApiService {
 
     @POST("v1/chain/abi_json_to_bin")
     Call<AbiJsonToBinResponse> abiJsonToBin(@Body AbiJsonToBinRequest req);
+
+    @POST("v1/chain/abi_bin_to_json")
+    Call<AbiBinToJsonResponse> abiBinToJson(@Body AbiBinToJsonRequest req);
 
     @POST("v1/chain/push_transaction")
     Call<PushedTransaction> pushTransaction(@Body PackedTransaction transaction);

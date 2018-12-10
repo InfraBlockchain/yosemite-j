@@ -1,9 +1,6 @@
 package io.yosemite.services;
 
-import io.yosemite.data.remote.api.AbiJsonToBinRequest;
-import io.yosemite.data.remote.api.AbiJsonToBinResponse;
-import io.yosemite.data.remote.api.GetRequiredKeysRequest;
-import io.yosemite.data.remote.api.GetRequiredKeysResponse;
+import io.yosemite.data.remote.api.*;
 import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
@@ -22,7 +19,19 @@ public interface YosemiteApiRestClient {
 
     Request<TableRow> getTableRows(String code, String scope, String table, GetTableOptions options);
 
+    /**
+     * Requests conversion from json-formatted parameter string to binary format
+     * @param req request instance
+     * @return json to binary result instance
+     */
     Request<AbiJsonToBinResponse> abiJsonToBin(AbiJsonToBinRequest req);
+
+    /**
+     * Requests conversion from binary format to json-formatted parameter string 
+     * @param req request instance
+     * @return binary to json result instance
+     */
+    Request<AbiBinToJsonResponse> abiBinToJson(AbiBinToJsonRequest req);
 
     Request<GetRequiredKeysResponse> getRequiredKeys(GetRequiredKeysRequest getRequiredKeysRequest);
 
