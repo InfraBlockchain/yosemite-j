@@ -1,9 +1,6 @@
 package io.yosemite.services;
 
-import io.yosemite.data.remote.api.AbiJsonToBinRequest;
-import io.yosemite.data.remote.api.AbiJsonToBinResponse;
-import io.yosemite.data.remote.api.GetRequiredKeysRequest;
-import io.yosemite.data.remote.api.GetRequiredKeysResponse;
+import io.yosemite.data.remote.api.*;
 import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
@@ -89,6 +86,11 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     @Override
     public Request<AbiJsonToBinResponse> abiJsonToBin(AbiJsonToBinRequest req) {
         return new Request<>(yxChainApiService.getService().abiJsonToBin(req), yxChainApiService);
+    }
+
+    @Override
+    public Request<AbiBinToJsonResponse> abiBinToJson(AbiBinToJsonRequest req) {
+        return new Request<>(yxChainApiService.getService().abiBinToJson(req), yxChainApiService);
     }
 
     @Override
