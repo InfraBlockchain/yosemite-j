@@ -24,6 +24,7 @@
 package io.yosemite.data.remote.chain;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,8 @@ public class SignedTransaction extends Transaction {
     private List<String> signatures = new ArrayList<>();
 
     @Expose
-    private List<String> context_free_data = new ArrayList<>();
+    @SerializedName("context_free_data")
+    private List<String> contextFreeData = new ArrayList<>();
 
     public SignedTransaction() {
     }
@@ -44,7 +46,7 @@ public class SignedTransaction extends Transaction {
     }
 
     public List<String> getCtxFreeData() {
-        return context_free_data;
+        return contextFreeData;
     }
 
 }

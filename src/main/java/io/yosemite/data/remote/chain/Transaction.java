@@ -14,7 +14,8 @@ import java.util.List;
 public class Transaction extends TransactionHeader {
 
     @Expose
-    private List<Action> context_free_actions = new ArrayList<>();
+    @SerializedName("context_free_actions")
+    private List<Action> contextFreeActions = new ArrayList<>();
 
     @Expose
     private List<Action> actions;
@@ -28,7 +29,7 @@ public class Transaction extends TransactionHeader {
 
     public Transaction(Transaction other) {
         super(other);
-        this.context_free_actions = deepCopyOnlyContainer(other.context_free_actions);
+        this.contextFreeActions = deepCopyOnlyContainer(other.contextFreeActions);
         this.actions = deepCopyOnlyContainer(other.actions);
         this.transactionExtensions = other.transactionExtensions;
     }
@@ -56,7 +57,7 @@ public class Transaction extends TransactionHeader {
     public void pack(EosType.Writer writer) {
         super.pack(writer);
 
-        writer.putCollection(context_free_actions);
+        writer.putCollection(contextFreeActions);
         writer.putCollection(actions);
         writer.putCollection(transactionExtensions);
     }
