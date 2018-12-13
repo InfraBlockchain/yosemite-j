@@ -3,7 +3,7 @@ package io.yosemite.data.remote.chain;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class TransactionReceiptHeader {
+public class TransactionReceipt {
 
 //    enum status_enum {
 //        executed  = 0, ///< succeed, no error handler executed

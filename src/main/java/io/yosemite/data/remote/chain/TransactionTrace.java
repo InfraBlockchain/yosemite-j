@@ -45,7 +45,7 @@ public class TransactionTrace {
     private String blockTime;
 
     @Expose
-    private TransactionReceiptHeader receipt;
+    private TransactionReceipt receipt;
 
     @Expose
     private long elapsed;
@@ -84,7 +84,7 @@ public class TransactionTrace {
         return blockTime;
     }
 
-    public TransactionReceiptHeader getReceipt() {
+    public TransactionReceipt getReceipt() {
         return receipt;
     }
 

@@ -96,12 +96,12 @@ public class LibraryTest {
         System.out.println(Utils.prettyPrintJson(result));
     }
 
-    //@Test
+    @Test
     public void testGetTransaction() throws IOException {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
 
-        Transaction result = apiClient.getTransaction("19970219477b72edcc86f55985b46763a39648b369317b4c9c461a102ef4c86c").execute();
+        Transaction result = apiClient.getTransaction("b7c7ab7aeaea85ae5e84db798904eea7ce1cf79dccd5f2e9414286ebd6c020b8").execute();
         logger.debug(Utils.prettyPrintJson(result));
 
         if (result.getIrreversibleAt() != null) {
