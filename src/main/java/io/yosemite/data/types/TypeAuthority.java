@@ -24,7 +24,8 @@
 package io.yosemite.data.types;
 
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import io.yosemite.Consts;
+import io.yosemite.crypto.ec.EosPublicKey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,41 +34,37 @@ import java.util.List;
 public class TypeAuthority implements EosType.Packer {
 
     @Expose
-    @SerializedName("threshold")
-    private int mThreshold;
+    private int threshold;
 
     @Expose
-    @SerializedName("keys")
-    private List<TypeKeyWeight> mKeys;
+    private List<TypeKeyWeight> keys;
 
     @Expose
-    @SerializedName("accounts")
-    private List<TypePermissionLevelWeight> mAccounts;
+    private List<TypePermissionAndWeight> accounts;
 
     @Expose
-    @SerializedName("waits")
-    private List<TypeWaitWeight> mWaits;
+    private List<TypeWaitWeight> waits;
 
-    public TypeAuthority(int threshold, List<TypeKeyWeight> keyWeight,
-                         List<TypePermissionLevelWeight> permissionLevelWeight, List<TypeWaitWeight> waitWeight) {
-        mThreshold = threshold;
+    public TypeAuthority(int threshold, List<TypeKeyWeight> keyWeightList,
+                         List<TypePermissionAndWeight> permissionAndWeightList, List<TypeWaitWeight> waitWeightList) {
+        this.threshold = threshold;
 
-        if (keyWeight == null) {
-            mKeys = new ArrayList<>();
+        if (keyWeightList == null) {
+            keys = new ArrayList<>();
         } else {
-            mKeys = keyWeight;
+            keys = keyWeightList;
         }
 
-        if (permissionLevelWeight == null) {
-            mAccounts = new ArrayList<>();
+        if (permissionAndWeightList == null) {
+            accounts = new ArrayList<>();
         } else {
-            mAccounts = permissionLevelWeight;
+            accounts = permissionAndWeightList;
         }
 
-        if (waitWeight == null) {
-            mWaits = new ArrayList<>();
+        if (waitWeightList == null) {
+            waits = new ArrayList<>();
         } else {
-            mWaits = waitWeight;
+            waits = waitWeightList;
         }
     }
 
@@ -82,29 +79,114 @@ public class TypeAuthority implements EosType.Packer {
         this(1, createList(oneKey), null, null);
 
         if (uint32DelaySec > 0) {
-            mThreshold = 2;
-            mWaits = createList(new TypeWaitWeight(uint32DelaySec, 1));
+            threshold = 2;
+            waits = createList(new TypeWaitWeight(uint32DelaySec, 1));
         }
     }
 
     public TypeAuthority(int threshold, TypePublicKey pubKey, String permission) {
-        this(threshold
-                , (null == pubKey ? null : createList(new TypeKeyWeight(pubKey, (short) 1)))
-                , (null == permission ? null : createList(new TypePermissionLevelWeight(permission))), null);
+        this(threshold,
+                (null == pubKey ? null : createList(new TypeKeyWeight(pubKey, (short) 1))),
+                (null == permission ? null : createList(new TypePermissionAndWeight(permission))), null);
     }
 
     @Override
     public void pack(EosType.Writer writer) {
 
-        writer.putIntLE(mThreshold);
+        writer.putIntLE(threshold);
 
         // keys
-        writer.putCollection(mKeys);
+        writer.putCollection(keys);
 
         // accounts
-        writer.putCollection(mAccounts);
+        writer.putCollection(accounts);
 
         // waits
-        writer.putCollection(mWaits);
+        writer.putCollection(waits);
+    }
+
+    public static TypeAuthorityBuilder Builder() {
+        return new TypeAuthorityBuilder();
+    }
+
+    /**
+     * Builder for the authority used as the source of new account creation.
+     */
+    public static class TypeAuthorityBuilder {
+
+        private int threshold;
+        private final List<TypeKeyWeight> keyWeightList = new ArrayList<>();
+        private final List<TypePermissionAndWeight> permissionAndWeightList = new ArrayList<>();
+
+        public TypeAuthority build() {
+            return new TypeAuthority(threshold, keyWeightList, permissionAndWeightList, null);
+        }
+
+        /**
+         * Set threshold for the weights.
+         * @param threshold integer value
+         */
+        public TypeAuthorityBuilder setThreshold(int threshold) {
+            if (threshold <= 0) throw new IllegalArgumentException("wrong threshold");
+            this.threshold = threshold;
+            return this;
+        }
+
+        /**
+         * Add the public key and weight 1
+         * @param publicKey public key string
+         */
+        public TypeAuthorityBuilder addKeyWeight(String publicKey) {
+            return addKeyWeight(publicKey, (short)1);
+        }
+
+        /**
+         * Add the public key and weight
+         * @param publicKey public key string
+         * @param weight integer value
+         */
+        public TypeAuthorityBuilder addKeyWeight(String publicKey, short weight) {
+            if (weight <= 0) throw new IllegalArgumentException("wrong weight");
+
+            keyWeightList.add(new TypeKeyWeight(TypePublicKey.from(new EosPublicKey(publicKey)), weight));
+            threshold += weight;
+            return this;
+        }
+
+        /**
+         * Add the account name for 'active' permission with weight 1
+         * @param accountName account name
+         */
+        public TypeAuthorityBuilder addPermissionAndWeight(String accountName) {
+            if (accountName == null) throw new IllegalArgumentException("accountName cannot be null.");
+
+            return addPermissionAndWeight(accountName, Consts.ACTIVE_PERMISSION_NAME, (short)1);
+        }
+
+        /**
+         * Add the account name for the specified permission with weight 1
+         * @param accountName account name
+         */
+        public TypeAuthorityBuilder addPermissionAndWeight(String accountName, String permissionName) {
+            if (accountName == null) throw new IllegalArgumentException("accountName cannot be null.");
+            if (permissionName == null) throw new IllegalArgumentException("permissionName cannot be null.");
+
+            return addPermissionAndWeight(accountName, permissionName, (short)1);
+        }
+
+        /**
+         * Add the account name for the specific permission.
+         * @param accountName account name
+         * @param permissionName the name of the permission
+         */
+        public TypeAuthorityBuilder addPermissionAndWeight(String accountName, String permissionName, short weight) {
+            if (accountName == null) throw new IllegalArgumentException("accountName cannot be null.");
+            if (permissionName == null) throw new IllegalArgumentException("permissionName cannot be null.");
+            if (weight <= 0) throw new IllegalArgumentException("wrong weight");
+
+            permissionAndWeightList.add(new TypePermissionAndWeight(accountName, permissionName, weight));
+            threshold += weight;
+            return this;
+        }
     }
 }

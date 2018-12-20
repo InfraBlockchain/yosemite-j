@@ -2,6 +2,7 @@ package io.yosemite.data.remote.chain.account;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import io.yosemite.Consts;
 import io.yosemite.data.types.TypeAsset;
 import io.yosemite.util.Utils;
 
@@ -50,11 +51,11 @@ public class Account {
 
     @Expose
     @SerializedName("net_limit")
-    AccountResourceLimit net_limit;
+    AccountResourceLimit netLimit;
 
     @Expose
     @SerializedName("cpu_limit")
-    AccountResourceLimit cpu_limit;
+    AccountResourceLimit cpuLimit;
 
     @Expose
     @SerializedName("ram_usage")
@@ -146,20 +147,20 @@ public class Account {
         this.cpuWeight = cpuWeight;
     }
 
-    public AccountResourceLimit getNet_limit() {
-        return net_limit;
+    public AccountResourceLimit getNetLimit() {
+        return netLimit;
     }
 
-    public void setNet_limit(AccountResourceLimit net_limit) {
-        this.net_limit = net_limit;
+    public void setNetLimit(AccountResourceLimit netLimit) {
+        this.netLimit = netLimit;
     }
 
-    public AccountResourceLimit getCpu_limit() {
-        return cpu_limit;
+    public AccountResourceLimit getCpuLimit() {
+        return cpuLimit;
     }
 
-    public void setCpu_limit(AccountResourceLimit cpu_limit) {
-        this.cpu_limit = cpu_limit;
+    public void setCpuLimit(AccountResourceLimit cpuLimit) {
+        this.cpuLimit = cpuLimit;
     }
 
     public long getRamUsage() {
@@ -189,7 +190,7 @@ public class Account {
     public String getActivePublicKey() {
         if (permissions == null || permissions.isEmpty()) return null;
         for (Permission permission : permissions) {
-            if ("active".equals(permission.getPermName())) {
+            if (Consts.ACTIVE_PERMISSION_NAME.equals(permission.getPermName())) {
                 List<KeyWeight> keys = permission.getRequiredAuth().getKeys();
                 if (keys.isEmpty()) return null;
                 return keys.get(0).getKey();

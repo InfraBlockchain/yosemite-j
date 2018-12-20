@@ -24,37 +24,33 @@
 package io.yosemite.data.types;
 
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import io.yosemite.Consts;
 
-public class TypePermissionLevelWeight implements EosType.Packer {
-
-    @Expose
-    @SerializedName("permission")
-    private TypePermissionLevel mPermission;
+public class TypePermissionAndWeight implements EosType.Packer {
 
     @Expose
-    @SerializedName("weight")
-    private short mWeight;
+    private TypePermission permission;
 
-    /**
-     * single active permissin 용 생성자
-     *
-     * @param nameForActive
-     */
-    TypePermissionLevelWeight(String nameForActive) {
+    @Expose
+    private short weight;
+
+    TypePermissionAndWeight(String nameForActive) {
         this(nameForActive, (short) 1);
     }
 
-    TypePermissionLevelWeight(String nameForActive, short weight) {
-        mPermission = new TypePermissionLevel(nameForActive, "active");
-        mWeight = weight;
+    TypePermissionAndWeight(String nameForActive, short weight) {
+        permission = new TypePermission(nameForActive, Consts.ACTIVE_PERMISSION_NAME);
+        this.weight = weight;
+    }
+
+    TypePermissionAndWeight(String name, String permission, short weight) {
+        this.permission = new TypePermission(name, permission);
+        this.weight = weight;
     }
 
     @Override
     public void pack(EosType.Writer writer) {
-
-        mPermission.pack(writer);
-
-        writer.putShortLE(mWeight);
+        permission.pack(writer);
+        writer.putShortLE(weight);
     }
 }

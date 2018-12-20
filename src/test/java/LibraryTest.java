@@ -6,6 +6,7 @@ import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.transaction.Transaction;
+import io.yosemite.data.types.TypeAuthority;
 import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
@@ -67,6 +68,23 @@ public class LibraryTest {
                 "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ",
                 null
         ).join();
+
+        logger.debug(pushedTransaction.getTransactionId());
+    }
+
+    //@Test
+    public void tesetCreateAccountWithAthoritiesTest() {
+
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
+
+        YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
+        TypeAuthority ownerAuthority =
+                TypeAuthority.Builder().
+                        addKeyWeight("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").
+                        addPermissionAndWeight("ycardrecover").build();
+        TypeAuthority activeAuthority = TypeAuthority.Builder().addKeyWeight("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").build();
+        PushedTransaction pushedTransaction = yxj.createAccount("idauth1", "joepark3good", ownerAuthority, activeAuthority, null).join();
 
         logger.debug(pushedTransaction.getTransactionId());
     }

@@ -6,7 +6,7 @@ import io.yosemite.data.remote.api.AbiJsonToBinRequest;
 import io.yosemite.data.remote.api.GetRequiredKeysRequest;
 import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.history.action.GetTableOptions;
-import io.yosemite.data.types.TypePermissionLevel;
+import io.yosemite.data.types.TypePermission;
 import io.yosemite.util.Utils;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public abstract class YosemiteJ {
     }
 
     private CompletableFuture<Action> getActionWithBinaryData(String contract, String action, String data,
-                                                              List<TypePermissionLevel> permissions) {
+                                                              List<TypePermission> permissions) {
         AbiJsonToBinRequest abiJsonToBinRequest = new AbiJsonToBinRequest(contract, action, data);
 
         return mYosemiteApiRestClient.abiJsonToBin(abiJsonToBinRequest).executeAsync().thenApply(abiJsonToBinRes -> {
@@ -162,13 +162,13 @@ public abstract class YosemiteJ {
         if (transactionParameters == null) {
             return TransactionParameters.Builder().addPermission(defaultAccountName).build();
         }
-        List<TypePermissionLevel> permissions = transactionParameters.getPermissions();
+        List<TypePermission> permissions = transactionParameters.getPermissions();
         if (permissions.isEmpty()) {
-            permissions.add(new TypePermissionLevel(defaultAccountName));
+            permissions.add(new TypePermission(defaultAccountName));
             if (transactionParameters.getDelegatedTransactionFeePayer() != null) {
-                permissions.add(new TypePermissionLevel(transactionParameters.getDelegatedTransactionFeePayer()));
+                permissions.add(new TypePermission(transactionParameters.getDelegatedTransactionFeePayer()));
             } else if (mYosemiteApiRestClient.getDelegatedTransactionFeePayer() != null) {
-                permissions.add(new TypePermissionLevel(mYosemiteApiRestClient.getDelegatedTransactionFeePayer()));
+                permissions.add(new TypePermission(mYosemiteApiRestClient.getDelegatedTransactionFeePayer()));
             }
         }
         return transactionParameters;
