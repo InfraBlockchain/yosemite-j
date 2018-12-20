@@ -114,7 +114,7 @@ public class LibraryTest {
         System.out.println(Utils.prettyPrintJson(result));
     }
 
-    @Test
+    //@Test
     public void testGetTransaction() throws IOException {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
