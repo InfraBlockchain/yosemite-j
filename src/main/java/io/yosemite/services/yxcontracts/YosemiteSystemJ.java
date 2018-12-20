@@ -3,6 +3,7 @@ package io.yosemite.services.yxcontracts;
 import io.yosemite.crypto.ec.EosPublicKey;
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.contract.ActionNewAccount;
+import io.yosemite.data.types.TypeAuthority;
 import io.yosemite.data.types.TypePublicKey;
 import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiRestClient;
@@ -44,6 +45,35 @@ public class YosemiteSystemJ extends YosemiteJ {
 
         ActionNewAccount actionNewAccount = new ActionNewAccount(creator, name,
                 TypePublicKey.from(new EosPublicKey(ownerKey)), TypePublicKey.from(new EosPublicKey(activeKey)));
+
+        return pushAction(ActionNewAccount.CONTRACT, ActionNewAccount.ACTION,
+                gson.toJson(actionNewAccount),
+                buildCommonParametersWithDefaults(params, creator));
+    }
+
+    /**
+     * Creates the new account with its public key and the creator account.
+     * The convenion of the account <code>name</code> follows
+     * <a href="https://developers.eos.io/eosio-cpp/docs/naming-conventions#section-standard-account-names">Naming Convention of YOSEMITE Standard Account Names</a>
+     * Transaction fee is charged to the creator.
+     * @param creator the name of the creator account
+     * @param name the new account
+     * @param ownerAuthority the list of public keys or the account names with the threshold and each weight settings
+     * @param activeAuthority the list of public keys or the account names with the threshold and each weight settings
+     * @param params transaction parameters
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
+    public CompletableFuture<PushedTransaction> createAccount(String creator, String name,
+                                                              TypeAuthority ownerAuthority,
+                                                              TypeAuthority activeAuthority,
+                                                              @Nullable TransactionParameters params) {
+
+        if (StringUtils.isEmpty(creator)) throw new IllegalArgumentException("empty creator account name");
+        if (StringUtils.isEmpty(name)) throw new IllegalArgumentException("empty target account name");
+        if (ownerAuthority == null) throw new IllegalArgumentException("empty owner public authority");
+        if (activeAuthority == null) throw new IllegalArgumentException("empty active public authority");
+
+        ActionNewAccount actionNewAccount = new ActionNewAccount(creator, name, ownerAuthority, activeAuthority);
 
         return pushAction(ActionNewAccount.CONTRACT, ActionNewAccount.ACTION,
                 gson.toJson(actionNewAccount),

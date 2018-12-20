@@ -1,12 +1,12 @@
 package io.yosemite.data.remote.chain.account;
 
 import com.google.gson.annotations.Expose;
-import io.yosemite.data.types.TypePermissionLevel;
+import io.yosemite.data.types.TypePermission;
 
 public class PermissionLevelWeight {
 
     @Expose
-    private TypePermissionLevel permission;
+    private TypePermission permission;
 
     @Expose
     private short weight;
@@ -22,11 +22,11 @@ public class PermissionLevelWeight {
         this.weight = weight;
     }
 
-    public TypePermissionLevel getPermission() {
+    public TypePermission getPermission() {
         return permission;
     }
 
-    public void setPermission(TypePermissionLevel permission) {
+    public void setPermission(TypePermission permission) {
         this.permission = permission;
     }
 }

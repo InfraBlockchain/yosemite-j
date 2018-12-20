@@ -1,7 +1,7 @@
 package io.yosemite.services;
 
 import io.yosemite.Consts;
-import io.yosemite.data.types.TypePermissionLevel;
+import io.yosemite.data.types.TypePermission;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +11,7 @@ import java.util.List;
  * Contains the API-level transaction parameters.
  */
 public class TransactionParameters {
-    private final List<TypePermissionLevel> permissions = new ArrayList<>();
+    private final List<TypePermission> permissions = new ArrayList<>();
     private List<String> publicKeys = new ArrayList<>();
     private String delegatedTransactionFeePayer;
     private String transactionVoteTarget;
@@ -56,7 +56,7 @@ public class TransactionParameters {
             if (permissionName == null) {
                 throw new IllegalArgumentException("permissionName cannot be null.");
             }
-            txParameters.permissions.add(new TypePermissionLevel(accountName, permissionName));
+            txParameters.permissions.add(new TypePermission(accountName, permissionName));
             return this;
         }
 
@@ -108,7 +108,7 @@ public class TransactionParameters {
         }
     }
 
-    public List<TypePermissionLevel> getPermissions() {
+    public List<TypePermission> getPermissions() {
         return permissions;
     }
 

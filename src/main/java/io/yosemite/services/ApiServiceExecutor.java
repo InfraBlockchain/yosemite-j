@@ -40,10 +40,14 @@ public final class ApiServiceExecutor<Service> {
      * Execute a REST call and block until the response is received.
      */
     <T> T executeSync(Call<T> call) {
-        return executeSync(call, null);
+        return executeSync(call, null, true);
     }
 
-    <T> T executeSync(Call<T> call, Object attachment) {
+    <T> T executeSync(Call<T> call, boolean isChainApi) {
+        return executeSync(call, null, isChainApi);
+    }
+
+    <T> T executeSync(Call<T> call, Object attachment, boolean isChainApi) {
         try {
             Response<T> response = call.execute();
             if (response.isSuccessful()) {
@@ -51,12 +55,19 @@ public final class ApiServiceExecutor<Service> {
             } else {
                 logger.debug(call.request().toString());
                 logger.debug(response.toString());
-                YosemiteApiException yosemiteApiException = new YosemiteApiException(getEosApiError(response));
-                if (attachment instanceof SignedTransaction) {
-                    SignedTransaction signedTransaction = (SignedTransaction)attachment;
-                    yosemiteApiException.setTransactionId(signedTransaction.getId());
+                if (isChainApi) {
+                    YosemiteApiException yosemiteApiException = new YosemiteApiException(getEosApiError(response));
+                    if (attachment instanceof SignedTransaction) {
+                        SignedTransaction signedTransaction = (SignedTransaction) attachment;
+                        yosemiteApiException.setTransactionId(signedTransaction.getId());
+                    }
+                    throw yosemiteApiException;
+                } else {
+                    YosemiteApiError error = new YosemiteApiError();
+                    error.setCode(response.code());
+                    error.setMessage(response.message());
+                    throw new YosemiteApiException(error);
                 }
-                throw yosemiteApiException;
             }
         } catch (IOException e) {
             throw new YosemiteApiException(e);
@@ -64,7 +75,11 @@ public final class ApiServiceExecutor<Service> {
     }
 
     <T> CompletableFuture<T> executeAsync(Call<T> call, Object attachment) {
-        return Async.run(() -> executeSync(call, attachment));
+        return executeAsync(call, attachment, true);
+    }
+
+    <T> CompletableFuture<T> executeAsync(Call<T> call, Object attachment, boolean isChainApi) {
+        return Async.run(() -> executeSync(call, attachment, isChainApi));
     }
 
     private YosemiteApiError getEosApiError(Response<?> response) throws IOException {

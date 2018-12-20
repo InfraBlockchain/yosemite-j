@@ -28,7 +28,7 @@ public class TypeWaitWeight implements EosType.Packer {
     private short mWeight;
 
     public TypeWaitWeight(long uint32WaitSec, int uint16Weight) {
-        mWaitSec = (int) (uint32WaitSec & 0xFFFFFFFF);
+        mWaitSec = (int) (uint32WaitSec);
         mWeight = (short) (uint16Weight & 0xFFFF);
     }
 

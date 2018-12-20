@@ -31,10 +31,9 @@ import io.yosemite.crypto.util.HexUtils;
 import io.yosemite.data.types.EosType;
 import io.yosemite.data.types.TypeAccountName;
 import io.yosemite.data.types.TypeActionName;
-import io.yosemite.data.types.TypePermissionLevel;
+import io.yosemite.data.types.TypePermission;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Action implements EosType.Packer {
@@ -45,7 +44,7 @@ public class Action implements EosType.Packer {
     private TypeActionName name;
 
     @Expose
-    private List<TypePermissionLevel> authorization;
+    private List<TypePermission> authorization;
 
     @Expose
     private JsonElement data;
@@ -54,7 +53,7 @@ public class Action implements EosType.Packer {
     @SerializedName("hex_data")
     private String hexData;
 
-    public Action(String account, String name, TypePermissionLevel authorization, String data) {
+    public Action(String account, String name, TypePermission authorization, String data) {
         this.account = new TypeAccountName(account);
         this.name = new TypeActionName(name);
         this.authorization = new ArrayList<>();
@@ -91,11 +90,11 @@ public class Action implements EosType.Packer {
         this.name = new TypeActionName(name);
     }
 
-    public List<TypePermissionLevel> getAuthorization() {
+    public List<TypePermission> getAuthorization() {
         return authorization;
     }
 
-    public void setAuthorization(List<TypePermissionLevel> accountWithPermLevel) {
+    public void setAuthorization(List<TypePermission> accountWithPermLevel) {
         /*
         for (String permissionStr : accountWithPermLevel) {
             String[] split = permissionStr.split("@", 2);
