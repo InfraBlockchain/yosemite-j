@@ -22,7 +22,7 @@ public class StringTypeAdapter extends TypeAdapter<String> {
     @Override
     public String read(JsonReader in) throws IOException {
         if (in.peek() == JsonToken.NULL) {
-            return null;
+            return "";
         }
         return in.nextString();
     }
