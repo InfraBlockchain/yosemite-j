@@ -17,12 +17,12 @@ public class OrderedActionResult {
     private Action action;
 
     @Expose
-    @SerializedName("bNum")
+    @SerializedName("block_num")
     private Integer blockNum;
 
     @Expose
-    @SerializedName("bTime")
-    private Timestamp blockTime;
+    @SerializedName("block_time")
+    private String blockTime;
 
     @Expose
     @SerializedName("trx_id")
@@ -40,7 +40,7 @@ public class OrderedActionResult {
         return blockNum;
     }
 
-    public Timestamp getBlockTime() {
+    public String getBlockTime() {
         return blockTime;
     }
 
