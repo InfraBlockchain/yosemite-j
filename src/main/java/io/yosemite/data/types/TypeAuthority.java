@@ -136,8 +136,8 @@ public class TypeAuthority implements EosType.Packer {
          * Add the public key and weight 1
          * @param publicKey public key string
          */
-        public TypeAuthorityBuilder addKeyWeight(String publicKey) {
-            return addKeyWeight(publicKey, (short)1);
+        public TypeAuthorityBuilder addPublicKey(String publicKey) {
+            return addPublicKeyAndWeight(publicKey, (short)1);
         }
 
         /**
@@ -145,7 +145,7 @@ public class TypeAuthority implements EosType.Packer {
          * @param publicKey public key string
          * @param weight integer value
          */
-        public TypeAuthorityBuilder addKeyWeight(String publicKey, short weight) {
+        public TypeAuthorityBuilder addPublicKeyAndWeight(String publicKey, short weight) {
             if (weight <= 0) throw new IllegalArgumentException("wrong weight");
 
             keyWeightList.add(new TypeKeyWeight(TypePublicKey.from(new EosPublicKey(publicKey)), weight));
@@ -157,21 +157,21 @@ public class TypeAuthority implements EosType.Packer {
          * Add the account name for 'active' permission with weight 1
          * @param accountName account name
          */
-        public TypeAuthorityBuilder addPermissionAndWeight(String accountName) {
+        public TypeAuthorityBuilder addAccount(String accountName) {
             if (accountName == null) throw new IllegalArgumentException("accountName cannot be null.");
 
-            return addPermissionAndWeight(accountName, Consts.ACTIVE_PERMISSION_NAME, (short)1);
+            return addAccountAndPermissionWithWeight(accountName, Consts.ACTIVE_PERMISSION_NAME, (short)1);
         }
 
         /**
          * Add the account name for the specified permission with weight 1
          * @param accountName account name
          */
-        public TypeAuthorityBuilder addPermissionAndWeight(String accountName, String permissionName) {
+        public TypeAuthorityBuilder addAccountAndPermission(String accountName, String permissionName) {
             if (accountName == null) throw new IllegalArgumentException("accountName cannot be null.");
             if (permissionName == null) throw new IllegalArgumentException("permissionName cannot be null.");
 
-            return addPermissionAndWeight(accountName, permissionName, (short)1);
+            return addAccountAndPermissionWithWeight(accountName, permissionName, (short)1);
         }
 
         /**
@@ -179,7 +179,7 @@ public class TypeAuthority implements EosType.Packer {
          * @param accountName account name
          * @param permissionName the name of the permission
          */
-        public TypeAuthorityBuilder addPermissionAndWeight(String accountName, String permissionName, short weight) {
+        public TypeAuthorityBuilder addAccountAndPermissionWithWeight(String accountName, String permissionName, short weight) {
             if (accountName == null) throw new IllegalArgumentException("accountName cannot be null.");
             if (permissionName == null) throw new IllegalArgumentException("permissionName cannot be null.");
             if (weight <= 0) throw new IllegalArgumentException("wrong weight");

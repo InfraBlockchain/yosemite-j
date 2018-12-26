@@ -1,8 +1,10 @@
 package io.yosemite.services.yxcontracts;
 
+import io.yosemite.Consts;
 import io.yosemite.crypto.ec.EosPublicKey;
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.contract.ActionNewAccount;
+import io.yosemite.data.remote.contract.ActionUpdateAuth;
 import io.yosemite.data.types.TypeAuthority;
 import io.yosemite.data.types.TypePublicKey;
 import io.yosemite.services.TransactionParameters;
@@ -46,7 +48,7 @@ public class YosemiteSystemJ extends YosemiteJ {
         ActionNewAccount actionNewAccount = new ActionNewAccount(creator, name,
                 TypePublicKey.from(new EosPublicKey(ownerKey)), TypePublicKey.from(new EosPublicKey(activeKey)));
 
-        return pushAction(ActionNewAccount.CONTRACT, ActionNewAccount.ACTION,
+        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ActionNewAccount.ACTION,
                 gson.toJson(actionNewAccount),
                 buildCommonParametersWithDefaults(params, creator));
     }
@@ -75,8 +77,46 @@ public class YosemiteSystemJ extends YosemiteJ {
 
         ActionNewAccount actionNewAccount = new ActionNewAccount(creator, name, ownerAuthority, activeAuthority);
 
-        return pushAction(ActionNewAccount.CONTRACT, ActionNewAccount.ACTION,
+        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ActionNewAccount.ACTION,
                 gson.toJson(actionNewAccount),
                 buildCommonParametersWithDefaults(params, creator));
+    }
+
+    /**
+     * Sets or updates the account's permission information for the given permission name. 
+     * @param accountName account name
+     * @param permissionName the permission name to set
+     * @param parentPermissionName the parent permission name of target permission
+     * @param authority the list of public keys or the account names with the threshold and each weight settings
+     * @param params transaction parameters
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
+    public CompletableFuture<PushedTransaction> setAccountPermission(String accountName,
+                                                                     String permissionName,
+                                                                     String parentPermissionName,
+                                                                     TypeAuthority authority,
+                                                                     @Nullable TransactionParameters params) {
+        if (StringUtils.isEmpty(accountName)) throw new IllegalArgumentException("empty target account name");
+        if (StringUtils.isEmpty(permissionName)) throw new IllegalArgumentException("empty permission name");
+        if (StringUtils.isEmpty(parentPermissionName)) throw new IllegalArgumentException("empty parent permission name");
+        if (authority == null) throw new IllegalArgumentException("empty authority");
+
+        ActionUpdateAuth updateAuth = new ActionUpdateAuth(accountName, permissionName, parentPermissionName, authority);
+        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ActionUpdateAuth.ACTION,
+                gson.toJson(updateAuth),
+                buildCommonParametersWithDefaults(params, accountName));
+    }
+
+    /**
+     * Sets or updates the account's permission for the active permission.
+     * @param accountName account name
+     * @param activeAuthority the list of public keys or the account names with the threshold and each weight settings
+     * @param params transaction parameters
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
+    public CompletableFuture<PushedTransaction> setAccountPermission(String accountName,
+                                                                     TypeAuthority activeAuthority,
+                                                                     @Nullable TransactionParameters params) {
+        return setAccountPermission(accountName, Consts.ACTIVE_PERMISSION_NAME, Consts.OWNER_PERMISSION_NAME, activeAuthority, params);
     }
 }

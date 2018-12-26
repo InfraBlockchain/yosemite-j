@@ -81,10 +81,24 @@ public class LibraryTest {
         YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
         TypeAuthority ownerAuthority =
                 TypeAuthority.Builder().
-                        addKeyWeight("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").
-                        addPermissionAndWeight("ycardrecover").build();
-        TypeAuthority activeAuthority = TypeAuthority.Builder().addKeyWeight("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").build();
+                        addPublicKey("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").
+                        addAccount("ycardrecover").build();
+        TypeAuthority activeAuthority = TypeAuthority.Builder().addPublicKey("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").build();
         PushedTransaction pushedTransaction = yxj.createAccount("idauth1", "joepark3good", ownerAuthority, activeAuthority, null).join();
+
+        logger.debug(pushedTransaction.getTransactionId());
+    }
+
+    //@Test
+    public void tesetSetAccountPermissionTest() {
+
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
+
+        YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
+        TypeAuthority activeAuthority = TypeAuthority.Builder().addPublicKey("YOS56Nr6XsUuw3nb2mGZATzKSNYPXRfn5FMQRD4oZwUTgmjE2miTh").build();
+        TransactionParameters txParams = TransactionParameters.Builder().addPermission("joepark3good", "owner").build();
+        PushedTransaction pushedTransaction = yxj.setAccountPermission("joepark3good", "active", "owner", activeAuthority, txParams).join();
 
         logger.debug(pushedTransaction.getTransactionId());
     }
