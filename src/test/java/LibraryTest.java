@@ -57,7 +57,7 @@ public class LibraryTest {
     }
 
     //@Test
-    public void tesetCreateAccountTest() {
+    public void testCreateAccountTest() {
 
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
@@ -73,7 +73,7 @@ public class LibraryTest {
     }
 
     //@Test
-    public void tesetCreateAccountWithAthoritiesTest() {
+    public void testCreateAccountWithAthoritiesTest() {
 
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
 
@@ -91,7 +91,7 @@ public class LibraryTest {
     }
 
     //@Test
-    public void tesetSetAccountPermissionTest() {
+    public void testSetAccountPermissionTest() {
 
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
 
