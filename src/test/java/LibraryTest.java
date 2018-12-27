@@ -75,16 +75,17 @@ public class LibraryTest {
     //@Test
     public void tesetCreateAccountWithAthoritiesTest() {
 
-        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
 
         YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
         TypeAuthority ownerAuthority =
                 TypeAuthority.Builder().
+                        setThreshold(1).
                         addPublicKey("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").
-                        addAccount("ycardrecover").build();
+                        addAccount("d1").
+                        build();
         TypeAuthority activeAuthority = TypeAuthority.Builder().addPublicKey("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").build();
-        PushedTransaction pushedTransaction = yxj.createAccount("idauth1", "joepark3good", ownerAuthority, activeAuthority, null).join();
+        PushedTransaction pushedTransaction = yxj.createAccount("d1", "joeparkygood", ownerAuthority, activeAuthority, null).join();
 
         logger.debug(pushedTransaction.getTransactionId());
     }
@@ -92,15 +93,19 @@ public class LibraryTest {
     //@Test
     public void tesetSetAccountPermissionTest() {
 
-        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
 
         YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
-        TypeAuthority activeAuthority = TypeAuthority.Builder().addPublicKey("YOS56Nr6XsUuw3nb2mGZATzKSNYPXRfn5FMQRD4oZwUTgmjE2miTh").build();
-        TransactionParameters txParams = TransactionParameters.Builder().addPermission("joepark3good", "owner").build();
-        PushedTransaction pushedTransaction = yxj.setAccountPermission("joepark3good", "active", "owner", activeAuthority, txParams).join();
+        TypeAuthority activeAuthority = TypeAuthority.Builder().addPublicKey("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").build();
 
-        logger.debug(pushedTransaction.getTransactionId());
+        //TransactionParameters txParams = TransactionParameters.Builder().addPermission("joeparkygood", "owner").build();
+        //PushedTransaction pushedTransaction = yxj.setAccountPermission("joeparkygood", "active", "owner", activeAuthority, txParams).join();
+        //logger.debug("By joeparkygood itself : " + pushedTransaction.getTransactionId());
+
+        TransactionParameters txParams2 = TransactionParameters.Builder().addPermission("joeparkygood", "owner").
+                addPublicKey("EOS6LPAQCVK69srvKmPCTyD6QjG4Z8t3YThJVTGeZeQg8MokC4YTq").build(); // publicKey is for d1@active
+        PushedTransaction pushedTransaction2 = yxj.setAccountPermission("joeparkygood", activeAuthority, txParams2).join();
+        logger.debug("By d1(service) : " + pushedTransaction2.getTransactionId());
     }
 
     //@Test
