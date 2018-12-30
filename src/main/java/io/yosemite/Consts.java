@@ -14,10 +14,9 @@ public final class Consts {
 
     public static final String DEFAULT_KEYOS_HTTP_URL = "http://127.0.0.1:8900";
     public static final String DEFAULT_WALLET_NAME = "default";
-    public static final boolean DEFAULT_SAVE_PASSWORD = true;
 
-    public static final int TX_EXPIRATION_IN_MILLIS = 1000 * 60 * 2; // 2 minutes (from cleos)
+    public static final int TX_EXPIRATION_IN_MILLIS = 1000 * 60 * 2; // 2 minutes
 
-    public static final String DEFAULT_SYMBOL_STRING = "DKRW";
-    public static final int DEFAULT_SYMBOL_PRECISION = 2;
+    public static final String DEFAULT_NATIVE_TOKEN_SYMBOL = "DKRW";
+    public static final int DEFAULT_NATIVE_TOKEN_PRECISION = 2;
 }

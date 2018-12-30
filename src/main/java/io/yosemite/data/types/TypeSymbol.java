@@ -37,8 +37,8 @@ import io.yosemite.util.Utils;
 public class TypeSymbol implements EosType.Packer {
     private static final int MAX_PRECISION = 18;
 
-    public static String sCoreSymbolString = Consts.DEFAULT_SYMBOL_STRING;
-    public static int sCoreSymbolPrecision = Consts.DEFAULT_SYMBOL_PRECISION;
+    private static String sCoreSymbolString = Consts.DEFAULT_NATIVE_TOKEN_SYMBOL;
+    private static int sCoreSymbolPrecision = Consts.DEFAULT_NATIVE_TOKEN_PRECISION;
 
     private final long mValue;
     private volatile String form;
@@ -47,7 +47,7 @@ public class TypeSymbol implements EosType.Packer {
         mValue = typeSymbol.mValue;
     }
 
-    public static void setCoreSymbol(int precision, String str) {
+    public static void setFeeToken(int precision, String str) {
         sCoreSymbolString = str;
         sCoreSymbolPrecision = precision;
     }
