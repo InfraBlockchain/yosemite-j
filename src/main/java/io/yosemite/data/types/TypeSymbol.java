@@ -28,6 +28,8 @@ import io.yosemite.Consts;
 import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Represents the token symbol, the precision and the name.
  * For your information, please read <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md">yx.ntoken README</a>.
@@ -37,8 +39,9 @@ import io.yosemite.util.Utils;
 public class TypeSymbol implements EosType.Packer {
     private static final int MAX_PRECISION = 18;
 
-    private static String sCoreSymbolString = Consts.DEFAULT_NATIVE_TOKEN_SYMBOL;
-    private static int sCoreSymbolPrecision = Consts.DEFAULT_NATIVE_TOKEN_PRECISION;
+    private static String feeTokenSymbol = Consts.DEFAULT_NATIVE_TOKEN_SYMBOL;
+    private static int feeTokenPrecision = Consts.DEFAULT_NATIVE_TOKEN_PRECISION;
+    private static final AtomicBoolean setFeeTokenCalled = new AtomicBoolean();
 
     private final long mValue;
     private volatile String form;
@@ -47,17 +50,26 @@ public class TypeSymbol implements EosType.Packer {
         mValue = typeSymbol.mValue;
     }
 
-    public static void setFeeToken(int precision, String str) {
-        sCoreSymbolString = str;
-        sCoreSymbolPrecision = precision;
+    /**
+     * Sets blockchain fee token information.
+     * This API must be called once at the start time of your application.
+     * @param precision token precision value
+     * @param symbol token symbol
+     */
+    public static void setFeeToken(int precision, String symbol) {
+        if (!setFeeTokenCalled.compareAndSet(false, true)) {
+            throw new IllegalStateException("already called");
+        }
+        feeTokenSymbol = symbol;
+        feeTokenPrecision = precision;
     }
 
     public static long stringToSymbol(int precision, CharSequence str) {
         long result = 0;
 
         if (StringUtils.isEmpty(str)) {
-            str = sCoreSymbolString;
-            precision = sCoreSymbolPrecision;
+            str = feeTokenSymbol;
+            precision = feeTokenPrecision;
         }
 
         for (int index = 0; index < str.length(); index++) {
@@ -105,7 +117,7 @@ public class TypeSymbol implements EosType.Packer {
     }
 
     public TypeSymbol() {
-        this(sCoreSymbolPrecision, sCoreSymbolString);
+        this(feeTokenPrecision, feeTokenSymbol);
     }
 
     public TypeSymbol(String from) {
