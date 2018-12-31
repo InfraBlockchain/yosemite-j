@@ -1,11 +1,17 @@
 package io.yosemite.exception;
 
+import javax.annotation.Nullable;
+
 public class YosemiteApiException extends RuntimeException {
 
-    private YosemiteApiError error;
-    private ErrorCode errorCode;
-    private String transactionId;
+    @Nullable private YosemiteApiError error;
+    @Nullable private ErrorCode errorCode;
+    @Nullable private String transactionId;
     private volatile String message;
+
+    public YosemiteApiException(String error) {
+        super(error, null);
+    }
 
     public YosemiteApiException(YosemiteApiError apiError) {
         this(apiError, null);

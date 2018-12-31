@@ -17,6 +17,10 @@ public class TransactionParameters {
     private String transactionVoteTarget;
     private int txExpirationInMillis = -1;
 
+    void setDelegatedTransactionFeePayer(String delegatedTransactionFeePayer) {
+        this.delegatedTransactionFeePayer = delegatedTransactionFeePayer;
+    }
+
     public static TransactionParametersBuilder Builder() {
         return new TransactionParametersBuilder();
     }

@@ -7,6 +7,8 @@ import io.yosemite.data.remote.api.GetRequiredKeysRequest;
 import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.history.action.GetTableOptions;
 import io.yosemite.data.types.TypePermission;
+import io.yosemite.exception.YosemiteApiException;
+import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
 
 import java.util.List;
@@ -94,18 +96,21 @@ public abstract class YosemiteJ {
     }
 
     private SignedTransaction buildSignedTransaction(Action actionReq, Info info, TransactionParameters params) {
+        String txFeePayer = params.getDelegatedTransactionFeePayer() != null ?
+                params.getDelegatedTransactionFeePayer() : mYosemiteApiRestClient.getDelegatedTransactionFeePayer();
+        if (StringUtils.isEmpty(txFeePayer)) {
+            throw new YosemiteApiException("transaction fee payer must be set");
+        }
+
         SignedTransaction txnBeforeSign = new SignedTransaction();
 
         txnBeforeSign.addAction(actionReq);
         txnBeforeSign.setReferenceBlock(info.getHeadBlockId());
         txnBeforeSign.setExpiration(info.getTimeAfterHeadBlockTime(
                 params.getTxExpirationInMillis() >= 0 ? params.getTxExpirationInMillis() : mYosemiteApiRestClient.getTxExpirationInMillis()));
-        txnBeforeSign.setStringTransactionExtension(
-                TransactionExtensionField.TRANSACTION_VOTE_ACCOUNT,
+        txnBeforeSign.setStringTransactionExtension(TransactionExtensionField.TRANSACTION_VOTE_ACCOUNT,
                 params.getTransactionVoteTarget() != null ? params.getTransactionVoteTarget() : mYosemiteApiRestClient.getTransactionVoteTarget());
-        txnBeforeSign.setStringTransactionExtension(
-                TransactionExtensionField.DELEGATED_TRANSACTION_FEE_PAYER,
-                params.getDelegatedTransactionFeePayer() != null ? params.getDelegatedTransactionFeePayer() : mYosemiteApiRestClient.getDelegatedTransactionFeePayer());
+        txnBeforeSign.setStringTransactionExtension(TransactionExtensionField.DELEGATED_TRANSACTION_FEE_PAYER, txFeePayer);
         return txnBeforeSign;
     }
 
@@ -158,17 +163,24 @@ public abstract class YosemiteJ {
     }
 
     protected TransactionParameters buildCommonParametersWithDefaults(TransactionParameters transactionParameters,
-                                                                      String defaultAccountName) {
+                                                                      String defaultActorAccount) {
         if (transactionParameters == null) {
-            return TransactionParameters.Builder().addPermission(defaultAccountName).build();
+            TransactionParameters.TransactionParametersBuilder txParametersBuilder =
+                    TransactionParameters.Builder().addPermission(defaultActorAccount);
+            if (StringUtils.isEmpty(mYosemiteApiRestClient.getDelegatedTransactionFeePayer())) {
+                txParametersBuilder = txParametersBuilder.setDelegatedTransactionFeePayer(defaultActorAccount);
+            }
+            return txParametersBuilder.build();
         }
         List<TypePermission> permissions = transactionParameters.getPermissions();
         if (permissions.isEmpty()) {
-            permissions.add(new TypePermission(defaultAccountName));
-            if (transactionParameters.getDelegatedTransactionFeePayer() != null) {
+            permissions.add(new TypePermission(defaultActorAccount));
+            if (!StringUtils.isEmpty(transactionParameters.getDelegatedTransactionFeePayer())) {
                 permissions.add(new TypePermission(transactionParameters.getDelegatedTransactionFeePayer()));
-            } else if (mYosemiteApiRestClient.getDelegatedTransactionFeePayer() != null) {
+            } else if (!StringUtils.isEmpty(mYosemiteApiRestClient.getDelegatedTransactionFeePayer())) {
                 permissions.add(new TypePermission(mYosemiteApiRestClient.getDelegatedTransactionFeePayer()));
+            } else {
+                transactionParameters.setDelegatedTransactionFeePayer(defaultActorAccount);
             }
         }
         return transactionParameters;
