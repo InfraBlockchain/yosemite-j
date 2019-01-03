@@ -28,8 +28,6 @@ public class GsonYosemiteTypeAdapterFactory implements TypeAdapterFactory {
         adapters.put(TypeSymbol.class, new TypeNameAdapter<>(TypeSymbol.class));
         adapters.put(TypeAsset.class, new TypeNameAdapter<>(TypeAsset.class));
         adapters.put(TypePublicKey.class, new TypeNameAdapter<>(TypePublicKey.class));
-        adapters.put(TypeYxSymbol.class, new TypeNameAdapter<>(TypeYxSymbol.class));
-        adapters.put(TypeYxAsset.class, new TypeNameAdapter<>(TypeYxAsset.class));
     }
 
     @Override

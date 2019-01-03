@@ -4,6 +4,7 @@ import io.yosemite.data.remote.api.*;
 import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.chain.account.Account;
+import io.yosemite.data.types.TypeAsset;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -36,4 +37,10 @@ public interface YosemiteChainApiService {
 
     @POST("v1/chain/get_required_keys")
     Call<GetRequiredKeysResponse> getRequiredKeys(@Body GetRequiredKeysRequest req);
+
+    @POST("/v1/chain/get_token_info")
+    Call<TokenInfo> getTokenInfo(@Body Map<String, String> requestFields);
+
+    @POST("/v1/chain/get_token_balance")
+    Call<TypeAsset> getTokenBalance(@Body Map<String, String> requestFields);
 }

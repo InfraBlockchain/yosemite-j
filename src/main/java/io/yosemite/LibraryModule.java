@@ -23,7 +23,7 @@ public class LibraryModule {
     @Provides
     @Singleton
     static Gson providesGson() {
-        return Utils.createYosemiteJGsonBuilder().create();
+        return Utils.createYosemiteJGson();
     }
 
     @Provides

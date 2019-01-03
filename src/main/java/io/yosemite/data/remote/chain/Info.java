@@ -158,7 +158,7 @@ public class Info {
     }
 
     public String toString() {
-        return Utils.prettyPrintJson(this);
+        return Utils.toJson(this, false);
     }
 
     public Optional<String> getServerVersionString() {

@@ -1,5 +1,6 @@
 package io.yosemite.sample;
 
+import io.yosemite.Consts;
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.chain.TableRow;
 import io.yosemite.data.remote.chain.account.Account;
@@ -13,22 +14,23 @@ import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import java.util.*;
 
 public class DigitalContractJSample extends SampleCommon {
-    private static final String SYSTEM_DEPOSITORY_ACCOUNT = "d1";
-    private static final String SERVICE_PROVIDER_ACCOUNT = "servprovider";
-    private static final String USER1_ACCOUNT = "servpuserxx1";
-    private static final String USER2_ACCOUNT = "servpuserxx2";
+    private static final String IDENTITY_AUTHORITY_ACCOUNT = "idauth.a";
+    private static final String SYSTEM_TOKEN_ACCOUNT = "systoken.a";
+    private static final String SERVICE_PROVIDER_ACCOUNT = "servprovider"; // YPV_5JPknPMKNadXMaixB5zo6zAss7ZMtbJcyETxhVV19cP115RCKBi
+    private static final String USER1_ACCOUNT = "servpuserxx1"; // YPV_5K31Vufu6KibpfUjrmSYQm3BHfG7XYPYWMvQG4CiSJUGNv5WJHq
+    private static final String USER2_ACCOUNT = "servpuserxx2"; // YPV_5JdwhSpBSoZVysfhGtXPrVdNSbGBCr7hUoZRAaxWN6HfX7tKQbF
 
     public static void main(String[] args) {
         boolean wait_for_irreversibility = false;
         // Create Yosemite Client with servers of the same machine; transaction vote target for PoT is set to "d1"
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://127.0.0.1:8888", "http://127.0.0.1:8900");
-        apiClient.setTransactionVoteTarget(SYSTEM_DEPOSITORY_ACCOUNT);
+            Consts.TESNET_SENTINEL_NODE_ADDRESS, Consts.DEFAULT_KEYOS_HTTP_URL);
+        apiClient.setTransactionVoteTarget("producer.a");
 
         if (args.length > 0) {
             for (String arg : args) {
                 if ("-prepare".equals(arg)) {
-                    prepareServiceProvider(apiClient, SYSTEM_DEPOSITORY_ACCOUNT, SERVICE_PROVIDER_ACCOUNT);
+                    prepareServiceProvider(apiClient, IDENTITY_AUTHORITY_ACCOUNT, SYSTEM_TOKEN_ACCOUNT, SERVICE_PROVIDER_ACCOUNT);
                     return;
                 } else if ("-wait-irr".equals(arg)) {
                     wait_for_irreversibility = true;
@@ -36,10 +38,10 @@ public class DigitalContractJSample extends SampleCommon {
             }
         }
 
-        // [IMPORTANT NOTE ON PUBLIC KEY]
-        // In most cases, the public keys of the accounts are already known to the service provider.
-        // Before creating an account, you must create the key pair and must save the public key somewhere like RDB for the account creation.
-        // For this sample, we get the public keys from the chain, but in real case, you should get them from the RDB.
+        apiClient.setDelegatedTransactionFeePayer(SERVICE_PROVIDER_ACCOUNT);
+
+        // For this sample, we get the service provider's public key from the chain,
+        // but in real case, you should get them from your storage.
         Account account = apiClient.getAccount(SERVICE_PROVIDER_ACCOUNT).execute();
         String serviceProviderPublicKey = account.getActivePublicKey();
 
@@ -49,6 +51,8 @@ public class DigitalContractJSample extends SampleCommon {
         String user1PublicKey;
         try {
             user1PublicKey = createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT, USER1_ACCOUNT);
+            // KYC process done by Identity Authority Service
+            processKYC(yxSystemJ, IDENTITY_AUTHORITY_ACCOUNT, USER1_ACCOUNT, EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
             log(e.toString());
@@ -58,15 +62,11 @@ public class DigitalContractJSample extends SampleCommon {
         String user2PublicKey;
         try {
             user2PublicKey = createKeyPairAndAccount(apiClient, yxSystemJ, SERVICE_PROVIDER_ACCOUNT, USER2_ACCOUNT);
+            processKYC(yxSystemJ, IDENTITY_AUTHORITY_ACCOUNT, USER2_ACCOUNT, EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
         } catch (Exception e) {
             log(e.toString());
             user2PublicKey = apiClient.getAccount(USER2_ACCOUNT).execute().getActivePublicKey();
         }
-
-        // KYC process done by Identity Authority Service
-        // assume d1 is Identity Authority and the users did phone authentication(2=KYCStatusType.KYC_STATUS_PHONE_AUTH) successfully
-        processKYC(yxSystemJ, SYSTEM_DEPOSITORY_ACCOUNT, USER1_ACCOUNT, EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
-        processKYC(yxSystemJ, SYSTEM_DEPOSITORY_ACCOUNT, USER2_ACCOUNT, EnumSet.of(KYCStatusType.KYC_STATUS_PHONE_AUTH));
 
         //----------------------------------------------
         // Let's start to use digital contract service!

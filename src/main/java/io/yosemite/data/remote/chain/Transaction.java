@@ -42,7 +42,7 @@ public class Transaction extends TransactionHeader {
         actions.add(msg);
     }
 
-    <T> List<T> deepCopyOnlyContainer(List<T> srcList) {
+    private <T> List<T> deepCopyOnlyContainer(List<T> srcList) {
         if (null == srcList || srcList.isEmpty()) {
             return null;
         }

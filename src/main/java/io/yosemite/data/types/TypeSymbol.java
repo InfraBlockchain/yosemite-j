@@ -124,8 +124,8 @@ public class TypeSymbol implements EosType.Packer {
         mValue = fromString(from).mValue;
     }
 
-    public TypeSymbol(int precision, CharSequence symbolName) {
-        mValue = TypeSymbol.stringToSymbol(precision, symbolName);
+    public TypeSymbol(int precision, CharSequence symbol) {
+        mValue = TypeSymbol.stringToSymbol(precision, symbol);
     }
 
     public short decimals() {

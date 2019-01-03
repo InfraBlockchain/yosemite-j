@@ -180,7 +180,7 @@ public class Account {
     }
 
     public String toString() {
-        return Utils.prettyPrintJson(this);
+        return Utils.toJson(this, false);
     }
 
     /**

@@ -11,11 +11,10 @@ import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiClientFactory;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.YosemiteJ;
-import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
+import io.yosemite.services.yxcontracts.StandardToken;
 import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import io.yosemite.util.Utils;
 import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,7 +121,7 @@ public class LibraryTest {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
         Block result = apiClient.getBlock("74187").execute();
-        System.out.println(Utils.prettyPrintJson(result));
+        System.out.println(Utils.toJson(result, true));
     }
 
     //@Test
@@ -130,7 +129,7 @@ public class LibraryTest {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
         Account result = apiClient.getAccount("yosemite").execute();
-        System.out.println(Utils.prettyPrintJson(result));
+        System.out.println(Utils.toJson(result, true));
     }
 
     //@Test
@@ -139,7 +138,7 @@ public class LibraryTest {
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
 
         Transaction result = apiClient.getTransaction("6100970467e5d68b6cd588f0f6cbffc0b78204bdaa1a7544ffad000b348fec71").execute();
-        logger.debug(Utils.prettyPrintJson(result));
+        logger.debug(Utils.toJson(result, true));
 
         if (result.getIrreversibleAt() != null) {
             logger.debug("Irreversible block timestamp at : " + result.getIrreversibleAt().getTimestamp());
@@ -155,7 +154,7 @@ public class LibraryTest {
 
         Actions actions = apiClient.getActions("rentservice1", -1, -50).execute();
         logger.debug("Last irreversible block: " + actions.getLastIrreversibleBlock());
-        logger.debug(Utils.prettyPrintJson(actions));
+        logger.debug(Utils.toJson(actions, true));
     }
 
     //@Test
@@ -165,29 +164,29 @@ public class LibraryTest {
 
         AbiBinToJsonRequest req = new AbiBinToJsonRequest("yx.token", "entrustui", "10aeca58e5740df2a090db57e1740df20243524400000000a090db57e1740df2");
         AbiBinToJsonResponse response = apiClient.abiBinToJson(req).execute();
-        logger.debug(Utils.prettyPrintJson(response));
+        logger.debug(Utils.toJson(response, true));
     }
 
     //@Test
     public void testYosemiteNativeTokenJ() {
 
-        final String chainId = "6376573815dbd2de2d9929027a94aeab3f6e60e87caa953f94ee701ac8425811";
+        final String chainId = "047316f411b2db9ba0f600fdbca8e3bbd224d82a367ff02fbd355bb0675288e3";
 
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
+                "http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://testnet-sentinel-explorer-api.yosemitelabs.org");
 
-        apiClient.setTransactionVoteTarget("d1");
+        apiClient.setTransactionVoteTarget("producer.a");
         apiClient.setDelegatedTransactionFeePayer("payeraccount");
 
-            Account serviceUser = apiClient.getAccount("serviceuser1").execute();
+        Account serviceUser = apiClient.getAccount("serviceuser1").execute();
         Account userAccount = apiClient.getAccount("useraccounta").execute();
         Account payerAccount = apiClient.getAccount("payeraccount").execute();
 
-        String contract = "yx.ntoken";
+        String contract = "systoken.a";
         String action = "transfer";
-        String data = "{\"from\":\"" + serviceUser.getAccountName() + "\",\"to\":\"" + userAccount.getAccountName() + "\",\"amount\":\"1.00 DKRW\",\"memo\":\"test\"}";
+        String data = "{\"t\":\"" + contract + "\",\"from\":\"" + serviceUser.getAccountName() + "\",\"to\":\"" + userAccount.getAccountName() + "\",\"amount\":\"1.0000 DUSD\",\"memo\":\"test\"}";
 
-        YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
+        YosemiteJ yxj = new StandardToken(apiClient);
 
         TransactionParameters txParameters = TransactionParameters.Builder().
                 addPermission(serviceUser.getAccountName()).
@@ -196,9 +195,9 @@ public class LibraryTest {
         final SignedTransaction signedTransactionByService = yxj.signTransaction(
                 contract, action , data, txParameters).join();
 
-        logger.debug("\nFirst Signed Transaction:\n" + Utils.prettyPrintJson(signedTransactionByService));
+        logger.debug("\nFirst Signed Transaction:\n" + Utils.toJson(signedTransactionByService, true));
 
-        Gson gson = Utils.createYosemiteJGsonBuilder().create();
+        Gson gson = Utils.createYosemiteJGson();
 
         String stringifiedSignedTransactionByService = gson.toJson(signedTransactionByService);
 
@@ -209,11 +208,11 @@ public class LibraryTest {
         final SignedTransaction finalSignedTransaction = yxj.signTransaction(
                 unmarshalledTransaction, chainId, Collections.singletonList(payerAccount.getActivePublicKey())).join();
 
-        logger.debug("\nFinal Signed Transaction:\n" + Utils.prettyPrintJson(finalSignedTransaction));
+        logger.debug("\nFinal Signed Transaction:\n" + Utils.toJson(finalSignedTransaction, true));
 
         PushedTransaction pushedTransaction = apiClient.pushTransaction(new PackedTransaction(finalSignedTransaction)).execute();
 
-        logger.debug("\nPushed Transaction:\n" + Utils.prettyPrintJson(pushedTransaction));
+        logger.debug("\nPushed Transaction:\n" + Utils.toJson(pushedTransaction, true));
 
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
     }

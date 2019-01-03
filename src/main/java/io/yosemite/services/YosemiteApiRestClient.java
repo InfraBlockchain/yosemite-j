@@ -5,6 +5,7 @@ import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.action.GetTableOptions;
+import io.yosemite.data.types.TypeAsset;
 
 import java.util.List;
 
@@ -34,6 +35,10 @@ public interface YosemiteApiRestClient {
     Request<AbiBinToJsonResponse> abiBinToJson(AbiBinToJsonRequest req);
 
     Request<GetRequiredKeysResponse> getRequiredKeys(GetRequiredKeysRequest getRequiredKeysRequest);
+
+    Request<TokenInfo> getTokenInfo(String token);
+
+    Request<TypeAsset> getTokenBalance(String token, String account);
 
     Request<PushedTransaction> pushTransaction(PackedTransaction req);
 

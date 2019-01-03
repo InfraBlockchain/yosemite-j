@@ -5,12 +5,10 @@ import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.action.GetTableOptions;
+import io.yosemite.data.types.TypeAsset;
 import io.yosemite.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
 
@@ -55,10 +53,10 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
-    public Request<TableRow> getTableRows(String code, String scope, String table, GetTableOptions options) {
-        LinkedHashMap<String, String> requestParameters = new LinkedHashMap<>(9);
+    public Request<TableRow> getTableRows(String contract, String scope, String table, GetTableOptions options) {
+        Map<String, String> requestParameters = new LinkedHashMap<>();
 
-        requestParameters.put("code", code);
+        requestParameters.put("code", contract);
         requestParameters.put("scope", scope);
         requestParameters.put("table", table);
         requestParameters.put("json", "true");
@@ -96,6 +94,21 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     @Override
     public Request<GetRequiredKeysResponse> getRequiredKeys(GetRequiredKeysRequest req) {
         return new Request<>(yxChainApiService.getService().getRequiredKeys(req), yxChainApiService);
+    }
+
+    @Override
+    public Request<TokenInfo> getTokenInfo(String token) {
+        Map<String, String> requestParameters = new HashMap<>();
+        requestParameters.put("token", token);
+        return new Request<>(yxChainApiService.getService().getTokenInfo(requestParameters), yxChainApiService);
+    }
+
+    @Override
+    public Request<TypeAsset> getTokenBalance(String token, String account) {
+        Map<String, String> requestParameters = new HashMap<>();
+        requestParameters.put("token", token);
+        requestParameters.put("account", account);
+        return new Request<>(yxChainApiService.getService().getTokenBalance(requestParameters), yxChainApiService);
     }
 
     @Override

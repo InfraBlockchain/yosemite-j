@@ -1,11 +1,13 @@
 package io.yosemite.services;
 
 import com.google.gson.Gson;
+import io.yosemite.StandardTokenConsts;
 import io.yosemite.crypto.digest.Sha256;
 import io.yosemite.data.remote.api.AbiJsonToBinRequest;
 import io.yosemite.data.remote.api.GetRequiredKeysRequest;
 import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.history.action.GetTableOptions;
+import io.yosemite.data.types.TypeAsset;
 import io.yosemite.data.types.TypePermission;
 import io.yosemite.exception.YosemiteApiException;
 import io.yosemite.util.StringUtils;
@@ -14,19 +16,25 @@ import io.yosemite.util.Utils;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static io.yosemite.Consts.YOSEMITE_STANDARD_TOKEN_ABI_CONTRACT;
+
 public abstract class YosemiteJ {
 
     private final YosemiteApiRestClient mYosemiteApiRestClient;
 
-    protected static final Gson gson = Utils.createYosemiteJGsonBuilder().create();
+    protected static final Gson gson = Utils.createYosemiteJGson();
 
     protected YosemiteJ(YosemiteApiRestClient yosemiteApiRestClient) {
         mYosemiteApiRestClient = yosemiteApiRestClient;
     }
 
-    private CompletableFuture<Action> getActionWithBinaryData(String contract, String action, String data,
+    private CompletableFuture<Action> getActionWithBinaryData(final String contract, String action, String data,
                                                               List<TypePermission> permissions) {
-        AbiJsonToBinRequest abiJsonToBinRequest = new AbiJsonToBinRequest(contract, action, data);
+        String abiTarget = contract;
+        if (StandardTokenConsts.STANDARD_TOKEN_ACTIONS.contains(action)) {
+            abiTarget = YOSEMITE_STANDARD_TOKEN_ABI_CONTRACT;
+        }
+        AbiJsonToBinRequest abiJsonToBinRequest = new AbiJsonToBinRequest(abiTarget, action, data);
 
         return mYosemiteApiRestClient.abiJsonToBin(abiJsonToBinRequest).executeAsync().thenApply(abiJsonToBinRes -> {
             Action actionReq = new Action(contract, action);
@@ -172,17 +180,41 @@ public abstract class YosemiteJ {
             }
             return txParametersBuilder.build();
         }
+
         List<TypePermission> permissions = transactionParameters.getPermissions();
         if (permissions.isEmpty()) {
             permissions.add(new TypePermission(defaultActorAccount));
-            if (!StringUtils.isEmpty(transactionParameters.getDelegatedTransactionFeePayer())) {
-                permissions.add(new TypePermission(transactionParameters.getDelegatedTransactionFeePayer()));
-            } else if (!StringUtils.isEmpty(mYosemiteApiRestClient.getDelegatedTransactionFeePayer())) {
-                permissions.add(new TypePermission(mYosemiteApiRestClient.getDelegatedTransactionFeePayer()));
-            } else {
-                transactionParameters.setDelegatedTransactionFeePayer(defaultActorAccount);
-            }
         }
+
+        // set transaction fee payer as default actor if it's not set
+        if (StringUtils.isEmpty(transactionParameters.getDelegatedTransactionFeePayer())
+            && StringUtils.isEmpty(mYosemiteApiRestClient.getDelegatedTransactionFeePayer())) {
+
+            transactionParameters.setDelegatedTransactionFeePayer(defaultActorAccount);
+        }
+
         return transactionParameters;
+    }
+
+    /**
+     * Get the information of one of standard tokens.
+     * @param token token account name
+     * @return CompletableFuture instance to get TokenInfo instance
+     */
+    public CompletableFuture<TokenInfo> getTokenInfo(String token) {
+        if (StringUtils.isEmpty(token)) throw new IllegalArgumentException("wrong token");
+        return mYosemiteApiRestClient.getTokenInfo(token).executeAsync();
+    }
+
+    /**
+     * Get the balance of the account for one of standard tokens.
+     * @param token token account name
+     * @param account target account name
+     * @return CompletableFuture instance to get TypeAsset instance
+     */
+    public CompletableFuture<TypeAsset> getAccountBalance(String token, String account) {
+        if (StringUtils.isEmpty(token)) throw new IllegalArgumentException("wrong token");
+        if (StringUtils.isEmpty(account)) throw new IllegalArgumentException("wrong account");
+        return mYosemiteApiRestClient.getTokenBalance(token, account).executeAsync();
     }
 }
