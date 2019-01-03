@@ -3,7 +3,9 @@ package io.yosemite.services.yxcontracts;
 import io.yosemite.Consts;
 import io.yosemite.crypto.ec.EosPublicKey;
 import io.yosemite.data.remote.chain.PushedTransaction;
+import io.yosemite.data.remote.contract.ActionLinkAuth;
 import io.yosemite.data.remote.contract.ActionNewAccount;
+import io.yosemite.data.remote.contract.ActionUnlinkAuth;
 import io.yosemite.data.remote.contract.ActionUpdateAuth;
 import io.yosemite.data.types.TypeAuthority;
 import io.yosemite.data.types.TypePublicKey;
@@ -83,7 +85,7 @@ public class YosemiteSystemJ extends YosemiteJ {
     }
 
     /**
-     * Sets or updates the account's permission information for the given permission name. 
+     * Sets or updates the account's permission for the given permission name. 
      * @param accountName account name
      * @param permissionName the permission name to set
      * @param parentPermissionName the parent permission name of target permission
@@ -118,5 +120,50 @@ public class YosemiteSystemJ extends YosemiteJ {
                                                                      TypeAuthority activeAuthority,
                                                                      @Nullable TransactionParameters params) {
         return setAccountPermission(accountName, Consts.ACTIVE_PERMISSION_NAME, Consts.OWNER_PERMISSION_NAME, activeAuthority, params);
+    }
+
+    /**
+     * Links the account permission to the given action of the contract. 
+     * @param accountName the account to link a permission for
+     * @param code the contract name to link with
+     * @param action the action of the contract to link with
+     * @param requirement the permission name to link with
+     * @param params transaction parameters
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
+    public CompletableFuture<PushedTransaction> linkPermission(String accountName,
+                                                               String code,
+                                                               String action,
+                                                               String requirement,
+                                                               @Nullable TransactionParameters params) {
+        if (StringUtils.isEmpty(accountName)) throw new IllegalArgumentException("empty target account name");
+        if (StringUtils.isEmpty(code)) throw new IllegalArgumentException("empty code name");
+        if (StringUtils.isEmpty(action)) throw new IllegalArgumentException("empty action name");
+        if (StringUtils.isEmpty(requirement)) throw new IllegalArgumentException("empty requirement");
+
+        ActionLinkAuth linkAuth = new ActionLinkAuth(accountName, code, action, requirement);
+        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ActionLinkAuth.ACTION,
+            gson.toJson(linkAuth), buildCommonParametersWithDefaults(params, accountName));
+    }
+
+    /**
+     * Unlinks the account permission from the given action of the contract. 
+     * @param accountName the account to unlink a permission for
+     * @param code the contract name to unlink with
+     * @param action the action of the contract to unlink with
+     * @param params transaction parameters
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
+    public CompletableFuture<PushedTransaction> unlinkPermission(String accountName,
+                                                                 String code,
+                                                                 String action,
+                                                                 @Nullable TransactionParameters params) {
+        if (StringUtils.isEmpty(accountName)) throw new IllegalArgumentException("empty target account name");
+        if (StringUtils.isEmpty(code)) throw new IllegalArgumentException("empty code name");
+        if (StringUtils.isEmpty(action)) throw new IllegalArgumentException("empty action name");
+
+        ActionUnlinkAuth unlinkAuth = new ActionUnlinkAuth(accountName, code, action);
+        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ActionUnlinkAuth.ACTION,
+            gson.toJson(unlinkAuth), buildCommonParametersWithDefaults(params, accountName));
     }
 }

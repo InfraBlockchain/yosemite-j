@@ -15,6 +15,7 @@ import io.yosemite.services.yxcontracts.StandardToken;
 import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import io.yosemite.util.Utils;
 import org.junit.Assert;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,22 +90,43 @@ public class LibraryTest {
         logger.debug(pushedTransaction.getTransactionId());
     }
 
+    /*
+push action yosemite updateauth '{"account":"user1","permission":"creditissue","parent":"active",
+                                                "auth":{"threshold":1,"keys":[],"waits":[],
+                                                "accounts":[{"weight":1,"permission":{"actor":"ycard.cusd.a","permission":"active"}}]}}'
+              -p user1@active --txfee-payer ycard.cusd.a
+push action yosemite linkauth '["user1","ycard.cusd.a","creditissue","creditissue"]' -p user1@active --txfee-payer ycard.cusd.a
+
+push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""]' -p useraccounta@creditissue --txfee-payer ycard.cusd.a
+     */
+    
     //@Test
     public void testSetAccountPermissionTest() {
 
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
 
         YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
-        TypeAuthority activeAuthority = TypeAuthority.Builder().addPublicKey("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").build();
+        TypeAuthority authority = TypeAuthority.Builder().addAccount("ycard.cusd.a").build();
 
-        //TransactionParameters txParams = TransactionParameters.Builder().addPermission("joeparkygood", "owner").build();
-        //PushedTransaction pushedTransaction = yxj.setAccountPermission("joeparkygood", "active", "owner", activeAuthority, txParams).join();
-        //logger.debug("By joeparkygood itself : " + pushedTransaction.getTransactionId());
+        TransactionParameters txParam = TransactionParameters.Builder().
+            addPermission("user1").
+            setDelegatedTransactionFeePayer("yosemite").
+            build();
+        PushedTransaction pushedTransaction2 = yxj.setAccountPermission("user1", "creditissue", "active", authority, txParam).join();
+        logger.debug("updateauth : " + pushedTransaction2.getTransactionId());
+    }
 
-        TransactionParameters txParams2 = TransactionParameters.Builder().addPermission("joeparkygood", "owner").
-                addPublicKey("EOS6LPAQCVK69srvKmPCTyD6QjG4Z8t3YThJVTGeZeQg8MokC4YTq").build(); // publicKey is for d1@active
-        PushedTransaction pushedTransaction2 = yxj.setAccountPermission("joeparkygood", activeAuthority, txParams2).join();
-        logger.debug("By d1(service) : " + pushedTransaction2.getTransactionId());
+    //@Test
+    public void testLinkPermissionTest() {
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
+
+        YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
+        TransactionParameters txParams = TransactionParameters.Builder().
+            addPermission("user1").
+            setDelegatedTransactionFeePayer("yosemite").
+            build();
+        PushedTransaction pushedTransaction = yxj.linkPermission("user1", "ycard.cusd.a", "creditissue", "creditissue", txParams).join();
+        logger.debug("linkauth : " + pushedTransaction.getTransactionId());
     }
 
     //@Test
