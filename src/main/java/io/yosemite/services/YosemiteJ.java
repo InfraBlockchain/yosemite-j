@@ -143,8 +143,7 @@ public abstract class YosemiteJ {
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public final CompletableFuture<PushedTransaction> pushAction(
-            final String contract, final String action, final String data,
-            final TransactionParameters params) {
+            final String contract, final String action, final String data, final TransactionParameters params) {
         if (params == null) throw new IllegalArgumentException("params cannot be null");
 
         return getActionWithBinaryData(contract, action, data, params.getPermissions()).thenCompose(actionReq ->

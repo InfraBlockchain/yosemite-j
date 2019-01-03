@@ -109,15 +109,16 @@ public class TypeAsset implements EosType.Packer {
     public String toString() {
         String form = this.form;
         if (form == null) {
+            StringBuilder builder = new StringBuilder();
             long precisionVal = precision();
-            String result = String.valueOf(mAmount / precisionVal);
+            builder.append(mAmount / precisionVal);
 
             if (decimals() > 0) {
-                long fract = mAmount % precisionVal;
-                result += "." + String.valueOf(precisionVal + fract).substring(1);
+                long fraction = mAmount % precisionVal;
+                builder.append(".").append(String.valueOf(precisionVal + fraction).substring(1));
             }
 
-            form = result + " " + symbolName();
+            form = builder.append(" ").append(symbolName()).toString();
             this.form = form;
         }
         return form;
