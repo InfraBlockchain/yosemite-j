@@ -5,7 +5,7 @@ import io.yosemite.data.remote.history.transaction.Transaction;
 import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiRestClient;
 import io.yosemite.services.yxcontracts.KYCStatusType;
-import io.yosemite.services.yxcontracts.YosemiteNativeTokenJ;
+import io.yosemite.services.yxcontracts.StandardToken;
 import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 
 import java.util.EnumSet;
@@ -40,32 +40,31 @@ abstract class SampleCommon {
         String contract = "yx.identity";
         String action = "setidinfo";
         String data = "{\"identity_authority\":\"" + identityAuthorityAccount + "\",\"account\":\"" + accountName + "\",\"type\":0,\"kyc\":" + KYCStatusType.getAsBitFlags(flags) + ",\"state\":0,\"data\":\"\"}";
-        TransactionParameters txParameters = TransactionParameters.Builder().addPermission(identityAuthorityAccount).build();
+        TransactionParameters txParameters =
+                TransactionParameters.Builder().addPermission(identityAuthorityAccount).setDelegatedTransactionFeePayer(identityAuthorityAccount).build();
 
         PushedTransaction pushedTransaction = yxSystemJ.pushAction(contract, action, data, txParameters).join();
         log("\nsetidinfo Transaction:\n" + pushedTransaction.getTransactionId());
     }
 
-    static void prepareServiceProvider(YosemiteApiRestClient apiClient, String systemDepositoryAccount,
-                                       String accountName) {
+    static void prepareServiceProvider(YosemiteApiRestClient apiClient, String idAuthAccount, String systemTokenAccount, String accountName) {
         YosemiteSystemJ yxSystemJ = new YosemiteSystemJ(apiClient);
 
         // create the key pair of the service provider and create its account
         try {
-            createKeyPairAndAccount(apiClient, yxSystemJ, "yosemite", accountName);
+            createKeyPairAndAccount(apiClient, yxSystemJ, idAuthAccount, accountName);
         } catch (Exception e) {
             // log and ignore; usually the error is "already created"
             log(e.toString());
         }
 
         // KYC process done by Identity Authority Service for DKRW
-        processKYC(yxSystemJ, systemDepositoryAccount, accountName, EnumSet.allOf(KYCStatusType.class));
+        processKYC(yxSystemJ, idAuthAccount, accountName, EnumSet.allOf(KYCStatusType.class));
 
         // issue native token by system depository
-        YosemiteNativeTokenJ nativeTokenJ = new YosemiteNativeTokenJ(apiClient);
-        PushedTransaction pushedTransaction = nativeTokenJ.issueNativeToken(
-                accountName, "1000000.00 DKRW", systemDepositoryAccount, "", null).join();
-        log("Issue Native Token Transaction : " + pushedTransaction.getTransactionId());
+        StandardToken systemToken = new StandardToken(apiClient);
+        PushedTransaction pushedTransaction = systemToken.issueToken(accountName, "100000000.0000 DUSD", systemTokenAccount, "", null).join();
+        log("Issue System Token Transaction : " + pushedTransaction.getTransactionId());
     }
 
     static String createKeyPairAndAccount(YosemiteApiRestClient apiClient, YosemiteSystemJ yxSystemJ,

@@ -2,6 +2,7 @@ package io.yosemite.data.util;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
@@ -20,6 +21,10 @@ public class StringTypeAdapter extends TypeAdapter<String> {
 
     @Override
     public String read(JsonReader in) throws IOException {
+        if (in.peek() == JsonToken.NULL) {
+            in.nextNull();
+            return null;
+        }
         return in.nextString();
     }
 }

@@ -1,15 +1,13 @@
 package io.yosemite.data.remote.contract;
 
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-import io.yosemite.crypto.util.HexUtils;
-import io.yosemite.data.types.*;
-
-import static io.yosemite.Consts.YOSEMITE_SYSTEM_CONTRACT;
+import io.yosemite.data.types.EosType;
+import io.yosemite.data.types.TypeAccountName;
+import io.yosemite.data.types.TypeAuthority;
+import io.yosemite.data.types.TypePublicKey;
 
 public class ActionNewAccount implements EosType.Packer {
 
-    public static final String CONTRACT = YOSEMITE_SYSTEM_CONTRACT;
     public static final String ACTION = "newaccount";
 
     @Expose
@@ -40,21 +38,11 @@ public class ActionNewAccount implements EosType.Packer {
         this.active = active;
     }
 
-    public String getCreatorName() {
-        return this.creator.toString();
-    }
-
     @Override
     public void pack(EosType.Writer writer) {
         this.creator.pack(writer);
         this.name.pack(writer);
         this.owner.pack(writer);
         this.active.pack(writer);
-    }
-
-    public String getAsHex() {
-        EosType.Writer writer = new EosByteWriter(256);
-        pack(writer);
-        return HexUtils.toHex(writer.toBytes());
     }
 }

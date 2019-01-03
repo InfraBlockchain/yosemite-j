@@ -1,30 +1,40 @@
 package io.yosemite.services;
 
 import com.google.gson.Gson;
+import io.yosemite.StandardTokenConsts;
 import io.yosemite.crypto.digest.Sha256;
 import io.yosemite.data.remote.api.AbiJsonToBinRequest;
 import io.yosemite.data.remote.api.GetRequiredKeysRequest;
 import io.yosemite.data.remote.chain.*;
 import io.yosemite.data.remote.history.action.GetTableOptions;
+import io.yosemite.data.types.TypeAsset;
 import io.yosemite.data.types.TypePermission;
+import io.yosemite.exception.YosemiteApiException;
+import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static io.yosemite.Consts.YOSEMITE_STANDARD_TOKEN_ABI_CONTRACT;
+
 public abstract class YosemiteJ {
 
     private final YosemiteApiRestClient mYosemiteApiRestClient;
 
-    protected static final Gson gson = Utils.createYosemiteJGsonBuilder().create();
+    protected static final Gson gson = Utils.createYosemiteJGson();
 
     protected YosemiteJ(YosemiteApiRestClient yosemiteApiRestClient) {
         mYosemiteApiRestClient = yosemiteApiRestClient;
     }
 
-    private CompletableFuture<Action> getActionWithBinaryData(String contract, String action, String data,
+    private CompletableFuture<Action> getActionWithBinaryData(final String contract, String action, String data,
                                                               List<TypePermission> permissions) {
-        AbiJsonToBinRequest abiJsonToBinRequest = new AbiJsonToBinRequest(contract, action, data);
+        String abiTarget = contract;
+        if (StandardTokenConsts.STANDARD_TOKEN_ACTIONS.contains(action)) {
+            abiTarget = YOSEMITE_STANDARD_TOKEN_ABI_CONTRACT;
+        }
+        AbiJsonToBinRequest abiJsonToBinRequest = new AbiJsonToBinRequest(abiTarget, action, data);
 
         return mYosemiteApiRestClient.abiJsonToBin(abiJsonToBinRequest).executeAsync().thenApply(abiJsonToBinRes -> {
             Action actionReq = new Action(contract, action);
@@ -94,18 +104,21 @@ public abstract class YosemiteJ {
     }
 
     private SignedTransaction buildSignedTransaction(Action actionReq, Info info, TransactionParameters params) {
+        String txFeePayer = params.getDelegatedTransactionFeePayer() != null ?
+                params.getDelegatedTransactionFeePayer() : mYosemiteApiRestClient.getDelegatedTransactionFeePayer();
+        if (StringUtils.isEmpty(txFeePayer)) {
+            throw new YosemiteApiException("transaction fee payer must be set");
+        }
+
         SignedTransaction txnBeforeSign = new SignedTransaction();
 
         txnBeforeSign.addAction(actionReq);
         txnBeforeSign.setReferenceBlock(info.getHeadBlockId());
         txnBeforeSign.setExpiration(info.getTimeAfterHeadBlockTime(
                 params.getTxExpirationInMillis() >= 0 ? params.getTxExpirationInMillis() : mYosemiteApiRestClient.getTxExpirationInMillis()));
-        txnBeforeSign.setStringTransactionExtension(
-                TransactionExtensionField.TRANSACTION_VOTE_ACCOUNT,
+        txnBeforeSign.setStringTransactionExtension(TransactionExtensionField.TRANSACTION_VOTE_ACCOUNT,
                 params.getTransactionVoteTarget() != null ? params.getTransactionVoteTarget() : mYosemiteApiRestClient.getTransactionVoteTarget());
-        txnBeforeSign.setStringTransactionExtension(
-                TransactionExtensionField.DELEGATED_TRANSACTION_FEE_PAYER,
-                params.getDelegatedTransactionFeePayer() != null ? params.getDelegatedTransactionFeePayer() : mYosemiteApiRestClient.getDelegatedTransactionFeePayer());
+        txnBeforeSign.setStringTransactionExtension(TransactionExtensionField.DELEGATED_TRANSACTION_FEE_PAYER, txFeePayer);
         return txnBeforeSign;
     }
 
@@ -158,19 +171,50 @@ public abstract class YosemiteJ {
     }
 
     protected TransactionParameters buildCommonParametersWithDefaults(TransactionParameters transactionParameters,
-                                                                      String defaultAccountName) {
+                                                                      String defaultActorAccount) {
         if (transactionParameters == null) {
-            return TransactionParameters.Builder().addPermission(defaultAccountName).build();
+            TransactionParameters.TransactionParametersBuilder txParametersBuilder =
+                    TransactionParameters.Builder().addPermission(defaultActorAccount);
+            if (StringUtils.isEmpty(mYosemiteApiRestClient.getDelegatedTransactionFeePayer())) {
+                txParametersBuilder = txParametersBuilder.setDelegatedTransactionFeePayer(defaultActorAccount);
+            }
+            return txParametersBuilder.build();
         }
+
         List<TypePermission> permissions = transactionParameters.getPermissions();
         if (permissions.isEmpty()) {
-            permissions.add(new TypePermission(defaultAccountName));
-            if (transactionParameters.getDelegatedTransactionFeePayer() != null) {
-                permissions.add(new TypePermission(transactionParameters.getDelegatedTransactionFeePayer()));
-            } else if (mYosemiteApiRestClient.getDelegatedTransactionFeePayer() != null) {
-                permissions.add(new TypePermission(mYosemiteApiRestClient.getDelegatedTransactionFeePayer()));
-            }
+            permissions.add(new TypePermission(defaultActorAccount));
         }
+
+        // set transaction fee payer as default actor if it's not set
+        if (StringUtils.isEmpty(transactionParameters.getDelegatedTransactionFeePayer())
+            && StringUtils.isEmpty(mYosemiteApiRestClient.getDelegatedTransactionFeePayer())) {
+
+            transactionParameters.setDelegatedTransactionFeePayer(defaultActorAccount);
+        }
+
         return transactionParameters;
+    }
+
+    /**
+     * Get the information of one of standard tokens.
+     * @param token token account name
+     * @return CompletableFuture instance to get TokenInfo instance
+     */
+    public CompletableFuture<TokenInfo> getTokenInfo(String token) {
+        if (StringUtils.isEmpty(token)) throw new IllegalArgumentException("wrong token");
+        return mYosemiteApiRestClient.getTokenInfo(token).executeAsync();
+    }
+
+    /**
+     * Get the balance of the account for one of standard tokens.
+     * @param token token account name
+     * @param account target account name
+     * @return CompletableFuture instance to get TypeAsset instance
+     */
+    public CompletableFuture<TypeAsset> getAccountBalance(String token, String account) {
+        if (StringUtils.isEmpty(token)) throw new IllegalArgumentException("wrong token");
+        if (StringUtils.isEmpty(account)) throw new IllegalArgumentException("wrong account");
+        return mYosemiteApiRestClient.getTokenBalance(token, account).executeAsync();
     }
 }

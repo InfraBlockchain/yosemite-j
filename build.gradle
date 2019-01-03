@@ -15,7 +15,7 @@ plugins {
 }
 
 ext {
-    rxJavaVer = ' 2.1.2 '
+    rxJavaVer = ' 2.1.17'
 
     retrofitVer = '2.3.0'
     okHttpVer = '3.9.0'
@@ -78,7 +78,7 @@ apply plugin: 'maven'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'maven-publish'
 
-version = '0.8.6'
+version = '0.9.0'
 group = 'io.yosemite'
 
 compileJava {

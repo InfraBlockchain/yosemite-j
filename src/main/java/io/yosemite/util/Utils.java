@@ -23,9 +23,9 @@
  */
 package io.yosemite.util;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.yosemite.data.remote.chain.TransactionExtension;
-import io.yosemite.data.remote.history.transaction.Timestamp;
 import io.yosemite.data.util.*;
 
 import java.io.Closeable;
@@ -93,8 +93,14 @@ public class Utils {
                 .excludeFieldsWithoutExposeAnnotation();
     }
 
-    public static String prettyPrintJson(Object object) {
-        return createYosemiteJGsonBuilder().setPrettyPrinting().create().toJson(object);
+    public static Gson createYosemiteJGson() {
+        return createYosemiteJGsonBuilder().create();
+    }
+
+    public static String toJson(Object object, boolean pretty) {
+        GsonBuilder builder = createYosemiteJGsonBuilder();
+        if (pretty) builder.setPrettyPrinting();
+        return builder.create().toJson(object);
     }
 
     public static String makeWebAssembly128BitIntegerAsHexString(long valueHigh, long valueLower) {
