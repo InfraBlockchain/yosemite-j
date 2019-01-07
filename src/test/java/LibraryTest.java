@@ -1,4 +1,6 @@
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import io.yosemite.StandardTokenConsts;
 import io.yosemite.crypto.ec.EcDsa;
 import io.yosemite.data.remote.api.AbiBinToJsonRequest;
 import io.yosemite.data.remote.api.AbiBinToJsonResponse;
@@ -14,6 +16,7 @@ import io.yosemite.services.YosemiteJ;
 import io.yosemite.services.yxcontracts.StandardToken;
 import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import io.yosemite.util.Utils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -22,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertTrue;
 
@@ -239,4 +244,39 @@ push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
     }
 
+    //http://testnet-sentinel-explorer.yosemitelabs.org/transactions/1755765/338344d0be71377031172b7e08a2251d8c1d3817b400d95d309f7365b90f3c0a
+    //@Test
+    public void testPushActions() {
+        String TOKEN_ISSUER_NAME = "ysmt.dusd.a";
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+            "http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://testnet-sentinel-explorer-api.yosemitelabs.org");
+        StandardToken standardToken = new StandardToken(apiClient);
+
+        JsonObject transferData1 = new JsonObject();
+        transferData1.addProperty("t", TOKEN_ISSUER_NAME);
+        transferData1.addProperty("from", TOKEN_ISSUER_NAME);
+        transferData1.addProperty("to", "producer.a");
+        transferData1.addProperty("qty", "1.0000 DUSD");
+        transferData1.addProperty("tag", "tag1");
+
+        JsonObject transferData2 = new JsonObject();
+        transferData2.addProperty("t", TOKEN_ISSUER_NAME);
+        transferData2.addProperty("from", TOKEN_ISSUER_NAME);
+        transferData2.addProperty("to", "producer.b");
+        transferData2.addProperty("qty", "2.0000 DUSD");
+        transferData2.addProperty("tag", "tag2");
+
+        Gson yosemiteJGson = Utils.createYosemiteJGson();
+        ImmutablePair<String, String> actionPair1 = new ImmutablePair<>(StandardTokenConsts.ACTION_TRANSFER, yosemiteJGson.toJson(transferData1));
+        ImmutablePair<String, String> actionPair2 = new ImmutablePair<>(StandardTokenConsts.ACTION_TRANSFER, yosemiteJGson.toJson(transferData2));
+
+        TransactionParameters txParam = TransactionParameters.Builder().
+            addPermission(TOKEN_ISSUER_NAME).
+            setDelegatedTransactionFeePayer(TOKEN_ISSUER_NAME).
+            build();
+
+        PushedTransaction pushedTransaction =
+            standardToken.pushActions(TOKEN_ISSUER_NAME, Stream.of(actionPair1, actionPair2).collect(Collectors.toList()), txParam).join();
+        logger.debug("\nPushed Transaction:\n" + Utils.toJson(pushedTransaction, true));
+    }
 }

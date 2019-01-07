@@ -12,11 +12,16 @@ import io.yosemite.data.types.TypePermission;
 import io.yosemite.exception.YosemiteApiException;
 import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import static io.yosemite.Consts.YOSEMITE_STANDARD_TOKEN_ABI_CONTRACT;
+import static java.util.stream.Collectors.toList;
 
 public abstract class YosemiteJ {
 
@@ -28,20 +33,20 @@ public abstract class YosemiteJ {
         mYosemiteApiRestClient = yosemiteApiRestClient;
     }
 
-    private CompletableFuture<Action> getActionWithBinaryData(final String contract, String action, String data,
+    private CompletableFuture<Action> getActionWithBinaryData(final String contract, String actionName, String data,
                                                               List<TypePermission> permissions) {
         String abiTarget = contract;
-        if (StandardTokenConsts.STANDARD_TOKEN_ACTIONS.contains(action)) {
+        if (StandardTokenConsts.STANDARD_TOKEN_ACTIONS.contains(actionName)) {
             abiTarget = YOSEMITE_STANDARD_TOKEN_ABI_CONTRACT;
         }
-        AbiJsonToBinRequest abiJsonToBinRequest = new AbiJsonToBinRequest(abiTarget, action, data);
+        AbiJsonToBinRequest abiJsonToBinRequest = new AbiJsonToBinRequest(abiTarget, actionName, data);
 
         return mYosemiteApiRestClient.abiJsonToBin(abiJsonToBinRequest).executeAsync().thenApply(abiJsonToBinRes -> {
-            Action actionReq = new Action(contract, action);
-            actionReq.setAuthorization(permissions);
-            actionReq.setData(abiJsonToBinRes.getBinargs());
+            Action action = new Action(contract, actionName);
+            action.setAuthorization(permissions);
+            action.setData(abiJsonToBinRes.getBinargs());
 
-            return actionReq;
+            return action;
         });
     }
 
@@ -84,26 +89,30 @@ public abstract class YosemiteJ {
      *
      * You may use the returned signed transaction as the intermediate data before sending it to the network
      * @param contract the name of the smart contract
-     * @param action the name of the action method
+     * @param actionName the name of the action method
      * @param data the json formatted data
      * @param params common parameters
      * @return CompletableFuture instance that contains the original transaction data and its signature added
      */
-    public CompletableFuture<SignedTransaction> signTransaction(final String contract, final String action, final String data,
+    public CompletableFuture<SignedTransaction> signTransaction(final String contract, final String actionName, final String data,
                                                                 final TransactionParameters params) {
         if (params == null) throw new IllegalArgumentException("params cannot be null");
 
-        return getActionWithBinaryData(contract, action, data, params.getPermissions()).thenCompose(actionReq ->
+        return getActionWithBinaryData(contract, actionName, data, params.getPermissions()).thenCompose(action ->
             mYosemiteApiRestClient.getInfo().executeAsync().thenCompose(info -> {
 
-                SignedTransaction txnBeforeSign = buildSignedTransaction(actionReq, info, params);
+                SignedTransaction txnBeforeSign = buildSignedTransaction(action, info, params);
 
                 return signTransaction(txnBeforeSign, info.getChainId(), params.getPublicKeys());
             })
         );
     }
 
-    private SignedTransaction buildSignedTransaction(Action actionReq, Info info, TransactionParameters params) {
+    private SignedTransaction buildSignedTransaction(Action action, Info info, TransactionParameters params) {
+        return buildSignedTransaction(Stream.of(action).collect(toList()), info, params);
+    }
+
+    private SignedTransaction buildSignedTransaction(List<Action> actions, Info info, TransactionParameters params) {
         String txFeePayer = params.getDelegatedTransactionFeePayer() != null ?
                 params.getDelegatedTransactionFeePayer() : mYosemiteApiRestClient.getDelegatedTransactionFeePayer();
         if (StringUtils.isEmpty(txFeePayer)) {
@@ -112,7 +121,7 @@ public abstract class YosemiteJ {
 
         SignedTransaction txnBeforeSign = new SignedTransaction();
 
-        txnBeforeSign.addAction(actionReq);
+        txnBeforeSign.addActions(actions);
         txnBeforeSign.setReferenceBlock(info.getHeadBlockId());
         txnBeforeSign.setExpiration(info.getTimeAfterHeadBlockTime(
                 params.getTxExpirationInMillis() >= 0 ? params.getTxExpirationInMillis() : mYosemiteApiRestClient.getTxExpirationInMillis()));
@@ -137,24 +146,48 @@ public abstract class YosemiteJ {
     /**
      * Push an action to the Yosemite chain network.
      * @param contract the name of the smart contract
-     * @param action the name of the action method
+     * @param actionName the name of the action
      * @param data the json-formatted data
      * @param params common parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public final CompletableFuture<PushedTransaction> pushAction(
-            final String contract, final String action, final String data, final TransactionParameters params) {
+            final String contract, final String actionName, final String data, final TransactionParameters params) {
         if (params == null) throw new IllegalArgumentException("params cannot be null");
 
-        return getActionWithBinaryData(contract, action, data, params.getPermissions()).thenCompose(actionReq ->
+        return getActionWithBinaryData(contract, actionName, data, params.getPermissions()).thenCompose(action ->
             mYosemiteApiRestClient.getInfo().executeAsync().thenCompose(info -> {
-
-                SignedTransaction txnBeforeSign = buildSignedTransaction(actionReq, info, params);
-
+                SignedTransaction txnBeforeSign = buildSignedTransaction(action, info, params);
                 return signAndPackTransaction(txnBeforeSign, info.getChainId(), params.getPublicKeys()).thenCompose(packedTx ->
                         mYosemiteApiRestClient.pushTransaction(packedTx).executeAsync(txnBeforeSign));
             })
         );
+    }
+
+    /**
+     * Push multi actions as the same transaction to the Yosemite chain network.
+     * All actions must have the same transaction parameters.
+     * @param contract the name of the smart contract
+     * @param actions the pair of action name and its json-formatted data; ImmutablePair class is from Apache commons-lang3
+     * @param params common parameters
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
+    public final CompletableFuture<PushedTransaction> pushActions(
+        final String contract, Collection<ImmutablePair<String, String>> actions, final TransactionParameters params) {
+        if (params == null) throw new IllegalArgumentException("params cannot be null");
+        if (actions == null || actions.isEmpty()) throw new IllegalArgumentException("actions cannot be null");
+
+        ArrayList<CompletableFuture<Action>> futures = new ArrayList<>();
+        for (ImmutablePair<String, String> actionNameAndData : actions) {
+            futures.add(getActionWithBinaryData(contract, actionNameAndData.left, actionNameAndData.right, params.getPermissions()));
+        }
+
+        List<Action> actionList = Stream.of(futures.toArray(new CompletableFuture[0])).map(CompletableFuture<Action>::join).collect(toList());
+        return mYosemiteApiRestClient.getInfo().executeAsync().thenCompose(info -> {
+            SignedTransaction txnBeforeSign = buildSignedTransaction(actionList, info, params);
+            return signAndPackTransaction(txnBeforeSign, info.getChainId(), params.getPublicKeys()).thenCompose(packedTx ->
+                mYosemiteApiRestClient.pushTransaction(packedTx).executeAsync(txnBeforeSign));
+        });
     }
 
     /**
