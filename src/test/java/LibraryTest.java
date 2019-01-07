@@ -1,5 +1,4 @@
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import io.yosemite.StandardTokenConsts;
 import io.yosemite.crypto.ec.EcDsa;
 import io.yosemite.data.remote.api.AbiBinToJsonRequest;
@@ -252,23 +251,13 @@ push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""
             "http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://testnet-sentinel-explorer-api.yosemitelabs.org");
         StandardToken standardToken = new StandardToken(apiClient);
 
-        JsonObject transferData1 = new JsonObject();
-        transferData1.addProperty("t", TOKEN_ISSUER_NAME);
-        transferData1.addProperty("from", TOKEN_ISSUER_NAME);
-        transferData1.addProperty("to", "producer.a");
-        transferData1.addProperty("qty", "1.0000 DUSD");
-        transferData1.addProperty("tag", "tag1");
+        String transferData1 =
+            standardToken.getTransferTokenJsonString(TOKEN_ISSUER_NAME, TOKEN_ISSUER_NAME, "producer.a", "1.0000 DUSD", "tag1");
+        String transferData2 =
+            standardToken.getTransferTokenJsonString(TOKEN_ISSUER_NAME, TOKEN_ISSUER_NAME, "producer.b", "2.0000 DUSD", "tag2");
 
-        JsonObject transferData2 = new JsonObject();
-        transferData2.addProperty("t", TOKEN_ISSUER_NAME);
-        transferData2.addProperty("from", TOKEN_ISSUER_NAME);
-        transferData2.addProperty("to", "producer.b");
-        transferData2.addProperty("qty", "2.0000 DUSD");
-        transferData2.addProperty("tag", "tag2");
-
-        Gson yosemiteJGson = Utils.createYosemiteJGson();
-        ImmutablePair<String, String> actionPair1 = new ImmutablePair<>(StandardTokenConsts.ACTION_TRANSFER, yosemiteJGson.toJson(transferData1));
-        ImmutablePair<String, String> actionPair2 = new ImmutablePair<>(StandardTokenConsts.ACTION_TRANSFER, yosemiteJGson.toJson(transferData2));
+        ImmutablePair<String, String> actionPair1 = new ImmutablePair<>(StandardTokenConsts.ACTION_TRANSFER, transferData1);
+        ImmutablePair<String, String> actionPair2 = new ImmutablePair<>(StandardTokenConsts.ACTION_TRANSFER, transferData2);
 
         TransactionParameters txParam = TransactionParameters.Builder().
             addPermission(TOKEN_ISSUER_NAME).

@@ -97,19 +97,7 @@ public class StandardToken extends YosemiteJ implements StandardTokenConsts {
         return pushAction(issuer, ACTION_REDEEM, gson.toJson(object), buildCommonParametersWithDefaults(params, issuer));
     }
 
-    /**
-     * Transfer the amount of the token from the <code>from</code> account to the <code>to</code> account.
-     * Transaction fee is charged to the <code>from</code> account.
-     * @param from the account name of from
-     * @param to the account name of to
-     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
-     * @param issuer the account name of the token issuer
-     * @param tag data which the caller wants to save to
-     * @param params transaction parameters
-     * @return CompletableFuture instance to get PushedTransaction instance
-     */
-    public CompletableFuture<PushedTransaction> transferToken(
-            String from, String to, String amount, String issuer, String tag, @Nullable TransactionParameters params) {
+    public String getTransferTokenJsonString(String from, String to, String amount, String issuer, String tag) {
         if (StringUtils.isEmpty(from)) throw new IllegalArgumentException("wrong from");
         if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
         if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
@@ -123,6 +111,23 @@ public class StandardToken extends YosemiteJ implements StandardTokenConsts {
         object.addProperty("qty", amount);
         object.addProperty("tag", tag);
 
-        return pushAction(issuer, ACTION_TRANSFER, gson.toJson(object), buildCommonParametersWithDefaults(params, from));
+        return gson.toJson(object);
+    }
+
+    /**
+     * Transfer the amount of the token from the <code>from</code> account to the <code>to</code> account.
+     * Transaction fee is charged to the <code>from</code> account.
+     * @param from the account name of from
+     * @param to the account name of to
+     * @param amount the amount of the token; <a href="https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/contracts/yx.ntoken/README.md#format-of-token-amount">Format of Token Amount</a>
+     * @param issuer the account name of the token issuer
+     * @param tag data which the caller wants to save to
+     * @param params transaction parameters
+     * @return CompletableFuture instance to get PushedTransaction instance
+     */
+    public CompletableFuture<PushedTransaction> transferToken(
+            String from, String to, String amount, String issuer, String tag, @Nullable TransactionParameters params) {
+        return pushAction(issuer, ACTION_TRANSFER, getTransferTokenJsonString(from, to, amount, issuer, tag),
+            buildCommonParametersWithDefaults(params, from));
     }
 }
