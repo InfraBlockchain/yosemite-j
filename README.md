@@ -14,7 +14,7 @@ The first step would be to implement a wrapper for basic HTTP APIs and then the 
 Please refer to the [Yosemite Blockchain Guide](https://github.com/YosemiteLabs/yosemite-public-blockchain/blob/yosemite-master/yosemite_bios/yosemite_bios_testnet_permissioned.md) for getting prepared.
 You should be aware of HTTP endpoints for blockchain node and `keyos` for your wallet access.
 
-Public testnet(http://testnet.yosemitelabs.org:8888) is already given for developers and it is recommended to run `keyos` in secure environment. 
+Public testnet(http://testnet-sentinel.yosemitelabs.org:8888) is already given for developers and it is recommended to run `keyos` in secure environment. 
 
 ## Using Library
 
@@ -64,14 +64,14 @@ compile ('io.yosemite:yosemitej:${version}-SNAPSHOT')
 
 ## Using HTTP APIs
 Let's assume we have the following setups
-* chain HTTP endpoint: http://testnet.yosemitelabs.org:8888
+* chain HTTP endpoint: http://testnet-sentinel.yosemitelabs.org:8888
 * wallet HTTP endpoint: http://127.0.0.1:8900
 
 _Please make sure that you have opened and unlocked your wallet_
 
 First create the http service.
 ```java
-YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 ```
 
 ### To Send Synchronous Requests
@@ -94,14 +94,13 @@ Info info = infoFuture.get();
 you should use the following concrete classee under `io.yosemite.services.yxcontracts`.
 
 * YosemiteSystemJ
+* StandardToken
 * YosemiteDigitalContractJ
-* YosemiteNativeTokenJ
-* YosemiteTokenJ
 
 ```java
 import io.yosemite.services.yxcontracts.*;
 
-YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
 ```
 
@@ -119,7 +118,7 @@ It's highly recommended for the service providers or DApps implementors to deter
 </b>
 
 ```java
-YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 apiClient.setTransactionVoteTarget("<account-name>");
 ```
 
@@ -128,7 +127,7 @@ Even if a transaction is successfully accepted by the YosemiteChain, there is a 
 For such pending transaction, it can be expired. The DApps can set the expiration time of transaction in milliseconds.
 ```java
 // set transaction expiration time as 30 seconds
-YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", 30000);
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900", 30000);
 ```
 
 ### Setting transaction parameters for each transaction
@@ -195,7 +194,7 @@ boolean isVerified = EcDsa.verifySignature(data, signature, pubKey);
 ### Delegating fee to another account
 If you don't want to worry about handling DKRW yourself and there is a 3rd party service(ex: depositories may expose such an API as a service) that handles DKRW directly, you can delegate your transaction fee payment by just signing your transaction first and passing it to the 3rd party service. Then, it adds its signature to the received transaction and finally pushes it to the network. The code snippet below describes how it works.
 
-```
+```java
 // Set the data below for your needs
 final String chainId = "...";
 
@@ -208,7 +207,7 @@ final String data = "...";
 final String[] permissions = "...";
 final String[] requiredPublicKeys = "...";
 
-YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 //apiClient.setDelegatedTransactionFeePayer(payerAccountName); // globally set but not recommended
 
 // Here, we use YosemiteNativeTokenJ as an example
@@ -232,7 +231,6 @@ final SignedTransaction finalSignedTransaction = yxj.signTransaction(
 // Push the transaction to the network
 PushedTransaction pushedTransaction = apiClient.pushTransaction(new PackedTransaction(finalSignedTransaction)).execute();
 ```
-
 
 # Yosemite Actions
 
@@ -261,7 +259,7 @@ FYI : https://github.com/YosemiteLabs/yosemite-j/issues/27
 ```java
 import io.yosemite.services.yxcontracts.*;
 
-YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
 
 String identityPublicKey = "YOS8fCYDtA6FRYtnDpJ4qkoHq3riQUDyTebdsTAR5SDYUkaefNHMR"; // get it from your service location
@@ -274,116 +272,54 @@ PushedTransaction pushedTransaction = yxj.createAccount("identity", "user1accoun
                 "YOS8Ledj...vr9gj",
                 "YOS8Ledj...vr9gj",
                 txParameters).join();
-``` 
-
-## Native Token Actions
-
-### Issuing Native Token
-```java
-import io.yosemite.services.yxcontracts.*;
-
-YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900");
-YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
-PushedTransaction pushedTransaction = yxj.issueNativeToken(
-        "servprovider", "1000000.0000 DKRW", "sysdepo", "memo", null).join();
 ```
 
-### Redeeming Native Token
+## Standard Token Actions
+
+* All Yosemite accounts embed standard token actions, issue, redeem, transfer and settokenmeta. It means all accounts can be token issuer.
+* For example, if you makes the account 'mypersonaltk', the token issuer is 'mypersonaltk'. You can issue your token after setting token meta information including token symbol and precision.
+
+### Set Token Meta
 ```java
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+StandardToken standardToken = new StandardToken(apiClient);
+
 TransactionParameters txParameters = TransactionParameters.Builder().
-        addPermission("sysdepo").
+        addPermission("mypersonaltk").
+        setDelegatedTransactionFeePayer("mypersonaltk").
         build();
-PushedTransaction pushedTransaction = yxj.redeemNativeToken("100000.0000 DKRW", "sysdepo", "memo", txParameters).join();
-```
-
-### Transferring Native Token
-#### Without specifying issuer and fee payer
-```java
-PushedTransaction pushedTransaction = yxj.transferNativeToken("user1", "user2", "100000.0000 DKRW", "memo", null).join();
-```
-
-#### Without specifying issuer but with fee payer
-```java
-PushedTransaction pushedTransaction = yxj.transferNativeTokenWithPayer("user1", "user2", "100000.0000 DKRW", "servprovider", "memo", null).join();
-```
-
-#### With specifying issuer but no fee payer
-```java
-PushedTransaction pushedTransaction = yxj.ntransferNativeToken("user1", "user2", "100000.0000 DKRW", "sysdepo", "memo", null).join();
-```
-
-#### With specifying issuer and fee payer
-```java
-PushedTransaction pushedTransaction = yxj.ntransferNativeTokenWithPayer("user1", "user2", "100000.0000 DKRW", "sysdepo", "servprovider", "memo", null).join();
-```
-
-### Getting Native Token Statistics of System Depository
-```java
-TableRow tableRow = yxj.getNativeTokenStats("sysdepo").join();
-```
-
-### Getting Native Token Balance of Account
-```java
-TableRow tableRow = yxj.getNativeTokenAccountBalance("user1").join();
-```
-
-### Getting Total Native Token Balance of Account
-```java
-TableRow tableRow = yxj.getNativeTokenAccountTotalBalance("user1").join();
-```
-
-## Token Actions
-
-### Creating Token
-```java
-TransactionParameters txParameters = TransactionParameters.Builder().
-        addPermission("d2").
-        build();
-PushedTransaction pushedTransaction = yxj.createToken("BTC", 4, "d2", txParameters).join();
+PushedTransaction pushedTransaction = standardToken.setTokenMeta("DUSD", 4, "mypersonaltk", "url", "description", txParameters).join();
 ```
 
 ### Issueing Token
 ```java
-PushedTransaction pushedTransaction = yxj.issueToken("user1", "100000.0000 BTC", "d2", "my memo", txParameters).join();
+PushedTransaction pushedTransaction = standardToken.issueToken("user1", "100000.0000 DUSD", "mypersonaltk", "my memo", txParameters).join();
 ```
 
 ### Redeeming Token
 ```java
-PushedTransaction pushedTransaction = yxj.redeemToken("20000.0000 BTC", "d2", "my memo", txParameters).join();
+PushedTransaction pushedTransaction = standardToken.redeemToken("20000.0000 DUSD", "mypersonaltk", "my memo", txParameters).join();
 ```
 
 ### Transferring Token
-#### Without fee payer
 ```java
-TransactionParameters txParameters = TransactionParameters.Builder().
-        addPermission("user1").
-        build();
-PushedTransaction pushedTransaction = yxj.transferToken("user1", "user2", "100.0000 BTC", "d2", "my memo", txParameters).join();
-```
-
-#### With fee payer
-```java
-TransactionParameters txParameters = TransactionParameters.Builder().
-        setDelegatedTransactionFeePayer("servprovider").
-        build();
-PushedTransaction pushedTransaction = yxj.transferToken("user1", "user2", "100.0000 BTC", "d2", "my memo", txParameters).join();
+PushedTransaction pushedTransaction = standardToken.transferToken("user1", "user2", "100.0000 DUSD", "mypersonaltk", "my memo", txParameters).join();
 ```
 
 ### Getting Token Statistics of Issuer
 ```java
-TableRow tableRow = yxj.getTokenStats("BTC", 4, "d2").join();
-for (Map<String, ?> row : tableRow.getRows()) {
-    //...
-}
+import io.yosemite.data.remote.chain.TokenInfo;
+
+TokenInfo tokenInfo = standardToken.getTokenInfo("mypersonaltk").join();
 ```
 
 ### Getting Token Balance of Account
 * Balance for user1
 ```java
-TableRow tableRow = yxj.getTokenAccountBalance("BTC", 4, "d2", "user1").join();
-for (Map<String, ?> row : tableRow.getRows()) {
-    // There must be only one row.
-    logger.debug(row.toString());
+import io.yosemite.data.types.TypeAsset;
+
+TypeAsset user1AccountBalance = standardToken.getAccountBalance("mypersonaltk", "user1").join();
+TypeAsset user2AccountBalance = standardToken.getAccountBalance("mypersonaltk", "user2").join();
 }
 ```
 
