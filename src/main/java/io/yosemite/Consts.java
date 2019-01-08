@@ -14,8 +14,8 @@ public final class Consts {
 
     public static final int TX_EXPIRATION_IN_MILLIS = 1000 * 60 * 2; // 2 minutes
 
-    public static final String DEFAULT_NATIVE_TOKEN_SYMBOL = "DKRW";
-    public static final int DEFAULT_NATIVE_TOKEN_PRECISION = 2;
+    public static final String DEFAULT_NATIVE_TOKEN_SYMBOL = "DUSD";
+    public static final int DEFAULT_NATIVE_TOKEN_PRECISION = 4;
 
     public static final String TESNET_SENTINEL_NODE_ADDRESS = "http://testnet-sentinel.yosemitelabs.org:8888";
 }
