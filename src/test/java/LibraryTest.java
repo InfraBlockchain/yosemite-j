@@ -252,9 +252,9 @@ push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""
         StandardToken standardToken = new StandardToken(apiClient);
 
         String transferData1 =
-            standardToken.getTransferTokenJsonString(TOKEN_ISSUER_NAME, TOKEN_ISSUER_NAME, "producer.a", "1.0000 DUSD", "tag1");
+            standardToken.getTransferTokenJsonString(TOKEN_ISSUER_NAME, "producer.a", "1.0000 DUSD", TOKEN_ISSUER_NAME, "tag1");
         String transferData2 =
-            standardToken.getTransferTokenJsonString(TOKEN_ISSUER_NAME, TOKEN_ISSUER_NAME, "producer.b", "2.0000 DUSD", "tag2");
+            standardToken.getTransferTokenJsonString(TOKEN_ISSUER_NAME, "producer.b", "2.0000 DUSD", TOKEN_ISSUER_NAME, "tag2");
 
         ImmutablePair<String, String> actionPair1 = new ImmutablePair<>(StandardTokenConsts.ACTION_TRANSFER, transferData1);
         ImmutablePair<String, String> actionPair2 = new ImmutablePair<>(StandardTokenConsts.ACTION_TRANSFER, transferData2);
