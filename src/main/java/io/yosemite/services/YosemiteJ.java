@@ -145,6 +145,7 @@ public abstract class YosemiteJ {
 
     /**
      * Push an action to the Yosemite chain network.
+     * Note that the transaction fee payer must be set by TransactionParameters or YosemiteApiRestClient.
      * @param contract the name of the smart contract
      * @param actionName the name of the action
      * @param data the json-formatted data
@@ -167,6 +168,7 @@ public abstract class YosemiteJ {
     /**
      * Push multi actions as the same transaction to the Yosemite chain network.
      * All actions must have the same transaction parameters.
+     * Note that the transaction fee payer must be set by TransactionParameters or YosemiteApiRestClient.
      * @param contract the name of the smart contract
      * @param actions the pair of action name and its json-formatted data; ImmutablePair class is from Apache commons-lang3
      * @param params common parameters
