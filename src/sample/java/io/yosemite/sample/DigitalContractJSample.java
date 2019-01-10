@@ -38,7 +38,7 @@ public class DigitalContractJSample extends SampleCommon {
             }
         }
 
-        apiClient.setDelegatedTransactionFeePayer(SERVICE_PROVIDER_ACCOUNT);
+        apiClient.setTransactionFeePayer(SERVICE_PROVIDER_ACCOUNT);
 
         // For this sample, we get the service provider's public key from the chain,
         // but in real case, you should get them from your storage.
@@ -101,7 +101,7 @@ public class DigitalContractJSample extends SampleCommon {
         TransactionParameters txParametersForUser2 = TransactionParameters.Builder().
                 addPermission(USER2_ACCOUNT).addPermission(SERVICE_PROVIDER_ACCOUNT).
                 addPublicKey(user2PublicKey).addPublicKey(serviceProviderPublicKey).
-                setDelegatedTransactionFeePayer(SERVICE_PROVIDER_ACCOUNT).
+            setTransactionFeePayer(SERVICE_PROVIDER_ACCOUNT).
                 build();
         pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 20, USER2_ACCOUNT, "",
                 txParametersForUser2).join();
@@ -113,7 +113,7 @@ public class DigitalContractJSample extends SampleCommon {
         TransactionParameters txParametersForUser1 = TransactionParameters.Builder().
                 addPermission(USER1_ACCOUNT).addPermission(SERVICE_PROVIDER_ACCOUNT).
                 addPublicKey(user1PublicKey).addPublicKey(serviceProviderPublicKey).
-                setDelegatedTransactionFeePayer(SERVICE_PROVIDER_ACCOUNT).
+            setTransactionFeePayer(SERVICE_PROVIDER_ACCOUNT).
                 build();
         pushedTransaction = digitalContractJ.signDigitalDocument(SERVICE_PROVIDER_ACCOUNT, 20, USER1_ACCOUNT, "I am user1",
                 txParametersForUser1).join();

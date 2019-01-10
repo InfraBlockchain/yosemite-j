@@ -131,7 +131,7 @@ YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClie
 ```
 
 ### Setting transaction parameters for each transaction
-Setting of Transaction-as-a-Vote(TaaV) Account, transaction expiration time, and delegated fee payer including required permissions and public keys can be set by TransactionParameters class for each action or transaction.
+Setting of Transaction-as-a-Vote(TaaV) Account, transaction expiration time, and transaction fee payer including required permissions and public keys can be set by TransactionParameters class for each action or transaction.
 You can see the sample usages of TransactionParameters and TransactionParametersBuilder from samples.
 
 ### Pushing action
@@ -208,7 +208,7 @@ final String[] permissions = "...";
 final String[] requiredPublicKeys = "...";
 
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900");
-//apiClient.setDelegatedTransactionFeePayer(payerAccountName); // globally set but not recommended
+//apiClient.setTransactionFeePayer(payerAccountName); // globally set but not recommended
 
 // Here, we use YosemiteNativeTokenJ as an example
 YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
@@ -216,7 +216,7 @@ YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
 TransactionParameters txParameters = TransactionParameters.Builder().
         addPermission(...).addPermission(...).
         addPublicKey(...).addPublicKey(...).
-        setDelegatedTransactionFeePayer(payerAccountName).
+        setTransactionFeePayer(payerAccountName).
         build();
 final SignedTransaction signedTransactionByService = yxj.signTransaction(
     contract, action , data, txParameters).join();
@@ -286,7 +286,7 @@ StandardToken standardToken = new StandardToken(apiClient);
 
 TransactionParameters txParameters = TransactionParameters.Builder().
         addPermission("mypersonaltk").
-        setDelegatedTransactionFeePayer("mypersonaltk").
+        setTransactionFeePayer("mypersonaltk").
         build();
 PushedTransaction pushedTransaction = standardToken.setTokenMeta("DUSD", 4, "mypersonaltk", "url", "description", txParameters).join();
 ```

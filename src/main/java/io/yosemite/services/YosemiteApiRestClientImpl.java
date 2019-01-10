@@ -18,7 +18,7 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
 
     private int txExpirationInMillis;
     private String transactionVoteTarget;
-    private String delegatedTransactionFeePayer;
+    private String transactionFeePayer;
 
     YosemiteApiRestClientImpl(String chainBaseUrl, String walletBaseUrl, String historyBaseUrl, int txExpirationInMillis,
                               String transactionVoteTarget) {
@@ -197,11 +197,11 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
         this.transactionVoteTarget = transactionVoteTarget;
     }
 
-    public String getDelegatedTransactionFeePayer() {
-        return delegatedTransactionFeePayer;
+    public String getTransactionFeePayer() {
+        return transactionFeePayer;
     }
 
-    public void setDelegatedTransactionFeePayer(String delegatedTransactionFeePayer) {
-        this.delegatedTransactionFeePayer = delegatedTransactionFeePayer;
+    public void setTransactionFeePayer(String transactionFeePayer) {
+        this.transactionFeePayer = transactionFeePayer;
     }
 }

@@ -83,13 +83,13 @@ public interface YosemiteApiRestClient {
      *
      * @return fee payer account name
      */
-    public String getDelegatedTransactionFeePayer();
+    String getTransactionFeePayer();
 
     /**
      * Set the account name that pays the transaction fee.
      * Once this account is specified, all subsequent transactions should be provided signature of the fee payer account before being pushed to the blockchain.
      *
-     * @param delegatedTransactionFeePayer fee payer account name
+     * @param transactionFeePayer fee payer account name
      */
-    public void setDelegatedTransactionFeePayer(String delegatedTransactionFeePayer);
+    void setTransactionFeePayer(String transactionFeePayer);
 }

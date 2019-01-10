@@ -113,8 +113,8 @@ public abstract class YosemiteJ {
     }
 
     private SignedTransaction buildSignedTransaction(List<Action> actions, Info info, TransactionParameters params) {
-        String txFeePayer = params.getDelegatedTransactionFeePayer() != null ?
-                params.getDelegatedTransactionFeePayer() : mYosemiteApiRestClient.getDelegatedTransactionFeePayer();
+        String txFeePayer = params.getTransactionFeePayer() != null ?
+                params.getTransactionFeePayer() : mYosemiteApiRestClient.getTransactionFeePayer();
         if (StringUtils.isEmpty(txFeePayer)) {
             throw new YosemiteApiException("transaction fee payer must be set");
         }
@@ -127,7 +127,7 @@ public abstract class YosemiteJ {
                 params.getTxExpirationInMillis() >= 0 ? params.getTxExpirationInMillis() : mYosemiteApiRestClient.getTxExpirationInMillis()));
         txnBeforeSign.setStringTransactionExtension(TransactionExtensionField.TRANSACTION_VOTE_ACCOUNT,
                 params.getTransactionVoteTarget() != null ? params.getTransactionVoteTarget() : mYosemiteApiRestClient.getTransactionVoteTarget());
-        txnBeforeSign.setStringTransactionExtension(TransactionExtensionField.DELEGATED_TRANSACTION_FEE_PAYER, txFeePayer);
+        txnBeforeSign.setStringTransactionExtension(TransactionExtensionField.TRANSACTION_FEE_PAYER, txFeePayer);
         return txnBeforeSign;
     }
 
@@ -209,8 +209,8 @@ public abstract class YosemiteJ {
         if (transactionParameters == null) {
             TransactionParameters.TransactionParametersBuilder txParametersBuilder =
                     TransactionParameters.Builder().addPermission(defaultActorAccount);
-            if (StringUtils.isEmpty(mYosemiteApiRestClient.getDelegatedTransactionFeePayer())) {
-                txParametersBuilder = txParametersBuilder.setDelegatedTransactionFeePayer(defaultActorAccount);
+            if (StringUtils.isEmpty(mYosemiteApiRestClient.getTransactionFeePayer())) {
+                txParametersBuilder = txParametersBuilder.setTransactionFeePayer(defaultActorAccount);
             }
             return txParametersBuilder.build();
         }
@@ -221,10 +221,10 @@ public abstract class YosemiteJ {
         }
 
         // set transaction fee payer as default actor if it's not set
-        if (StringUtils.isEmpty(transactionParameters.getDelegatedTransactionFeePayer())
-            && StringUtils.isEmpty(mYosemiteApiRestClient.getDelegatedTransactionFeePayer())) {
+        if (StringUtils.isEmpty(transactionParameters.getTransactionFeePayer())
+            && StringUtils.isEmpty(mYosemiteApiRestClient.getTransactionFeePayer())) {
 
-            transactionParameters.setDelegatedTransactionFeePayer(defaultActorAccount);
+            transactionParameters.setTransactionFeePayer(defaultActorAccount);
         }
 
         return transactionParameters;

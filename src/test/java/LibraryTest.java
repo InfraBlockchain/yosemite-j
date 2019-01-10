@@ -17,7 +17,6 @@ import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import io.yosemite.util.Utils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +113,7 @@ push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""
 
         TransactionParameters txParam = TransactionParameters.Builder().
             addPermission("user1").
-            setDelegatedTransactionFeePayer("yosemite").
+            setTransactionFeePayer("yosemite").
             build();
         PushedTransaction pushedTransaction2 = yxj.setAccountPermission("user1", "creditissue", "active", authority, txParam).join();
         logger.debug("updateauth : " + pushedTransaction2.getTransactionId());
@@ -127,7 +126,7 @@ push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""
         YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
         TransactionParameters txParams = TransactionParameters.Builder().
             addPermission("user1").
-            setDelegatedTransactionFeePayer("yosemite").
+            setTransactionFeePayer("yosemite").
             build();
         PushedTransaction pushedTransaction = yxj.linkPermission("user1", "ycard.cusd.a", "creditissue", "creditissue", txParams).join();
         logger.debug("linkauth : " + pushedTransaction.getTransactionId());
@@ -202,7 +201,7 @@ push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""
                 "http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://testnet-sentinel-explorer-api.yosemitelabs.org");
 
         apiClient.setTransactionVoteTarget("producer.a");
-        apiClient.setDelegatedTransactionFeePayer("payeraccount");
+        apiClient.setTransactionFeePayer("payeraccount");
 
         Account serviceUser = apiClient.getAccount("serviceuser1").execute();
         Account userAccount = apiClient.getAccount("useraccounta").execute();
@@ -261,7 +260,7 @@ push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""
 
         TransactionParameters txParam = TransactionParameters.Builder().
             addPermission(TOKEN_ISSUER_NAME).
-            setDelegatedTransactionFeePayer(TOKEN_ISSUER_NAME).
+            setTransactionFeePayer(TOKEN_ISSUER_NAME).
             build();
 
         PushedTransaction pushedTransaction =

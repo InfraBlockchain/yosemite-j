@@ -41,7 +41,7 @@ abstract class SampleCommon {
         String action = "setidinfo";
         String data = "{\"identity_authority\":\"" + identityAuthorityAccount + "\",\"account\":\"" + accountName + "\",\"type\":0,\"kyc\":" + KYCStatusType.getAsBitFlags(flags) + ",\"state\":0,\"data\":\"\"}";
         TransactionParameters txParameters =
-                TransactionParameters.Builder().addPermission(identityAuthorityAccount).setDelegatedTransactionFeePayer(identityAuthorityAccount).build();
+                TransactionParameters.Builder().addPermission(identityAuthorityAccount).setTransactionFeePayer(identityAuthorityAccount).build();
 
         PushedTransaction pushedTransaction = yxSystemJ.pushAction(contract, action, data, txParameters).join();
         log("\nsetidinfo Transaction:\n" + pushedTransaction.getTransactionId());
