@@ -172,7 +172,7 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
-    public Request<Actions> getActions(String accountName, int startPosition, int offset) {
+    public Request<Actions> getActions(String accountName, long startPosition, int offset) {
         if (yxHistoryApiService == null) throw new IllegalStateException("Chain explorer URL is not set");
         return new Request<>(yxHistoryApiService.getService().getActions(accountName, startPosition, offset), yxHistoryApiService, false);
     }

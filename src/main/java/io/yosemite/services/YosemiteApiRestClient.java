@@ -58,7 +58,7 @@ public interface YosemiteApiRestClient {
     /* History */
     Request<io.yosemite.data.remote.history.transaction.Transaction> getTransaction(String id);
 
-    Request<Actions> getActions(String accountName, int startPosition, int offset);
+    Request<Actions> getActions(String accountName, long startPosition, int offset);
 
     int getTxExpirationInMillis();
 
