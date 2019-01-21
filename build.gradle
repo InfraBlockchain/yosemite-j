@@ -1,3 +1,5 @@
+import groovy.swing.SwingBuilder
+
 buildscript {
     repositories {
         jcenter()
@@ -86,14 +88,99 @@ compileJava {
     targetCompatibility = 1.8
 }
 
+/*
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.hasTask(':uploadArchives')) {
+        def console = System.console()
+        if (console == null) {
+            new SwingBuilder().edt {
+                dialog(modal: true,
+                        title: 'Enter username and password',
+                        alwaysOnTop: true,
+                        resizable: false,
+                        locationRelativeTo: null,
+                        pack: true,
+                        show: true
+                ) {
+                    vbox {
+                        label(text: "Username:")
+                        textField id: "_username", input = textField()
+                        label(text: "Password:")
+                        textField id: "_password", input = passwordField()
+                        button(defaultButton: true, text: 'OK', actionPerformed: {
+                            username = _username.text
+                            password = _password.text
+                            dispose()
+                        })
+                    }
+                }
+            }
+        } else {
+            user = console.readLine("\nUsername: ")
+            pass = console.readPassword("Password: ")
+            username = new String(user)
+            password = new String(pass)
+        }
+
+        if (username.size() <= 0) {
+            throw new Exception("You must enter a username to proceed.")
+        }
+        if (password.size() <= 0) {
+            throw new Exception("You must enter a password to proceed.")
+        }
+    }
+}
+*/
+
 uploadArchives {
+    def username
+    def password
+
+    def console = System.console()
+    if (console == null) {
+        new SwingBuilder().edt {
+            dialog(modal: true,
+                    title: 'Upload Authentication',
+                    alwaysOnTop: true,
+                    resizable: false,
+                    locationRelativeTo: null,
+                    pack: true,
+                    show: true
+            ) {
+                vbox {
+                    label(text: "Username:")
+                    textField id: "_username", input = textField()
+                    label(text: "Password:")
+                    textField id: "_password", input = passwordField()
+                    button(defaultButton: true, text: 'OK', actionPerformed: {
+                        username = _username.text
+                        password = _password.text
+                        dispose()
+                    })
+                }
+            }
+        }
+    } else {
+        user = console.readLine("\nUsername: ")
+        pass = console.readPassword("Password: ")
+        username = new String(user)
+        password = new String(pass)
+    }
+
+    if (username == null || username.size() <= 0) {
+        throw new Exception("You must enter a username to proceed.")
+    }
+    if (password == null || password.size() <= 0) {
+        throw new Exception("You must enter a password to proceed.")
+    }
+
     repositories {
         mavenDeployer {
             repository(url: 'http://backoffice.yosemitelabs.org:8081/repository/maven-releases/') {
-                authentication(userName: 'deploy', password: '1qazxsw2')
+                authentication(userName: username, password: password)
             }
             snapshotRepository(url: 'http://backoffice.yosemitelabs.org:8081/repository/maven-snapshots/') {
-                authentication(userName: 'deploy', password: '1qazxsw2')
+                authentication(userName: username, password: password)
             }
         }
     }
