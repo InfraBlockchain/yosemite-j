@@ -21,8 +21,6 @@ ext {
     retrofitVer = '2.5.0'
     okHttpVer = '3.12.1'
     gsonVer = '2.8.5'
-    username = ''
-    password = ''
 }
 
 dependencies {
@@ -93,6 +91,9 @@ uploadArchives {
         mavenDeployer {
             gradle.taskGraph.whenReady { taskGraph ->
                 if (taskGraph.hasTask(':uploadArchives')) {
+                    def username
+                    def password
+
                     def console = System.console()
                     if (console == null) {
                         throw new Exception("run gradle with --no-daemon")
