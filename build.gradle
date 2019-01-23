@@ -1,5 +1,3 @@
-import groovy.swing.SwingBuilder
-
 buildscript {
     repositories {
         jcenter()
@@ -63,11 +61,11 @@ repositories {
     jcenter()
     mavenLocal()
     maven {
-        name "YosemiteLabs Release"
+        name "Yosemite X Release"
         url "http://backoffice.yosemitelabs.org:8081/repository/maven-releases/"
     }
     maven {
-        name "YosemiteLabs Snapshot"
+        name "Yosemite X Snapshot"
         url "http://backoffice.yosemitelabs.org:8081/repository/maven-snapshots/"
     }
 }
