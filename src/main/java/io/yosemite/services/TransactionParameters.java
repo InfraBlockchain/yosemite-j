@@ -42,9 +42,7 @@ public class TransactionParameters {
          * @param accountName account name
          */
         public TransactionParametersBuilder addPermission(String accountName) {
-            if (accountName == null) {
-                throw new IllegalArgumentException("accountName cannot be null.");
-            }
+            if (accountName == null) throw new IllegalArgumentException("accountName cannot be null.");
             return addPermission(accountName, Consts.ACTIVE_PERMISSION_NAME);
         }
 
@@ -54,13 +52,13 @@ public class TransactionParameters {
          * @param permissionName the name of the permission; usually active
          */
         public TransactionParametersBuilder addPermission(String accountName, String permissionName) {
-            if (accountName == null) {
-                throw new IllegalArgumentException("accountName cannot be null.");
+            if (accountName == null) throw new IllegalArgumentException("accountName cannot be null.");
+            if (permissionName == null) throw new IllegalArgumentException("permissionName cannot be null.");
+            TypePermission typePermission = new TypePermission(accountName, permissionName);
+            if (txParameters.permissions.contains(typePermission)) {
+                throw new IllegalArgumentException("duplicated permission");
             }
-            if (permissionName == null) {
-                throw new IllegalArgumentException("permissionName cannot be null.");
-            }
-            txParameters.permissions.add(new TypePermission(accountName, permissionName));
+            txParameters.permissions.add(typePermission);
             return this;
         }
 
@@ -70,8 +68,9 @@ public class TransactionParameters {
          * @param publicKey public key string
          */
         public TransactionParametersBuilder addPublicKey(String publicKey) {
-            if (publicKey == null) {
-                throw new IllegalArgumentException("publicKey cannot be null.");
+            if (publicKey == null) throw new IllegalArgumentException("publicKey cannot be null.");
+            if (txParameters.publicKeys.contains(publicKey)) {
+                throw new IllegalArgumentException("duplicated public key");
             }
             txParameters.publicKeys.add(publicKey);
             return this;
