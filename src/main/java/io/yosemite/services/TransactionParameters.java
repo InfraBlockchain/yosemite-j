@@ -56,7 +56,7 @@ public class TransactionParameters {
             if (permissionName == null) throw new IllegalArgumentException("permissionName cannot be null.");
             TypePermission typePermission = new TypePermission(accountName, permissionName);
             if (txParameters.permissions.contains(typePermission)) {
-                throw new IllegalArgumentException("duplicated permission");
+                return this;
             }
             txParameters.permissions.add(typePermission);
             return this;
@@ -70,7 +70,7 @@ public class TransactionParameters {
         public TransactionParametersBuilder addPublicKey(String publicKey) {
             if (publicKey == null) throw new IllegalArgumentException("publicKey cannot be null.");
             if (txParameters.publicKeys.contains(publicKey)) {
-                throw new IllegalArgumentException("duplicated public key");
+                return this;
             }
             txParameters.publicKeys.add(publicKey);
             return this;
