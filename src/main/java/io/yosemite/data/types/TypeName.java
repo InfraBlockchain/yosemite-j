@@ -24,6 +24,7 @@
 package io.yosemite.data.types;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class TypeName implements EosType.Packer {
     private static final String CHAR_MAP = ".12345abcdefghijklmnopqrstuvwxyz";
@@ -106,4 +107,16 @@ public class TypeName implements EosType.Packer {
         return form;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TypeName typeName = (TypeName) o;
+        return mValue == typeName.mValue;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mValue);
+    }
 }

@@ -58,7 +58,7 @@ public interface YosemiteApiRestClient {
     /* History */
     Request<io.yosemite.data.remote.history.transaction.Transaction> getTransaction(String id);
 
-    Request<Actions> getActions(String accountName, int startPosition, int offset);
+    Request<Actions> getActions(String accountName, long startPosition, int offset);
 
     int getTxExpirationInMillis();
 
@@ -83,13 +83,13 @@ public interface YosemiteApiRestClient {
      *
      * @return fee payer account name
      */
-    public String getDelegatedTransactionFeePayer();
+    String getTransactionFeePayer();
 
     /**
      * Set the account name that pays the transaction fee.
      * Once this account is specified, all subsequent transactions should be provided signature of the fee payer account before being pushed to the blockchain.
      *
-     * @param delegatedTransactionFeePayer fee payer account name
+     * @param transactionFeePayer fee payer account name
      */
-    public void setDelegatedTransactionFeePayer(String delegatedTransactionFeePayer);
+    void setTransactionFeePayer(String transactionFeePayer);
 }

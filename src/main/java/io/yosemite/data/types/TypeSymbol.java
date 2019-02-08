@@ -59,6 +59,7 @@ public class TypeSymbol implements EosType.Packer {
     public static void setFeeToken(int precision, String symbol) {
         if (!setFeeTokenCalled.compareAndSet(false, true)) {
             throw new IllegalStateException("already called");
+            //return;
         }
         feeTokenSymbol = symbol;
         feeTokenPrecision = precision;

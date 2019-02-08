@@ -66,7 +66,7 @@ public class StandardTokenSample1 extends SampleCommon {
         TransactionParameters txParametersForUser1 = TransactionParameters.Builder().
             addPublicKey(tokenUserPublicKey).
             addPublicKey(sysTokenPublicKey).
-            setDelegatedTransactionFeePayer(SYSTEM_TOKEN_ACCOUNT).build();
+            setTransactionFeePayer(SYSTEM_TOKEN_ACCOUNT).build();
 
         log("");
         log("[Token Info]");

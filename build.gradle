@@ -15,12 +15,10 @@ plugins {
 }
 
 ext {
-    rxJavaVer = ' 2.1.17'
-
-    retrofitVer = '2.3.0'
-    okHttpVer = '3.9.0'
-
-    gsonVer = '2.8.1'
+    rxJavaVer = ' 2.2.5'
+    retrofitVer = '2.5.0'
+    okHttpVer = '3.12.1'
+    gsonVer = '2.8.5'
 }
 
 dependencies {
@@ -28,9 +26,9 @@ dependencies {
     api 'org.apache.commons:commons-math3:3.6.1'
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'org.apache.commons:commons-lang3:3.7'
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
 
-    implementation 'com.google.guava:guava:23.0'
+    implementation 'com.google.guava:guava:27.0.1-jre'
 
     implementation "io.reactivex.rxjava2:rxjava:${rxJavaVer}"
 
@@ -63,11 +61,11 @@ repositories {
     jcenter()
     mavenLocal()
     maven {
-        name "YosemiteLabs Release"
+        name "Yosemite X Release"
         url "http://backoffice.yosemitelabs.org:8081/repository/maven-releases/"
     }
     maven {
-        name "YosemiteLabs Snapshot"
+        name "Yosemite X Snapshot"
         url "http://backoffice.yosemitelabs.org:8081/repository/maven-snapshots/"
     }
 }
@@ -78,7 +76,7 @@ apply plugin: 'maven'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'maven-publish'
 
-version = '0.9.0'
+version = '0.9.1'
 group = 'io.yosemite'
 
 compileJava {
@@ -89,11 +87,39 @@ compileJava {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: 'http://backoffice.yosemitelabs.org:8081/repository/maven-releases/') {
-                authentication(userName: 'deploy', password: '1qazxsw2')
-            }
-            snapshotRepository(url: 'http://backoffice.yosemitelabs.org:8081/repository/maven-snapshots/') {
-                authentication(userName: 'deploy', password: '1qazxsw2')
+            gradle.taskGraph.whenReady { taskGraph ->
+                if (taskGraph.hasTask(':uploadArchives')) {
+                    def username
+                    def password
+
+                    def console = System.console()
+                    if (console == null) {
+                        throw new Exception("run gradle with --no-daemon")
+                    }
+
+                    console.printf("\nUsername: ")
+                    console.flush()
+                    def user = console.readLine()
+                    console.printf("Password: ")
+                    console.flush()
+                    def pass = console.readPassword()
+                    username = new String(user)
+                    password = new String(pass)
+
+                    if (username.size() <= 0) {
+                        throw new Exception("You must enter a username to proceed.")
+                    }
+                    if (password.size() <= 0) {
+                        throw new Exception("You must enter a password to proceed.")
+                    }
+
+                    repository(url: 'http://backoffice.yosemitelabs.org:8081/repository/maven-releases/') {
+                        authentication(userName: username, password: password)
+                    }
+                    snapshotRepository(url: 'http://backoffice.yosemitelabs.org:8081/repository/maven-snapshots/') {
+                        authentication(userName: username, password: password)
+                    }
+                }
             }
         }
     }

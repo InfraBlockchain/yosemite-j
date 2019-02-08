@@ -34,12 +34,20 @@ public class Transaction extends TransactionHeader {
         this.transactionExtensions = other.transactionExtensions;
     }
 
-    public void addAction(Action msg) {
+    public void addAction(Action action) {
         if (null == actions) {
             actions = new ArrayList<>();
         }
 
-        actions.add(msg);
+        actions.add(action);
+    }
+
+    public void addActions(List<Action> actions) {
+        if (null == this.actions) {
+            this.actions = new ArrayList<>();
+        }
+
+        this.actions.addAll(actions);
     }
 
     private <T> List<T> deepCopyOnlyContainer(List<T> srcList) {

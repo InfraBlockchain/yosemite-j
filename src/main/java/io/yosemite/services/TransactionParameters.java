@@ -13,12 +13,12 @@ import java.util.List;
 public class TransactionParameters {
     private final List<TypePermission> permissions = new ArrayList<>();
     private List<String> publicKeys = new ArrayList<>();
-    private String delegatedTransactionFeePayer;
+    private String transactionFeePayer;
     private String transactionVoteTarget;
     private int txExpirationInMillis = -1;
 
-    void setDelegatedTransactionFeePayer(String delegatedTransactionFeePayer) {
-        this.delegatedTransactionFeePayer = delegatedTransactionFeePayer;
+    void setTransactionFeePayer(String transactionFeePayer) {
+        this.transactionFeePayer = transactionFeePayer;
     }
 
     public static TransactionParametersBuilder Builder() {
@@ -42,9 +42,7 @@ public class TransactionParameters {
          * @param accountName account name
          */
         public TransactionParametersBuilder addPermission(String accountName) {
-            if (accountName == null) {
-                throw new IllegalArgumentException("accountName cannot be null.");
-            }
+            if (accountName == null) throw new IllegalArgumentException("accountName cannot be null.");
             return addPermission(accountName, Consts.ACTIVE_PERMISSION_NAME);
         }
 
@@ -54,13 +52,13 @@ public class TransactionParameters {
          * @param permissionName the name of the permission; usually active
          */
         public TransactionParametersBuilder addPermission(String accountName, String permissionName) {
-            if (accountName == null) {
-                throw new IllegalArgumentException("accountName cannot be null.");
+            if (accountName == null) throw new IllegalArgumentException("accountName cannot be null.");
+            if (permissionName == null) throw new IllegalArgumentException("permissionName cannot be null.");
+            TypePermission typePermission = new TypePermission(accountName, permissionName);
+            if (txParameters.permissions.contains(typePermission)) {
+                return this;
             }
-            if (permissionName == null) {
-                throw new IllegalArgumentException("permissionName cannot be null.");
-            }
-            txParameters.permissions.add(new TypePermission(accountName, permissionName));
+            txParameters.permissions.add(typePermission);
             return this;
         }
 
@@ -70,8 +68,9 @@ public class TransactionParameters {
          * @param publicKey public key string
          */
         public TransactionParametersBuilder addPublicKey(String publicKey) {
-            if (publicKey == null) {
-                throw new IllegalArgumentException("publicKey cannot be null.");
+            if (publicKey == null) throw new IllegalArgumentException("publicKey cannot be null.");
+            if (txParameters.publicKeys.contains(publicKey)) {
+                return this;
             }
             txParameters.publicKeys.add(publicKey);
             return this;
@@ -81,10 +80,10 @@ public class TransactionParameters {
          * Set the account name that pays the transaction fee.
          * The transaction with this setting should be provided signature of the fee payer account before being pushed to the blockchain.
          *
-         * @param delegatedTransactionFeePayer fee payer account name
+         * @param transactionFeePayer fee payer account name
          */
-        public TransactionParametersBuilder setDelegatedTransactionFeePayer(String delegatedTransactionFeePayer) {
-            txParameters.delegatedTransactionFeePayer = delegatedTransactionFeePayer;
+        public TransactionParametersBuilder setTransactionFeePayer(String transactionFeePayer) {
+            txParameters.transactionFeePayer = transactionFeePayer;
             return this;
         }
 
@@ -120,8 +119,8 @@ public class TransactionParameters {
         return publicKeys;
     }
 
-    public String getDelegatedTransactionFeePayer() {
-        return delegatedTransactionFeePayer;
+    public String getTransactionFeePayer() {
+        return transactionFeePayer;
     }
 
     public String getTransactionVoteTarget() {

@@ -18,7 +18,7 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
 
     private int txExpirationInMillis;
     private String transactionVoteTarget;
-    private String delegatedTransactionFeePayer;
+    private String transactionFeePayer;
 
     YosemiteApiRestClientImpl(String chainBaseUrl, String walletBaseUrl, String historyBaseUrl, int txExpirationInMillis,
                               String transactionVoteTarget) {
@@ -172,7 +172,7 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
     }
 
     @Override
-    public Request<Actions> getActions(String accountName, int startPosition, int offset) {
+    public Request<Actions> getActions(String accountName, long startPosition, int offset) {
         if (yxHistoryApiService == null) throw new IllegalStateException("Chain explorer URL is not set");
         return new Request<>(yxHistoryApiService.getService().getActions(accountName, startPosition, offset), yxHistoryApiService, false);
     }
@@ -197,11 +197,11 @@ public class YosemiteApiRestClientImpl implements YosemiteApiRestClient {
         this.transactionVoteTarget = transactionVoteTarget;
     }
 
-    public String getDelegatedTransactionFeePayer() {
-        return delegatedTransactionFeePayer;
+    public String getTransactionFeePayer() {
+        return transactionFeePayer;
     }
 
-    public void setDelegatedTransactionFeePayer(String delegatedTransactionFeePayer) {
-        this.delegatedTransactionFeePayer = delegatedTransactionFeePayer;
+    public void setTransactionFeePayer(String transactionFeePayer) {
+        this.transactionFeePayer = transactionFeePayer;
     }
 }

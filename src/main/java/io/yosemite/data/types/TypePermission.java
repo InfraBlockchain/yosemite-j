@@ -26,6 +26,8 @@ package io.yosemite.data.types;
 import com.google.gson.annotations.Expose;
 import io.yosemite.Consts;
 
+import java.util.Objects;
+
 
 public class TypePermission implements EosType.Packer {
 
@@ -67,5 +69,18 @@ public class TypePermission implements EosType.Packer {
     public void pack(EosType.Writer writer) {
         actor.pack(writer);
         permission.pack(writer);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TypePermission that = (TypePermission) o;
+        return actor.equals(that.actor) && permission.equals(that.permission);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(actor, permission);
     }
 }

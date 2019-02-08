@@ -13,5 +13,5 @@ public interface YosemiteHistoryApiService {
     Call<Transaction> getTransaction(@Path("txId") String txId);
 
     @GET("/account/{accountName}/actions/received")
-    Call<Actions> getActions(@Path("accountName") String accountName, @Query("start") int start, @Query("offset") int offset);
+    Call<Actions> getActions(@Path("accountName") String accountName, @Query("start") long start, @Query("offset") int offset);
 }

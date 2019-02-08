@@ -1,4 +1,5 @@
 import com.google.gson.Gson;
+import io.yosemite.StandardTokenConsts;
 import io.yosemite.crypto.ec.EcDsa;
 import io.yosemite.data.remote.api.AbiBinToJsonRequest;
 import io.yosemite.data.remote.api.AbiBinToJsonResponse;
@@ -14,6 +15,7 @@ import io.yosemite.services.YosemiteJ;
 import io.yosemite.services.yxcontracts.StandardToken;
 import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import io.yosemite.util.Utils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertTrue;
 
@@ -89,22 +93,43 @@ public class LibraryTest {
         logger.debug(pushedTransaction.getTransactionId());
     }
 
+    /*
+push action yosemite updateauth '{"account":"user1","permission":"creditissue","parent":"active",
+                                                "auth":{"threshold":1,"keys":[],"waits":[],
+                                                "accounts":[{"weight":1,"permission":{"actor":"ycard.cusd.a","permission":"active"}}]}}'
+              -p user1@active --txfee-payer ycard.cusd.a
+push action yosemite linkauth '["user1","ycard.cusd.a","creditissue","creditissue"]' -p user1@active --txfee-payer ycard.cusd.a
+
+push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""]' -p useraccounta@creditissue --txfee-payer ycard.cusd.a
+     */
+    
     //@Test
     public void testSetAccountPermissionTest() {
 
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
 
         YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
-        TypeAuthority activeAuthority = TypeAuthority.Builder().addPublicKey("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").build();
+        TypeAuthority authority = TypeAuthority.Builder().addAccount("ycard.cusd.a").build();
 
-        //TransactionParameters txParams = TransactionParameters.Builder().addPermission("joeparkygood", "owner").build();
-        //PushedTransaction pushedTransaction = yxj.setAccountPermission("joeparkygood", "active", "owner", activeAuthority, txParams).join();
-        //logger.debug("By joeparkygood itself : " + pushedTransaction.getTransactionId());
+        TransactionParameters txParam = TransactionParameters.Builder().
+            addPermission("user1").
+            setTransactionFeePayer("yosemite").
+            build();
+        PushedTransaction pushedTransaction2 = yxj.setAccountPermission("user1", "creditissue", "active", authority, txParam).join();
+        logger.debug("updateauth : " + pushedTransaction2.getTransactionId());
+    }
 
-        TransactionParameters txParams2 = TransactionParameters.Builder().addPermission("joeparkygood", "owner").
-                addPublicKey("EOS6LPAQCVK69srvKmPCTyD6QjG4Z8t3YThJVTGeZeQg8MokC4YTq").build(); // publicKey is for d1@active
-        PushedTransaction pushedTransaction2 = yxj.setAccountPermission("joeparkygood", activeAuthority, txParams2).join();
-        logger.debug("By d1(service) : " + pushedTransaction2.getTransactionId());
+    //@Test
+    public void testLinkPermissionTest() {
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
+
+        YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
+        TransactionParameters txParams = TransactionParameters.Builder().
+            addPermission("user1").
+            setTransactionFeePayer("yosemite").
+            build();
+        PushedTransaction pushedTransaction = yxj.linkPermission("user1", "ycard.cusd.a", "creditissue", "creditissue", txParams).join();
+        logger.debug("linkauth : " + pushedTransaction.getTransactionId());
     }
 
     //@Test
@@ -176,7 +201,7 @@ public class LibraryTest {
                 "http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://testnet-sentinel-explorer-api.yosemitelabs.org");
 
         apiClient.setTransactionVoteTarget("producer.a");
-        apiClient.setDelegatedTransactionFeePayer("payeraccount");
+        apiClient.setTransactionFeePayer("payeraccount");
 
         Account serviceUser = apiClient.getAccount("serviceuser1").execute();
         Account userAccount = apiClient.getAccount("useraccounta").execute();
@@ -217,4 +242,29 @@ public class LibraryTest {
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
     }
 
+    //http://testnet-sentinel-explorer.yosemitelabs.org/transactions/1755765/338344d0be71377031172b7e08a2251d8c1d3817b400d95d309f7365b90f3c0a
+    //@Test
+    public void testPushActions() {
+        String TOKEN_ISSUER_NAME = "ysmt.dusd.a";
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
+            "http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://testnet-sentinel-explorer-api.yosemitelabs.org");
+        StandardToken standardToken = new StandardToken(apiClient);
+
+        String transferData1 =
+            standardToken.getTransferTokenJsonString(TOKEN_ISSUER_NAME, "producer.a", "1.0000 DUSD", TOKEN_ISSUER_NAME, "tag1");
+        String transferData2 =
+            standardToken.getTransferTokenJsonString(TOKEN_ISSUER_NAME, "producer.b", "2.0000 DUSD", TOKEN_ISSUER_NAME, "tag2");
+
+        ImmutablePair<String, String> actionPair1 = new ImmutablePair<>(StandardTokenConsts.ACTION_TRANSFER, transferData1);
+        ImmutablePair<String, String> actionPair2 = new ImmutablePair<>(StandardTokenConsts.ACTION_TRANSFER, transferData2);
+
+        TransactionParameters txParam = TransactionParameters.Builder().
+            addPermission(TOKEN_ISSUER_NAME).
+            setTransactionFeePayer(TOKEN_ISSUER_NAME).
+            build();
+
+        PushedTransaction pushedTransaction =
+            standardToken.pushActions(TOKEN_ISSUER_NAME, Stream.of(actionPair1, actionPair2).collect(Collectors.toList()), txParam).join();
+        logger.debug("\nPushed Transaction:\n" + Utils.toJson(pushedTransaction, true));
+    }
 }
