@@ -17,6 +17,7 @@ import io.yosemite.services.yxcontracts.YosemiteSystemJ;
 import io.yosemite.util.Utils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Assert;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,7 +178,7 @@ push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
 
-        Actions actions = apiClient.getActions("rentservice1", -1, -50).execute();
+        Actions actions = apiClient.getActions("ysmt.dusd.a", -1, -50).execute();
         logger.debug("Last irreversible block: " + actions.getLastIrreversibleBlock());
         logger.debug(Utils.toJson(actions, true));
     }
