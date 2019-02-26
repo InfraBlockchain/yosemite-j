@@ -122,7 +122,7 @@ public class LibraryTest {
         logger.debug(pushedTransaction.getTransactionId());
     }
 
-    @Test
+    //@Test
     public void testChangeActivePermissionKeyForAthoritiesTest() {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
 
