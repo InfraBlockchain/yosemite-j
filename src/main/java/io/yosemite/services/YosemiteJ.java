@@ -15,6 +15,7 @@ import io.yosemite.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
@@ -33,7 +34,7 @@ public abstract class YosemiteJ {
     }
 
     private CompletableFuture<Action> getActionWithBinaryData(final String contract, String actionName, String data,
-                                                              List<TypePermission> permissions) {
+                                                              Collection<TypePermission> permissions) {
         String abiTarget = contract;
         if (StandardTokenConsts.STANDARD_TOKEN_ACTIONS.contains(actionName)) {
             abiTarget = YOSEMITE_STANDARD_TOKEN_ABI_CONTRACT;
@@ -179,7 +180,11 @@ public abstract class YosemiteJ {
 
         ArrayList<CompletableFuture<Action>> futures = new ArrayList<>();
         for (ActionSpecifier actionSpecifier : actions) {
-            futures.add(getActionWithBinaryData(actionSpecifier.getValue0(), actionSpecifier.getValue1(), actionSpecifier.getValue2(), params.getPermissions()));
+            Collection<TypePermission> actionPermissions = actionSpecifier.getPermissions();
+            CompletableFuture<Action> actionWithBinaryDataFuture =
+                getActionWithBinaryData(actionSpecifier.getValue0(), actionSpecifier.getValue1(), actionSpecifier.getValue2(),
+                    actionPermissions.isEmpty() ? params.getPermissions() : actionPermissions);
+            futures.add(actionWithBinaryDataFuture);
         }
 
         List<Action> actionList = Stream.of(futures.toArray(new CompletableFuture[0])).map(CompletableFuture<Action>::join).collect(toList());

@@ -34,6 +34,7 @@ import io.yosemite.data.types.TypeActionName;
 import io.yosemite.data.types.TypePermission;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Action implements EosType.Packer {
@@ -44,7 +45,7 @@ public class Action implements EosType.Packer {
     private TypeActionName name;
 
     @Expose
-    private List<TypePermission> authorization;
+    private Collection<TypePermission> authorization;
 
     @Expose
     private JsonElement data;
@@ -90,18 +91,12 @@ public class Action implements EosType.Packer {
         this.name = new TypeActionName(name);
     }
 
-    public List<TypePermission> getAuthorization() {
+    public Collection<TypePermission> getAuthorization() {
         return authorization;
     }
 
-    public void setAuthorization(List<TypePermission> accountWithPermLevel) {
-        /*
-        for (String permissionStr : accountWithPermLevel) {
-            String[] split = permissionStr.split("@", 2);
-            authorization.add(new TypePermissionLevel(split[0], split[1]));
-        }
-        */
-        authorization = accountWithPermLevel;
+    public void setAuthorization(Collection<TypePermission> permissions) {
+        authorization = permissions;
     }
 
     public JsonElement getData() {
