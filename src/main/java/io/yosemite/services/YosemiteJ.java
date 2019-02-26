@@ -1,7 +1,7 @@
 package io.yosemite.services;
 
 import com.google.gson.Gson;
-import io.yosemite.StandardTokenConsts;
+import io.yosemite.services.yxcontracts.StandardTokenConsts;
 import io.yosemite.crypto.digest.Sha256;
 import io.yosemite.data.remote.api.AbiJsonToBinRequest;
 import io.yosemite.data.remote.api.GetRequiredKeysRequest;
@@ -12,7 +12,6 @@ import io.yosemite.data.types.TypePermission;
 import io.yosemite.exception.YosemiteApiException;
 import io.yosemite.util.StringUtils;
 import io.yosemite.util.Utils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -169,19 +168,18 @@ public abstract class YosemiteJ {
      * Push multi actions as the same transaction to the Yosemite chain network.
      * All actions must have the same transaction parameters.
      * Note that the transaction fee payer must be set by TransactionParameters or YosemiteApiRestClient.
-     * @param contract the name of the smart contract
-     * @param actions the pair of action name and its json-formatted data; ImmutablePair class is from Apache commons-lang3
+     * @param actions the triplet of contract and its action name and json-formatted data
      * @param params common parameters
      * @return CompletableFuture instance to get PushedTransaction instance
      */
     public final CompletableFuture<PushedTransaction> pushActions(
-        final String contract, Collection<ImmutablePair<String, String>> actions, final TransactionParameters params) {
+        Collection<ActionSpecifier> actions, final TransactionParameters params) {
         if (params == null) throw new IllegalArgumentException("params cannot be null");
         if (actions == null || actions.isEmpty()) throw new IllegalArgumentException("actions cannot be null");
 
         ArrayList<CompletableFuture<Action>> futures = new ArrayList<>();
-        for (ImmutablePair<String, String> actionNameAndData : actions) {
-            futures.add(getActionWithBinaryData(contract, actionNameAndData.left, actionNameAndData.right, params.getPermissions()));
+        for (ActionSpecifier actionSpecifier : actions) {
+            futures.add(getActionWithBinaryData(actionSpecifier.getValue0(), actionSpecifier.getValue1(), actionSpecifier.getValue2(), params.getPermissions()));
         }
 
         List<Action> actionList = Stream.of(futures.toArray(new CompletableFuture[0])).map(CompletableFuture<Action>::join).collect(toList());

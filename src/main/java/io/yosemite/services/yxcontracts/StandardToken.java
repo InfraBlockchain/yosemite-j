@@ -2,7 +2,6 @@ package io.yosemite.services.yxcontracts;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import io.yosemite.StandardTokenConsts;
 import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.services.TransactionParameters;
 import io.yosemite.services.YosemiteApiRestClient;
@@ -97,23 +96,6 @@ public class StandardToken extends YosemiteJ implements StandardTokenConsts {
         return pushAction(issuer, ACTION_REDEEM, gson.toJson(object), buildCommonParametersWithDefaults(params, issuer));
     }
 
-    public String getTransferTokenJsonString(String from, String to, String amount, String issuer, String tag) {
-        if (StringUtils.isEmpty(from)) throw new IllegalArgumentException("wrong from");
-        if (StringUtils.isEmpty(to)) throw new IllegalArgumentException("wrong to");
-        if (StringUtils.isEmpty(amount)) throw new IllegalArgumentException("wrong amount");
-        if (StringUtils.isEmpty(issuer)) throw new IllegalArgumentException("wrong issuer");
-        if (tag != null && tag.length() > 256) throw new IllegalArgumentException("too long tag");
-
-        JsonObject object = new JsonObject();
-        object.addProperty("t", issuer);
-        object.addProperty("from", from);
-        object.addProperty("to", to);
-        object.addProperty("qty", amount);
-        object.addProperty("tag", tag);
-
-        return gson.toJson(object);
-    }
-
     /**
      * Transfer the amount of the token from the <code>from</code> account to the <code>to</code> account.
      * Transaction fee is charged to the <code>from</code> account.
@@ -127,7 +109,7 @@ public class StandardToken extends YosemiteJ implements StandardTokenConsts {
      */
     public CompletableFuture<PushedTransaction> transferToken(
             String from, String to, String amount, String issuer, String tag, @Nullable TransactionParameters params) {
-        return pushAction(issuer, ACTION_TRANSFER, getTransferTokenJsonString(from, to, amount, issuer, tag),
+        return pushAction(issuer, ACTION_TRANSFER, ActionDataJsonCreator.transferToken(from, to, amount, issuer, tag),
             buildCommonParametersWithDefaults(params, from));
     }
 }

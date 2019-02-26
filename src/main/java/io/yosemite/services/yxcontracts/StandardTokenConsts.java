@@ -1,4 +1,4 @@
-package io.yosemite;
+package io.yosemite.services.yxcontracts;
 
 import java.util.Arrays;
 import java.util.HashSet;

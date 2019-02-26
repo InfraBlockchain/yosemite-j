@@ -6,7 +6,6 @@ import io.yosemite.data.remote.chain.PushedTransaction;
 import io.yosemite.data.remote.contract.ActionLinkAuth;
 import io.yosemite.data.remote.contract.ActionNewAccount;
 import io.yosemite.data.remote.contract.ActionUnlinkAuth;
-import io.yosemite.data.remote.contract.ActionUpdateAuth;
 import io.yosemite.data.types.TypeAuthority;
 import io.yosemite.data.types.TypePublicKey;
 import io.yosemite.services.TransactionParameters;
@@ -20,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Provides the methods for the yx.system Yosemite contract.
  */
-public class YosemiteSystemJ extends YosemiteJ {
+public class YosemiteSystemJ extends YosemiteJ implements YosemiteSystemConsts, StandardTokenConsts {
 
     public YosemiteSystemJ(YosemiteApiRestClient yosemiteApiRestClient) {
         super(yosemiteApiRestClient);
@@ -50,7 +49,7 @@ public class YosemiteSystemJ extends YosemiteJ {
         ActionNewAccount actionNewAccount = new ActionNewAccount(creator, name,
                 TypePublicKey.from(new EosPublicKey(ownerKey)), TypePublicKey.from(new EosPublicKey(activeKey)));
 
-        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ActionNewAccount.ACTION,
+        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ACTION_NEW_ACCOUNT,
                 gson.toJson(actionNewAccount),
                 buildCommonParametersWithDefaults(params, creator));
     }
@@ -79,7 +78,7 @@ public class YosemiteSystemJ extends YosemiteJ {
 
         ActionNewAccount actionNewAccount = new ActionNewAccount(creator, name, ownerAuthority, activeAuthority);
 
-        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ActionNewAccount.ACTION,
+        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ACTION_NEW_ACCOUNT,
                 gson.toJson(actionNewAccount),
                 buildCommonParametersWithDefaults(params, creator));
     }
@@ -98,7 +97,7 @@ public class YosemiteSystemJ extends YosemiteJ {
                                                                      String parentPermissionName,
                                                                      TypeAuthority authority,
                                                                      @Nullable TransactionParameters params) {
-        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ActionUpdateAuth.ACTION,
+        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ACTION_UPDATE_AUTH,
                 ActionDataJsonCreator.updateAuth(accountName, permissionName, parentPermissionName, authority),
                 buildCommonParametersWithDefaults(params, accountName));
     }
@@ -136,7 +135,7 @@ public class YosemiteSystemJ extends YosemiteJ {
         if (StringUtils.isEmpty(requirement)) throw new IllegalArgumentException("empty requirement");
 
         ActionLinkAuth linkAuth = new ActionLinkAuth(accountName, code, action, requirement);
-        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ActionLinkAuth.ACTION,
+        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ACTION_LINK_AUTH,
             gson.toJson(linkAuth), buildCommonParametersWithDefaults(params, accountName));
     }
 
@@ -157,7 +156,7 @@ public class YosemiteSystemJ extends YosemiteJ {
         if (StringUtils.isEmpty(action)) throw new IllegalArgumentException("empty action name");
 
         ActionUnlinkAuth unlinkAuth = new ActionUnlinkAuth(accountName, code, action);
-        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ActionUnlinkAuth.ACTION,
+        return pushAction(Consts.YOSEMITE_SYSTEM_CONTRACT, ACTION_UNLINK_AUTH,
             gson.toJson(unlinkAuth), buildCommonParametersWithDefaults(params, accountName));
     }
 }
