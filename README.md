@@ -1,8 +1,9 @@
-# Yosemite J - Yosemite Chain Java API
+# Yosemite J - Yosemite Chain Java API (BETA)
 
-The project's goal would be something like Java version of `clyos` which provides convenient interfaces for the useful commands such as pushing action including some native actions of Yostemite Public Blockchain.
+The project's goal is to provide convenient interfaces for the useful commands such as pushing action including some native actions of Yostemite Public Blockchain.
 
-The first step would be to implement a wrapper for basic HTTP APIs and then the other convenient interface would be built on top of it.
+## NOTE
+This is on BETA phase. The API could be changed without considering compatibility.
 
 ## Requirements
 * Java 8
