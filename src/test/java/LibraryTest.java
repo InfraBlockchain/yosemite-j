@@ -1,5 +1,6 @@
 import com.google.gson.Gson;
-import io.yosemite.StandardTokenConsts;
+import io.yosemite.Consts;
+import io.yosemite.services.yxcontracts.*;
 import io.yosemite.crypto.ec.EcDsa;
 import io.yosemite.data.remote.api.AbiBinToJsonRequest;
 import io.yosemite.data.remote.api.AbiBinToJsonResponse;
@@ -8,15 +9,10 @@ import io.yosemite.data.remote.chain.account.Account;
 import io.yosemite.data.remote.history.action.Actions;
 import io.yosemite.data.remote.history.transaction.Transaction;
 import io.yosemite.data.types.TypeAuthority;
-import io.yosemite.services.TransactionParameters;
-import io.yosemite.services.YosemiteApiClientFactory;
-import io.yosemite.services.YosemiteApiRestClient;
-import io.yosemite.services.YosemiteJ;
-import io.yosemite.services.yxcontracts.StandardToken;
-import io.yosemite.services.yxcontracts.YosemiteSystemJ;
+import io.yosemite.services.*;
 import io.yosemite.util.Utils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Assert;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,18 +57,38 @@ public class LibraryTest {
 
     //@Test
     public void testCreateAccountTest() {
-
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
-                "http://testnet.yosemitelabs.org:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
+                "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
 
         YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
-        PushedTransaction pushedTransaction = yxj.createAccount("idauth1", "joepark1good",
+        TransactionParameters txParam = TransactionParameters.Builder().
+            addPublicKey("YOS58dGg2iHMve2NgkyjXMtcBEX7785HnQqnA7kyFHCDwLNw1mD2B"). //public key of yosemite
+            addPublicKey("YOS6EfGUaA5MNLH1GiHd64DcDr3HMgY1AM3WR1vdHKaah9Z4cWPZq"). //public key of idauth.a
+            setTransactionFeePayer("yosemite").
+            build();
+        PushedTransaction pushedTransaction = yxj.createAccount("idauth.a", "joepark1good",
+                "YOS8mwHZCH4e8mXsAzfhAebagsaoCDLN5d7nenkwfMcQtWrZeZdvp",
                 "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ",
-                "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ",
-                null
+                txParam
         ).join();
 
         logger.debug(pushedTransaction.getTransactionId());
+    }
+
+    //@Test
+    public void testSimpleChangeActivePermissionTest() {
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
+
+        YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
+        TypeAuthority authority = TypeAuthority.Builder().addPublicKey("YOS8NJdBr8ir5cXULvKf3sk4gLzQuecRXaKiMbjEpTriLZ8AAsJZW").build();
+        TransactionParameters txParam = TransactionParameters.Builder().
+            addPermission("joepark1good", "owner").
+            addPublicKey("YOS58dGg2iHMve2NgkyjXMtcBEX7785HnQqnA7kyFHCDwLNw1mD2B"). //public key of yosemite
+            addPublicKey("YOS8mwHZCH4e8mXsAzfhAebagsaoCDLN5d7nenkwfMcQtWrZeZdvp"). //public key of owner
+            setTransactionFeePayer("yosemite").
+            build();
+        PushedTransaction pushedTransaction = yxj.setAccountPermission("joepark1good", authority, txParam).join();
+        logger.debug("updateauth : " + pushedTransaction.getTransactionId());
     }
 
     //@Test
@@ -81,16 +97,67 @@ public class LibraryTest {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
 
         YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
-        TypeAuthority ownerAuthority =
-                TypeAuthority.Builder().
-                        setThreshold(1).
-                        addPublicKey("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").
-                        addAccount("d1").
-                        build();
+        TypeAuthority ownerAuthority = TypeAuthority.Builder().
+            setThreshold(1).
+            addAccount("idauth.a"). //public key of idauth.a
+            addPublicKey("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").
+            build();
         TypeAuthority activeAuthority = TypeAuthority.Builder().addPublicKey("YOS79FWgriJiu1JAWARVZDNaqDZnVKnPW2gQn1N9Ne6cNPf8cA8Nj").build();
-        PushedTransaction pushedTransaction = yxj.createAccount("d1", "joeparkygood", ownerAuthority, activeAuthority, null).join();
+        TransactionParameters parameters = TransactionParameters.Builder().
+            addPublicKey("YOS58dGg2iHMve2NgkyjXMtcBEX7785HnQqnA7kyFHCDwLNw1mD2B"). //public key of yosemite
+            addPublicKey("YOS6EfGUaA5MNLH1GiHd64DcDr3HMgY1AM3WR1vdHKaah9Z4cWPZq"). //public key of idauth.a
+            setTransactionFeePayer("yosemite").
+            build();
+        PushedTransaction pushedTransaction = yxj.createAccount("idauth.a", "joepark2good", ownerAuthority, activeAuthority, parameters).join();
 
         logger.debug(pushedTransaction.getTransactionId());
+    }
+
+    @Test
+    public void testChangeActivePermissionKeyForAthoritiesTest() {
+        YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
+
+        YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
+        TypeAuthority activeAuthority = TypeAuthority.Builder().addPublicKey("YOS8NJdBr8ir5cXULvKf3sk4gLzQuecRXaKiMbjEpTriLZ8AAsJZW").build();
+        TransactionParameters txParam = TransactionParameters.Builder().
+            addPermission("joepark2good", "owner").
+            addPublicKey("YOS58dGg2iHMve2NgkyjXMtcBEX7785HnQqnA7kyFHCDwLNw1mD2B"). //public key of yosemite
+            addPublicKey("YOS6EfGUaA5MNLH1GiHd64DcDr3HMgY1AM3WR1vdHKaah9Z4cWPZq"). //public key of idauth.a
+            setTransactionFeePayer("yosemite").
+            build();
+
+        PushedTransaction pushedTransaction = yxj.setAccountPermission("joepark2good", activeAuthority, txParam).join();
+        logger.debug("updateauth for active : " + pushedTransaction.getTransactionId());
+
+        TypeAuthority ownerAuthority = TypeAuthority.Builder().
+            setThreshold(1).
+            addAccount("idauth.a"). //public key of idauth.a
+            addPublicKey("YOS8NJdBr8ir5cXULvKf3sk4gLzQuecRXaKiMbjEpTriLZ8AAsJZW").
+            build();
+        PushedTransaction pushedTransaction2 = yxj.setAccountPermission("joepark2good", "owner", "", ownerAuthority, txParam).join();
+        logger.debug("updateauth for owner : " + pushedTransaction2.getTransactionId());
+
+        // the same operation above with one transaction including multi-actions
+
+        String updateAuthData1 =
+            ActionDataJsonCreator.updateAuth("joepark2good", Consts.ACTIVE_PERMISSION_NAME, Consts.OWNER_PERMISSION_NAME, activeAuthority);
+        String updateAuthData2 =
+            ActionDataJsonCreator.updateAuth("joepark2good", Consts.OWNER_PERMISSION_NAME, "", ownerAuthority);
+
+        ActionSpecifier actionPair1 = new ActionSpecifier(Consts.YOSEMITE_SYSTEM_CONTRACT, YosemiteSystemConsts.ACTION_UPDATE_AUTH, updateAuthData1);
+        actionPair1.addPermission("joepark2good", "owner");
+        ActionSpecifier actionPair2 = new ActionSpecifier(Consts.YOSEMITE_SYSTEM_CONTRACT, YosemiteSystemConsts.ACTION_UPDATE_AUTH, updateAuthData2);
+        actionPair2.addPermission("joepark2good", "owner");
+
+        TransactionParameters txParam2 = TransactionParameters.Builder().
+            addPublicKey("YOS58dGg2iHMve2NgkyjXMtcBEX7785HnQqnA7kyFHCDwLNw1mD2B"). //public key of yosemite
+            addPublicKey("YOS6EfGUaA5MNLH1GiHd64DcDr3HMgY1AM3WR1vdHKaah9Z4cWPZq"). //public key of idauth.a
+            setTransactionFeePayer("yosemite").
+            build();
+
+        PushedTransaction pushedTransaction3 =
+            yxj.pushActions(Stream.of(actionPair1, actionPair2).collect(Collectors.toList()), txParam2).join();
+        logger.debug("\nPushed Transaction:\n" + Utils.toJson(pushedTransaction3, true));
     }
 
     /*
@@ -104,7 +171,7 @@ push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""
      */
     
     //@Test
-    public void testSetAccountPermissionTest() {
+    public void testCreateAccountPermissionTest() {
 
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
 
@@ -177,7 +244,7 @@ push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
                 "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
 
-        Actions actions = apiClient.getActions("rentservice1", -1, -50).execute();
+        Actions actions = apiClient.getActions("ysmt.dusd.a", -1, -50).execute();
         logger.debug("Last irreversible block: " + actions.getLastIrreversibleBlock());
         logger.debug(Utils.toJson(actions, true));
     }
@@ -242,7 +309,7 @@ push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""
         assertTrue("Success", !pushedTransaction.getTransactionId().isEmpty());
     }
 
-    //http://testnet-sentinel-explorer.yosemitelabs.org/transactions/1755765/338344d0be71377031172b7e08a2251d8c1d3817b400d95d309f7365b90f3c0a
+    //http://testnet-sentinel-explorer.yosemitelabs.org/transactions/1755765/1a37ce7e2cea145145d1b7662ec640a9ab7180869067e13d647ed9e500e6b98d
     //@Test
     public void testPushActions() {
         String TOKEN_ISSUER_NAME = "ysmt.dusd.a";
@@ -251,12 +318,12 @@ push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""
         StandardToken standardToken = new StandardToken(apiClient);
 
         String transferData1 =
-            standardToken.getTransferTokenJsonString(TOKEN_ISSUER_NAME, "producer.a", "1.0000 DUSD", TOKEN_ISSUER_NAME, "tag1");
+            ActionDataJsonCreator.transferToken(TOKEN_ISSUER_NAME, "producer.a", "1.0000 DUSD", TOKEN_ISSUER_NAME, "tag1");
         String transferData2 =
-            standardToken.getTransferTokenJsonString(TOKEN_ISSUER_NAME, "producer.b", "2.0000 DUSD", TOKEN_ISSUER_NAME, "tag2");
+            ActionDataJsonCreator.transferToken(TOKEN_ISSUER_NAME, "producer.b", "2.0000 DUSD", TOKEN_ISSUER_NAME, "tag2");
 
-        ImmutablePair<String, String> actionPair1 = new ImmutablePair<>(StandardTokenConsts.ACTION_TRANSFER, transferData1);
-        ImmutablePair<String, String> actionPair2 = new ImmutablePair<>(StandardTokenConsts.ACTION_TRANSFER, transferData2);
+        ActionSpecifier actionPair1 = new ActionSpecifier(TOKEN_ISSUER_NAME, StandardTokenConsts.ACTION_TRANSFER, transferData1);
+        ActionSpecifier actionPair2 = new ActionSpecifier(TOKEN_ISSUER_NAME, StandardTokenConsts.ACTION_TRANSFER, transferData2);
 
         TransactionParameters txParam = TransactionParameters.Builder().
             addPermission(TOKEN_ISSUER_NAME).
@@ -264,7 +331,7 @@ push action ycard.cusd.a creditissue '["user1","ycard.cusd.a","500.0000 CUSD",""
             build();
 
         PushedTransaction pushedTransaction =
-            standardToken.pushActions(TOKEN_ISSUER_NAME, Stream.of(actionPair1, actionPair2).collect(Collectors.toList()), txParam).join();
+            standardToken.pushActions(Stream.of(actionPair1, actionPair2).collect(Collectors.toList()), txParam).join();
         logger.debug("\nPushed Transaction:\n" + Utils.toJson(pushedTransaction, true));
     }
 }

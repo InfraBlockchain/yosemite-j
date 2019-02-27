@@ -38,7 +38,7 @@ public class TransactionParameters {
         }
 
         /**
-         * Add the account name which needs the signature for 'active' permission.
+         * Add the account name of the 'active' permission to specify the action authorization.
          * @param accountName account name
          */
         public TransactionParametersBuilder addPermission(String accountName) {
@@ -47,7 +47,7 @@ public class TransactionParameters {
         }
 
         /**
-         * Add the account name which needs the signature for the specific permission.
+         * Add the account name of the specific permission to specify the action authorization.
          * @param accountName account name
          * @param permissionName the name of the permission; usually active
          */

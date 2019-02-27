@@ -34,7 +34,7 @@ public class TypeKeyWeight implements EosType.Packer {
 
     @Expose
     @SerializedName("weight")
-    private short mWeight = 0;
+    private short mWeight;
 
     public TypeKeyWeight(TypePublicKey pubKey, short weight) {
         mPubKey = pubKey;
