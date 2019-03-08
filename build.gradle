@@ -60,80 +60,84 @@ repositories {
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
     mavenLocal()
-    maven {
-        name "Yosemite X Release"
-        url "http://backoffice.yosemitelabs.org:8081/repository/maven-releases/"
-    }
-    maven {
-        name "Yosemite X Snapshot"
-        url "http://backoffice.yosemitelabs.org:8081/repository/maven-snapshots/"
-    }
 }
 
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
+
+group = 'io.yosemiteblockchain'
 version = '0.9.3-SNAPSHOT'
-group = 'io.yosemite'
 
 compileJava {
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 }
 
+// https://central.sonatype.org/pages/gradle.html
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+// https://central.sonatype.org/pages/ossrh-guide.html
 uploadArchives {
     repositories {
         mavenDeployer {
-            gradle.taskGraph.whenReady { taskGraph ->
-                if (taskGraph.hasTask(':uploadArchives')) {
-                    def username
-                    def password
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-                    def console = System.console()
-                    if (console == null) {
-                        throw new Exception("run gradle with --no-daemon")
-                    }
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
 
-                    console.printf("\nUsername: ")
-                    console.flush()
-                    def user = console.readLine()
-                    console.printf("Password: ")
-                    console.flush()
-                    def pass = console.readPassword()
-                    username = new String(user)
-                    password = new String(pass)
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
 
-                    if (username.size() <= 0) {
-                        throw new Exception("You must enter a username to proceed.")
-                    }
-                    if (password.size() <= 0) {
-                        throw new Exception("You must enter a password to proceed.")
-                    }
+            pom.project {
+                name 'Java Library for Yosemite Public Blockchain'
+                packaging 'jar'
+                artifactId 'yosemitej' 
+                description 'The project\'s goal is to provide convenient interfaces for the useful commands such as pushing action including some native actions of Yostemite Public Blockchain.'
+                url 'https://github.com/YosemiteLabs/yosemite-j'
 
-                    repository(url: 'http://backoffice.yosemitelabs.org:8081/repository/maven-releases/') {
-                        authentication(userName: username, password: password)
-                    }
-                    snapshotRepository(url: 'http://backoffice.yosemitelabs.org:8081/repository/maven-snapshots/') {
-                        authentication(userName: username, password: password)
+                scm {
+                    connection 'scm:git:git://github.com/YosemiteLabs/yosemite-j.git'
+                    developerConnection 'scm:git:ssh://github.com:YosemiteLabs/yosemite-j.git'
+                    url 'https://github.com/YosemiteLabs/yosemite-j'
+                }
+
+                licenses {
+                    license {
+                        name 'BSD 4-Clause "Original" or "Old" License'
+                        url 'https://directory.fsf.org/wiki/License:BSD-4-Clause'
                     }
                 }
-            }
-        }
-    }
-}
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = 'yosemitej'
-            from components.java
-            pom {
-                name = 'Yosemite Java SDK'
-                description = 'The project\'s goal would be something like Java version of clyos which provides convenient interfaces for the useful commands such as pushing action including some native actions of Yostemite Public Blockchain'
-                url = 'http://yosemitex.com'
+                developers {
+                    developer {
+                        id 'yxdeploy'
+                        name 'Yosemite X Inc.'
+                        email 'contact@yosemitex.com'
+                    }
+                }
             }
         }
     }
@@ -157,7 +161,7 @@ configurations {
 jar {
     manifest {
         attributes('Implementation-Title': project.name,
-                'Implementation-Version': project.version)
+                   'Implementation-Version': project.version)
     }
 }
 

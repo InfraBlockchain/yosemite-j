@@ -1,16 +1,16 @@
 import com.google.gson.Gson;
-import io.yosemite.Consts;
-import io.yosemite.services.yxcontracts.*;
-import io.yosemite.crypto.ec.EcDsa;
-import io.yosemite.data.remote.api.AbiBinToJsonRequest;
-import io.yosemite.data.remote.api.AbiBinToJsonResponse;
-import io.yosemite.data.remote.chain.*;
-import io.yosemite.data.remote.chain.account.Account;
-import io.yosemite.data.remote.history.action.Actions;
-import io.yosemite.data.remote.history.transaction.Transaction;
-import io.yosemite.data.types.TypeAuthority;
-import io.yosemite.services.*;
-import io.yosemite.util.Utils;
+import io.yosemiteblockchain.Consts;
+import io.yosemiteblockchain.services.yxcontracts.*;
+import io.yosemiteblockchain.crypto.ec.EcDsa;
+import io.yosemiteblockchain.data.remote.api.AbiBinToJsonRequest;
+import io.yosemiteblockchain.data.remote.api.AbiBinToJsonResponse;
+import io.yosemiteblockchain.data.remote.chain.*;
+import io.yosemiteblockchain.data.remote.chain.account.Account;
+import io.yosemiteblockchain.data.remote.history.action.Actions;
+import io.yosemiteblockchain.data.remote.history.transaction.Transaction;
+import io.yosemiteblockchain.data.types.TypeAuthority;
+import io.yosemiteblockchain.services.*;
+import io.yosemiteblockchain.util.Utils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -113,7 +113,7 @@ public class LibraryTest {
         logger.debug(pushedTransaction.getTransactionId());
     }
 
-    @Test
+    //@Test
     public void testChangeActivePermissionKeyForAthoritiesTest() {
         YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://127.0.0.1:8888", "http://127.0.0.1:8900");
 
