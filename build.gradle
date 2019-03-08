@@ -71,7 +71,7 @@ apply plugin: 'signing'
 
 
 group = 'io.yosemiteblockchain'
-version = '0.9.3-SNAPSHOT'
+version = '0.9.3'
 
 compileJava {
     sourceCompatibility = 1.8
