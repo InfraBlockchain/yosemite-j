@@ -39,20 +39,18 @@ build/libs/yosemitej-${version}-SNAPSHOT.jar
 build/libs/yosemitej-${version}-SNAPSHOT-all.jar
 ```
 
-
 ### Using dependency management tool
 
 #### Public Maven Repository
-* Release : https://nexus.yosemitelabs.org/repository/maven-releases/
-* Snapshot : https://nexus.yosemitelabs.org/repository/maven-snapshots/
+* Repository : https://oss.sonatype.org/content/groups/public 
 * Gradle
 ```
-compile ('io.yosemite:yosemitej:${version}')
+compile ('io.yosemiteblockchain:yosemitej:${version}')
 ```
 * Maven
 ```
 <dependency>
-  <groupId>io.yosemite</groupId>
+  <groupId>io.yosemiteblockchain</groupId>
   <artifactId>yosemitej</artifactId>
   <version>${version}</version>
 </dependency>
@@ -86,14 +84,14 @@ Info info = infoFuture.get();
 ```
 
 ## Using YosemiteJ
-`YosemiteJ` classes are helper classes that encapsulates complexities of set of APIs to do useful actions. Since `YosemiteJ` is an abstract class, you should use the following concrete classes under `io.yosemite.services.yxcontracts`.
+`YosemiteJ` classes are helper classes that encapsulates complexities of set of APIs to do useful actions. Since `YosemiteJ` is an abstract class, you should use the following concrete classes under `io.yosemiteblockchain.services.yxcontracts`.
 
 * YosemiteSystemJ
 * StandardToken
 * YosemiteDigitalContractJ
 
 ```java
-import io.yosemite.services.yxcontracts.*;
+import io.yosemiteblockchain.services.yxcontracts.*;
 
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
@@ -198,7 +196,7 @@ String txId = pushedTransaction.getTransactionId();
 
 ### Getting the transaction information
 ```java
-import io.yosemite.data.remote.history.transaction.Transaction;
+import io.yosemiteblockchain.data.remote.history.transaction.Transaction;
 
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
         "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://testnet-explorer-api.yosemitelabs.org");
@@ -226,7 +224,7 @@ for (Action action : result.getActions()) {
 
 ### Sign arbitrary data & verify signature
 ```java
-import io.yosemite.crypto.ec.EcDsa;
+import io.yosemiteblockchain.crypto.ec.EcDsa;
 
 String strData = "hello";
 byte[] data = strData.getBytes(StandardCharsets.UTF_8);
@@ -262,7 +260,7 @@ FYI : https://github.com/YosemiteLabs/yosemite-j/issues/27
 
 ### Create a new account
 ```java
-import io.yosemite.services.yxcontracts.*;
+import io.yosemiteblockchain.services.yxcontracts.*;
 
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900");
 YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
@@ -313,7 +311,7 @@ PushedTransaction pushedTransaction = standardToken.transferToken("user1", "user
 
 ### Getting Token Statistics of Issuer
 ```java
-import io.yosemite.data.remote.chain.TokenInfo;
+import io.yosemiteblockchain.data.remote.chain.TokenInfo;
 
 TokenInfo tokenInfo = standardToken.getTokenInfo("mypersonaltk").join();
 ```
@@ -321,7 +319,7 @@ TokenInfo tokenInfo = standardToken.getTokenInfo("mypersonaltk").join();
 ### Getting Token Balance of Account
 * Balance for user1
 ```java
-import io.yosemite.data.types.TypeAsset;
+import io.yosemiteblockchain.data.types.TypeAsset;
 
 TypeAsset user1AccountBalance = standardToken.getAccountBalance("mypersonaltk", "user1").join();
 TypeAsset user2AccountBalance = standardToken.getAccountBalance("mypersonaltk", "user2").join();
@@ -331,7 +329,7 @@ TypeAsset user2AccountBalance = standardToken.getAccountBalance("mypersonaltk", 
 ## Digital Contract Actions
 * use YosemiteDigitalContractJ class to call action methods
 ```java
-import io.yosemite.services.yxcontracts.*;
+import io.yosemiteblockchain.services.yxcontracts.*;
 
 YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient(
         "http://127.0.0.1:8888", "http://127.0.0.1:8900", "http://127.0.0.1:8888");
@@ -341,7 +339,7 @@ YosemiteDigitalContractJ yxj = new YosemiteDigitalContractJ(apiClient);
 * [yx.dcontract](https://github.com/YosemiteLabs/yosemite-public-blockchain/tree/yosemite-master/contracts/yx.dcontract) would help you to understand the chain-side.
 
 ### Creating Digital Contract
-import io.yosemite.services.yxcontracts.*;
+import io.yosemiteblockchain.services.yxcontracts.*;
 
 ```java
 List<String> signers = Arrays.asList("user1", "user2");
@@ -382,7 +380,7 @@ pushedTransaction = yxj.removeDigitalContract("servprovider", 11, null).join();
 ### Getting Created Digital Contract
 * It's the same as querying from RAM database.
 ```java
-import io.yosemite.data.remote.chain.TableRow;
+import io.yosemiteblockchain.data.remote.chain.TableRow;
 
 TableRow tableRow = yxj.getCreatedDigitalContract("servprovider", 11).join();
 for (Map<String, ?> row : tableRow.getRows()) {
@@ -395,8 +393,8 @@ for (Map<String, ?> row : tableRow.getRows()) {
 
 ### Getting Signer's Information
 ```java
-import io.yosemite.data.remote.chain.TableRow;
-import io.yosemite.util.StringUtils;
+import io.yosemiteblockchain.data.remote.chain.TableRow;
+import io.yosemiteblockchain.util.StringUtils;
 
 TableRow signerInfoTable = yxj.getSignerInfo("user3", "servprovider", 11).join();
 for (Map<String, ?> row : signerInfoTable.getRows()) {
