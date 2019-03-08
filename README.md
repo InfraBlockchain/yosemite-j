@@ -3,7 +3,7 @@
 The project's goal is to provide convenient interfaces for the useful commands such as pushing action including some native actions of Yostemite Public Blockchain.
 
 ## NOTE
-This is on BETA phase. The API could be changed without considering compatibility.
+The project is on the BETA phase. The APIs could be changed without considering compatibility.
 
 ## Requirements
 * Java 8
@@ -41,25 +41,20 @@ build/libs/yosemitej-${version}-SNAPSHOT-all.jar
 
 
 ### Using dependency management tool
-Currently, we do not support public repository. Instead, you can publish to a maven local repository.
 
-#### 1. Build & publish to a local maven repository
-```
-./gradlew build publishToMavenLocal
-```   
-
-#### 2. Specify the dependency from your project
+#### Public Maven Repository
+* Release : https://nexus.yosemitelabs.org/repository/maven-releases/
+* Snapshot : https://nexus.yosemitelabs.org/repository/maven-snapshots/
 * Gradle
 ```
-compile ('io.yosemite:yosemitej:${version}-SNAPSHOT')
+compile ('io.yosemite:yosemitej:${version}')
 ```
-
 * Maven
 ```
 <dependency>
   <groupId>io.yosemite</groupId>
   <artifactId>yosemitej</artifactId>
-  <version>${version}-SNAPSHOT</version>
+  <version>${version}</version>
 </dependency>
 ```
 
@@ -91,8 +86,7 @@ Info info = infoFuture.get();
 ```
 
 ## Using YosemiteJ
-`YosemiteJ` classes are helper classes that encapsulates complexities of set of APIs to do useful actions. Since `YosemiteJ` is an abstract class,
-you should use the following concrete classee under `io.yosemite.services.yxcontracts`.
+`YosemiteJ` classes are helper classes that encapsulates complexities of set of APIs to do useful actions. Since `YosemiteJ` is an abstract class, you should use the following concrete classes under `io.yosemite.services.yxcontracts`.
 
 * YosemiteSystemJ
 * StandardToken
@@ -109,10 +103,61 @@ YosemiteSystemJ yxj = new YosemiteSystemJ(apiClient);
 In YosemiteChain, a transaction includes one or more actions. As the same as general transaction concept, the transaction is rolled back if at least one of the actions is failed.
 
 ### Synching or Polling the Result of Transaction
-Even if a transaction is successfully accepted by the YosemiteChain, it's not that the transaction becomes irreversible immediately, which means it is the part of a block. The DApps should wait for or poll the transaction becomes irreversible.
+Even if a transaction is successfully accepted by the YosemiteChain, it's not that the transaction becomes irreversible immediately. The DApps should poll whether the transaction becomes irreversible or not.
+
+### Delegating transaction fee to another account
+case 1. If you're making a DApp which provides some services to its users, you may not want that your users handle transaction fee by themselves because bad user experience. You can set the payer of the transaction fee as your service account for all transactions of the DApp.
+```java
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+apiClient.setTransactionFeePayer(payerAccountName); // at global level (not recommended)
+...
+TransactionParameters txParam = TransactionParameters.Builder()
+    .setTransactionFeePayer(payerAccountName) // at transaction level
+    .build();
+```
+
+case 2. If you don't want to worry about handling transaction fee yourself and there is a 3rd party service that handles the fee directly, you can delegate your transaction fee payment by just signing your transaction first and passing it to the 3rd party service. Then, it adds its signature to the received transaction and finally pushes it to the network. The code snippet below describes how it works.
+
+```java
+// Set the data below for your needs
+final String chainId = "...";
+
+final String payerAccountName = "...";
+final String payerAccountPublicKey = "...;
+
+final String contract = "...";
+final String action = "...";
+final String data = "...";
+final String[] permissions = "...";
+final String[] requiredPublicKeys = "...";
+
+YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900");
+//apiClient.setTransactionFeePayer(payerAccountName); // globally set but not recommended
+
+// Here, we use YosemiteNativeTokenJ as an example
+YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
+
+TransactionParameters txParameters = TransactionParameters.Builder().
+        addPermission(...).addPermission(...).
+        addPublicKey(...).addPublicKey(...).
+        setTransactionFeePayer(payerAccountName).
+        build();
+final SignedTransaction signedTransactionByService = yxj.signTransaction(
+    contract, action , data, txParameters).join();
+
+// Send `signedTransactionByService` to the payer. Here we assume that `unmarshalledTransaction` is what the payer side receives and unmarshalls after that.
+final SignedTransaction unmarshalledReceivedTransaction = "...";
+
+// Lastly, sign the transaction with the payer's account. Remember how the method signature is different from the one above. The former `signTransaction()` is only used when the signed transaction is initiated and all subsequent signing operations should be performed by the one below.
+final SignedTransaction finalSignedTransaction = yxj.signTransaction(
+    unmarshalledReceivedTransaction, chainId, Collections.singletonList(payerAccountPublicKey)).join();
+
+// Push the transaction to the network
+PushedTransaction pushedTransaction = apiClient.pushTransaction(new PackedTransaction(finalSignedTransaction)).execute();
+```
 
 ### Setting Transaction-as-a-Vote(TaaV) Account for Proof-of-Transaction(PoT)
-TaaV is the most important feature of the YosemiteChain, which is required to elect the PoT block producers. The accounts which get more transaction votes than others become PoT block producers.
+TaaV is the most important feature of the YosemiteChain, which is required to elect the PoT-based block producers. The account which get more transaction votes than others becomes a block producer.
 
 <b>
 It's highly recommended for the service providers or DApps implementors to determine carefully which account to vote to for making the YosemiteChain even healthier. We think the first candidate for the TaaV account is the block producer account advertised by their native token issuer.
@@ -124,7 +169,7 @@ apiClient.setTransactionVoteTarget("<account-name>");
 ```
 
 ### Setting transaction expiration time
-Even if a transaction is successfully accepted by the YosemiteChain, there is a possiblility that the transaction is failed to be in the irreversible block.
+Even if a transaction is successfully accepted by the YosemiteChain, there is a possiblility the transaction is failed to be irreversible.
 For such pending transaction, it can be expired. The DApps can set the expiration time of transaction in milliseconds.
 ```java
 // set transaction expiration time as 30 seconds
@@ -190,47 +235,6 @@ String pubKey = "YOS6pR7dfCkMkuEePpLs3bJxt39eE8qb2hVNWmv93jFHEMQbTRRsJ";
 String signature = yxj.sign(data, pubKey).join();
 
 boolean isVerified = EcDsa.verifySignature(data, signature, pubKey);
-```
-
-### Delegating fee to another account
-If you don't want to worry about handling DKRW yourself and there is a 3rd party service(ex: depositories may expose such an API as a service) that handles DKRW directly, you can delegate your transaction fee payment by just signing your transaction first and passing it to the 3rd party service. Then, it adds its signature to the received transaction and finally pushes it to the network. The code snippet below describes how it works.
-
-```java
-// Set the data below for your needs
-final String chainId = "...";
-
-final String payerAccountName = "...";
-final String payerAccountPublicKey = "...;
-
-final String contract = "...";
-final String action = "...";
-final String data = "...";
-final String[] permissions = "...";
-final String[] requiredPublicKeys = "...";
-
-YosemiteApiRestClient apiClient = YosemiteApiClientFactory.createYosemiteApiClient("http://testnet-sentinel.yosemitelabs.org:8888", "http://127.0.0.1:8900");
-//apiClient.setTransactionFeePayer(payerAccountName); // globally set but not recommended
-
-// Here, we use YosemiteNativeTokenJ as an example
-YosemiteJ yxj = new YosemiteNativeTokenJ(apiClient);
-
-TransactionParameters txParameters = TransactionParameters.Builder().
-        addPermission(...).addPermission(...).
-        addPublicKey(...).addPublicKey(...).
-        setTransactionFeePayer(payerAccountName).
-        build();
-final SignedTransaction signedTransactionByService = yxj.signTransaction(
-    contract, action , data, txParameters).join();
-
-// Send `signedTransactionByService` to the payer. Here we assume that `unmarshalledTransaction` is what the payer side receives and unmarshalls after that.
-final SignedTransaction unmarshalledReceivedTransaction = "...";
-
-// Lastly, sign the transaction with the payer's account. Remember how the method signature is different from the one above. The former `signTransaction()` is only used when the signed transaction is initiated and all subsequent signing operations should be performed by the one below.
-final SignedTransaction finalSignedTransaction = yxj.signTransaction(
-    unmarshalledReceivedTransaction, chainId, Collections.singletonList(payerAccountPublicKey)).join();
-
-// Push the transaction to the network
-PushedTransaction pushedTransaction = apiClient.pushTransaction(new PackedTransaction(finalSignedTransaction)).execute();
 ```
 
 # Yosemite Actions
