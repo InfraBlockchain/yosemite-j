@@ -43,6 +43,7 @@ build/libs/yosemitej-${version}-SNAPSHOT-all.jar
 
 #### Public Maven Repository
 * Repository : https://oss.sonatype.org/content/groups/public 
+   * https://oss.sonatype.org/content/groups/public/io/yosemiteblockchain/yosemitej/
 * Gradle
 ```
 compile ('io.yosemiteblockchain:yosemitej:${version}')
